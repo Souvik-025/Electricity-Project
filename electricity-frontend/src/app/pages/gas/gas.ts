@@ -8,7 +8,7 @@ import { MatIconModule } from '@angular/material/icon';
   styleUrl: './gas.css',
 })
 export class Gas {
-  consumption = 1600; // default value
+  consumption = 18000; // default value
 
   setConsumption(value: number) {
     this.consumption = value;

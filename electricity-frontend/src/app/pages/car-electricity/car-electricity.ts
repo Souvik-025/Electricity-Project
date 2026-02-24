@@ -10,15 +10,22 @@ import { MatIconModule } from '@angular/material/icon';
 })
 export class CarElectricity {
   selectedOption: 'ja' | 'nein' = 'ja';
-  selectedTariff: 'single' | 'double' | null = null;
 
+  showNoBanner = false;
 
   select(option: 'ja' | 'nein') {
     this.selectedOption = option;
+
+  if (option === 'nein') {
+    this.showNoBanner = true;
+    } else {
+      this.showNoBanner = false;
+    }
   }
 
-
-  tariff(type: 'single' | 'double') {
-    this.selectedTariff = type;
+  closeNoBanner() {
+    this.showNoBanner = false;
+    this.selectedOption = 'ja'; // switches to JA view when X is clicked
   }
+
 }

@@ -8,7 +8,6 @@
   align-items: center;
 }
 
-
 .container-option{
   display: flex;
   align-items: center;
@@ -20,14 +19,9 @@
   padding: 0.52rem;
 }
 
-
 .container-address {
-  gap: 0.5rem;
-  background-color: rgba(255, 255, 255, 0.75);
   padding-bottom: 0;
-  border: 1px solid #00a651;
   margin: 0;
-
 }
 
 .compare-price {
@@ -37,17 +31,8 @@
   gap: 0.7rem;
 }
 
-
 .container-compare {
   padding: 0.4rem 0rem 0.93rem 0rem;
-}
-
-.container-nein {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  padding: 0rem 1.5rem 0.5rem 1.5rem;
 }
 
 .feature-header-no {
@@ -64,7 +49,6 @@
   display: flex;
   align-items: center;
   gap: 0.4rem;
-
 }
 
 .consumption-number{
@@ -77,7 +61,6 @@
   border: 1px solid #4a4949;
   width: 3.5rem;
 }
-
 
 
 .info-icon-home {
@@ -99,7 +82,6 @@
   align-items: center;
   gap: 1rem;
   padding: 0.5rem 0rem 0.52rem 0rem;
-
 }
 
 .container-double {
@@ -112,8 +94,6 @@
   margin-bottom: 0.55rem;
 }
 
-
-
 .container-nein {
   display: flex;
   flex-direction: column;
@@ -121,7 +101,7 @@
   border: 1.5px solid #e6a817;
   border-radius: 8px;
   padding: 0.2rem 0.7rem 0.5rem 1rem;
-  background: #fff;
+  background-color: rgba(255, 255, 255, 0.75);
   gap: 0;
 }
 

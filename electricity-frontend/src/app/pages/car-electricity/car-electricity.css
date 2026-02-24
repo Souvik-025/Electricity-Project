@@ -2,7 +2,20 @@
   padding: 0.3rem 0.5rem 0.4rem 0.5rem;
 }
 
+.compare-price {
+  display: flex;
+  flex-direction: column;
+  gap: 0.7rem;
+}
 
+.container-address {
+  padding-bottom: 0;
+  margin: 0;
+}
+
+.container-compare {
+  padding: 0.4rem 0rem 0.93rem 0rem;
+}
 
 .info-icon-home {
   vertical-align: super;
@@ -15,4 +28,70 @@
   font-size: 0.7em;
   font-weight: 500;
   border-radius: 50%;
+}
+
+.consumption-number{
+  padding: 0.4rem 0.5rem 0.4rem 0.5rem;
+  border: 1px solid #4a4949;
+  width: 16.2rem;
+}
+
+.container-per-year {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 0.74rem 0rem 0.4rem 0rem;
+}
+
+.container-nein {
+  display: flex;
+  flex-direction: column;
+  position: relative;
+  border: 1.5px solid #e6a817;
+  border-radius: 8px;
+  padding: 0.2rem 0.7rem 0.5rem 1rem;
+  background-color: rgba(255, 255, 255, 0.75);
+  gap: 0;
+}
+
+
+.feature-header-no {
+  font-weight: 700;
+  font-size: 15px;
+  color: #222;
+  display: flex;
+  justify-content: space-between;
+  padding-bottom: 0.5rem;
+}
+
+.close-banner {
+  padding-top: 0.5rem;
+  display: flex;
+  cursor: pointer;
+  line-height: 0.5;
+  font-weight: 600;
+  width: 100%;
+  justify-content: flex-end;
+}
+
+.container-description {
+  .container-message {
+    display: flex;
+    flex-direction: column;
+
+    .message {
+      font-size: 15px;
+      color: #333;
+      line-height: 1.5;
+
+      a {
+        color: #0066cc;
+        text-decoration: none;
+
+        &:hover {
+          text-decoration: underline;
+        }
+      }
+    }
+  }
 }
