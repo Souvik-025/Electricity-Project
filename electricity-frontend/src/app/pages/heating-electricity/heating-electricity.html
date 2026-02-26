@@ -1,3 +1,38 @@
+<ng-template #infoDialog let-dialogRef="dialogRef">
+  <div class="dialog-container">
+    <div class="dialog-header">
+      <button mat-icon-button class="close-btn" (click)="dialog.closeAll()">
+        <mat-icon>close</mat-icon>
+      </button>
+    </div>
+
+    <div class="dialog-item" *ngFor="let item of currentDialogData">
+
+      <!-- 👇 show LEFT only if image OR title exists -->
+      <div class="left" *ngIf="item.image || item.title">
+        <img *ngIf="item.image" [src]="item.image" class="dialog-image" alt="Image" />
+        <p *ngIf="item.title" class="dialog-title">
+          {{ item.title }}
+        </p>
+      </div>
+
+      <!-- 👇 RIGHT takes full width if left is missing -->
+      <div class="right" [class.full]="!(item.image || item.title)">
+        <p>{{ item.description }}</p>
+      </div>
+    </div>
+    <div class="notice-box">
+      <!-- ---------------------------------   this is for dynamic content if needed --------------------- -->
+      <!-- <p *ngFor="let text of noticeParagraphs">
+        {{ text }}
+      </p>   -->
+      <p>Bitte beachten Sie, dass für den Abschluss eines Wärmepumpentarifs ein separater Zähler erforderlich ist.</p>
+      <p>Falls Sie keinen separaten Zähler für Ihre Wärmepumpe haben, nutzen Sie bitte unseren
+        <a [routerLink]="['/home']" (click)="dialogRef.close()">Stromvergleich</a> für den gesamten Haushalt.</p>
+    </div>
+  </div>
+</ng-template>
+
 <div class="compare-all">
   <div class="compare-price">
     <div class="container-address">
@@ -14,10 +49,7 @@
           <input type="text" placeholder="Hausnummer" class="box small">
         </div>
       </div>
-      <div class="feature-header1">Haben Sie einen separaten Stromzähler für Ihre Wärmepumpe? <mat-icon
-          class="info-icon-home">
-          info_i
-        </mat-icon>
+      <div class="feature-header1">Haben Sie einen separaten Stromzähler für Ihre Wärmepumpe?
       </div>
       <div class="container-button">
         <div class="container-option">
@@ -30,8 +62,8 @@
 
       <!-- Show when JA -->
       <div class="container-ja" *ngIf="selectedOption === 'ja'">
-        <div class="feature-header1">Haben Sie einen Eintarif - oder Doppeltarifzähler? <mat-icon
-            class="info-icon-home">
+        <div class="feature-header1">Haben Sie einen Eintarif - oder Doppeltarifzähler? <mat-icon class="info-icon-home"
+            (click)="openSingleDoubleMeter(infoDialog)">
             info_i
           </mat-icon>
         </div>

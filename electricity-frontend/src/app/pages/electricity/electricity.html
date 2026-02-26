@@ -1,37 +1,104 @@
-<div class="electricity">
-  <div class="buttons">
-    <button class="icon-btn">
-      <span class="electricity-comparison">
-        <img src="assets/icons/Stromvergleich.png" class="icon-cable" alt="icon-cable">
-      </span>
-      <span class="btn-text">Strom | Hausstrom</span>
-    </button>
+<div class="compare-all">
+  <div class="compare-price">
+    <div class="container-address">
+      <div class="feature-header">Hausstrom-Vergleich</div>
+      <div class="feature-grid">
+        <div class="row row-1">
+          <input type="text" placeholder="Ihre Postleitzahl" class="box small">
+          <div class="input-arrow">
+            <input type="text" placeholder="Ottobeuren" class="box large">
+          </div>
+        </div>
+
+        <div class="row row-2">
+          <input type="text" placeholder="Ihre Straße" class="box large">
+          <input type="text" placeholder="Hausnummer" class="box small">
+        </div>
+      </div>
+      <div class="feature-header1">Bitte Personenanzahl anklicken <strong> oder </strong> kWh / Jahr direkt eingaben
+      </div>
+      <div class="container-person">
+        <div class="compare-person">
+          <div class="person-option">
+            <button class="person" (click)="selectPersons(1, 1600)" [class.active]="selectedPersons === 1">
+              <span class="person-icon">
+                <img src="assets/icons/Familie_1.png" class="icon-family-1" alt="family">
+              </span>
+              <span class="person-count">1</span>
+            </button>
+            <button class="person" (click)="selectPersons(2, 2510)" [class.active]="selectedPersons === 2">
+              <span class="person-icon">
+                <img src="assets/icons/Familie_2.png" class="icon-family-2" alt="family">
+              </span>
+              <span class="person-count">2</span>
+            </button>
+            <button class="person" (click)="selectPersons(3, 3500)" [class.active]="selectedPersons === 3">
+              <span class="person-icon">
+                <img src="assets/icons/Familie_3.png" class="icon-family-3" alt="family">
+              </span>
+              <span class="person-count">3</span>
+            </button>
+            <button class="person" (click)="selectPersons(4, 4400)" [class.active]="selectedPersons === 4">
+              <span class="person-icon">
+                <img src="assets/icons/Familie_4.png" class="icon-family-4" alt="family">
+              </span>
+              <span class="person-count">4</span>
+            </button>
+            <button class="person" (click)="selectPersons(6, 6100)" [class.active]="selectedPersons === 6">
+              <span class="person-icon">
+                <img src="assets/icons/Familie_6.png" class="icon-family-6" alt="family">
+              </span>
+              <span class="person-count">mehr...</span>
+            </button>
+          </div>
+        </div>
+        <div class="total-consumption">
+          <input type="text" class="consumption-number" [value]="consumption">
+          <span class="watt-per-year">kWh / Jahr</span>
+        </div>
+        <div class="container-compare">
+          <button class="compare"> Jetzt Vergleichen</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="container-callback">
+      <div class="container-wish">
+        <span><strong>Wünschen Sie eine persönliche Erstberatung per Telefon?</strong>
+          <br>
+          <span class="center-text">Dann fordern Sie jetzt Ihren Rückrufwunsch an.</span>
+        </span>
+      </div>
+      <div class="item-callback">
+        <button class="callback"> Rückruf anfordern</button>
+      </div>
+    </div>
   </div>
-  <button class="icon-btn">
-    <span class="electricity-comparison">
-      <img src="assets/icons/Gasvergleich.png" class="icon" alt="icon-gas">
-    </span>
-    <span class="btn-text">Gas</span>
-  </button>
 
-  <button class="icon-btn">
-    <span class="electricity-comparison">
-      <img src="assets/icons/Warmepumpe.png" class="icon-pump" alt="icon-pump">
-    </span>
-    <span class="btn-text">Heizstrom | Wärmepumpe</span>
-  </button>
 
-  <button class="icon-btn">
-    <span class="electricity-comparison">
-      <img src="assets/icons/Nachtspeicherofen.png" class="icon" alt="icon-heizstrom">
-    </span>
-    <span class="btn-text">Heizstrom | Nachtspeicher</span>
-  </button>
+  <div class="container-provider">
+    <div class="compare-provider">
+      <h1 class="item-provider">Stromanbieter</h1>
+      <h1 class="item-provider">vergleichen</h1>
+    </div>
+    <div class="discount-price">
+      <div class="item-discount-top">
+        <span class="item-price">Bis zu </span>
+      </div>
+      <div class="item-discount">
+        <span class="amount">850€</span>
+      </div>
+      <div class="item-discount-bottom">
+        <span class="item-price">sparen
+          <mat-icon class="info-icon" (mouseenter)="activeInfo='discountinfo'" (mouseleave)="activeInfo=null">
+            info_i
+          </mat-icon>
+        </span>
 
-  <button class="icon-btn">
-    <span class="electricity-comparison">
-      <img src="assets/icons/Ladestrom.png" class="icon" alt="icon-autostrom">
-    </span>
-    <span class="btn-text">Ladestrom | Autostrom</span>
-  </button>
+      </div>
+    </div>
+    <div class="info-box discount" *ngIf="activeInfo==='discountinfo'">
+      {{ discountinfo }}
+    </div>
+  </div>
 </div>

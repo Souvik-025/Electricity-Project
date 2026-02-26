@@ -17,6 +17,7 @@ h1, h2, h3, h4, h5, h6 {
   font-family: 'Encode Sans', sans-serif;
 }
 
+
 .compare-all {
   display: flex;
   gap: 4rem;
@@ -395,3 +396,19 @@ h1, h2, h3, h4, h5, h6 {
   border: 1px solid #4a4949;
   width: 3.5rem;
 }
+
+
+/*    information when hover */
+.info-box {
+  position: absolute;
+  width: 420px;
+  max-width: 80vw;
+  z-index: 1000;
+  font-size: 12px;
+  background-color: rgba(255, 255, 255, 0.75);
+  background: #0085e0;
+  padding: 10px;
+  border-radius: 8px;
+  box-shadow: 0 8px 25px rgba(0,0,0,0.15);
+}
+

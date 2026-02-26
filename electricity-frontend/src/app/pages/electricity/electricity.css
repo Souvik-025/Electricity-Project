@@ -1,100 +1,54 @@
-.electricity {
-  display: flex;
-  flex-direction: column;
-  gap: 0.6rem;
-  box-sizing: border-box;
-  border: 1px solid #003366;
+.feature-header, .feature-header1 {
+  padding: 0.3rem 0.5rem 0.5rem 0.5rem;
+}
+
+.person-option{
+  /*   remaining in style.css  */
+  padding-top: 0.2rem;
+}
+
+.person.active img {
+  filter: brightness(0) saturate(100%) invert(32%) sepia(92%) saturate(1482%) hue-rotate(198deg) brightness(95%) contrast(96%);
+}
+
+.person.active .person-count {
+  background-color: #0085e0;   /* or your brand color */
   font-weight: 500;
-  border-radius: 8px;
-  width: 100%;
 }
 
-/* Each icon button */
-.icon-btn {
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-  align-items: center;
-  cursor: pointer;
-  transition: all 0.2s ease;
-  font-size: 16px;
-  font-weight: 500;
-  border: none !important;
-  box-shadow: none;
-  outline: none;
-  color: #ffffff;
-  background-color: #003366;
-  padding: 0.2rem 0.5rem 0.2rem 0.5rem;
-  border-radius: 6px;
-  height: 32px;
-
+.person:hover .icon-family-1, .person:hover .icon-family-2, .person:hover .icon-family-3,
+.person:hover .icon-family-4, .person:hover .icon-family-6 {
+  filter: brightness(0) saturate(100%) invert(32%) sepia(92%) saturate(1482%) hue-rotate(198deg) brightness(95%) contrast(96%);
 }
 
-/* Hover effect */
-.icon-btn:hover {
-  background-color: #1976d2;
-
+.icon-family-1 {
+  height: 30px;
+  width: 12px;
+  color: #003366;
 }
 
-/* Optional: active state */
-.icon-btn.active {
-  color: #1976d2;
+.icon-family-2 {
+  height: 30px;
+  width: 25px;
 }
 
-.icon {
-  height: 20px;
-  width: 15px;
+.icon-family-3{
+  height: 30px;
+  width: 35px;
 }
 
-.icon-cable {
-  height: 20px;
-  width: 13px;
-  padding-right: 2px;
+ .icon-family-4 {
+  height: 30px;
+  width: 45px;
 }
 
-.icon-pump {
-  height: 15px;
-  width: 15px;
-}
-
-.btn-text {
-  padding-bottom: 0.2rem;
+.icon-family-6 {
+  height: 30px;
+  width: 65px;
 }
 
 
-@media (max-width: 768px) {
-  .icon-btn {
-    width: 100%;
-    height: 2rem;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-  }
-
-  .electricity {
-    padding: 0.5rem 1rem;
-    display: flex;
-    width: 100%;
-    flex-direction: row;
-    height: 3rem;
-  }
-
-}
-
-@media (max-width: 480px) {
-  .icon-btn {
-    width: 100%;
-    height: 2rem;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-  }
-
-  .electricity {
-    padding: 0.5rem 1rem;
-    display: flex;
-    width: 100%;
-    flex-direction: row;
-    height: 3rem;
-  }
+.discount {
+  top: 74%;
+  right: 3%;
 }

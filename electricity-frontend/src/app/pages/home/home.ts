@@ -7,7 +7,6 @@ import { MatInputModule } from '@angular/material/input';
 import { CommonModule } from '@angular/common';
 import { Electricity } from "../electricity/electricity";
 import { OurServices } from "../our-services/our-services";
-import { ComparePrices } from "../compare-prices/compare-prices";
 import { Discount } from '../discount/discount';
 import { AboutUs } from '../about-us/about-us';
 import { OtherServices } from '../other-services/other-services';
@@ -15,11 +14,12 @@ import { Gas } from '../gas/gas';
 import { NightHeaters } from '../night-heaters/night-heaters';
 import { CarElectricity } from '../car-electricity/car-electricity';
 import { HeatingElectricity } from '../heating-electricity/heating-electricity';
+import { RouterModule } from '@angular/router';
 
 
 @Component({
   selector: 'app-home',
-  imports: [ MatIconModule, MatInputModule, CommonModule, ComparePrices, Discount, Gas, NightHeaters, CarElectricity, HeatingElectricity],
+  imports: [ MatIconModule, MatInputModule, CommonModule, Discount, Gas, NightHeaters, CarElectricity, HeatingElectricity, Electricity, RouterModule],
   templateUrl: './home.html',
   styleUrl: './home.css',
 })

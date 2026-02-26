@@ -3,35 +3,31 @@
     <!--  ------------------------------------------ electricity div ------------------------------------------------  -->
     <div class="electricity-container">
       <div class="electricity">
-        <button class="icon-btn-electricity" (click)="setSection('household-electricity')"
-          [class.active]="activeSection === 'household-electricity'">
+        <button class="icon-btn-electricity" [routerLink]="['/home/electricity']" routerLinkActive="active">
           <span class="electricity-comparison">
             <img src="assets/icons/Stromvergleich.png" class="icon-cable" alt="icon-cable">
           </span>
           <span class="btn-text">Strom | Hausstrom</span>
         </button>
-        <button class="icon-btn-electricity" (click)="setSection('gas')" [class.active]="activeSection === 'gas'">
+        <button class="icon-btn-electricity" [routerLink]="['/home/gas']" routerLinkActive="active">
           <span class="electricity-comparison">
             <img src="assets/icons/Gasvergleich.png" class="icon" alt="icon-gas">
           </span>
           <span class="btn-text">Gas</span>
         </button>
-        <button class="icon-btn-electricity" (click)="setSection('heating-electricity')"
-          [class.active]="activeSection === 'heating-electricity'">
+        <button class="icon-btn-electricity" [routerLink]="['/home/heating-electricity']" routerLinkActive="active">
           <span class="electricity-comparison">
             <img src="assets/icons/Warmepumpe.png" class="icon-pump" alt="icon-pump">
           </span>
           <span class="btn-text">Heizstrom | Wärmepumpe</span>
         </button>
-        <button class="icon-btn-electricity" (click)="setSection('night-heaters')"
-          [class.active]="activeSection === 'night-heaters'">
+        <button class="icon-btn-electricity" [routerLink]="['/home/night-heaters']" routerLinkActive="active">
           <span class="electricity-comparison">
             <img src="assets/icons/Nachtspeicherofen.png" class="icon" alt="icon-heizstrom">
           </span>
           <span class="btn-text">Heizstrom | Nachtspeicher</span>
         </button>
-        <button class="icon-btn-electricity" (click)="setSection('car-electricity')"
-          [class.active]="activeSection === 'car-electricity'">
+        <button class="icon-btn-electricity" [routerLink]="['/home/car-electricity']" routerLinkActive="active">
           <span class="electricity-comparison">
             <img src="assets/icons/Ladestrom.png" class="icon" alt="icon-autostrom">
           </span>
@@ -84,17 +80,7 @@
   </div>
 
   <div class="home-center">
-
-    <app-compare-prices *ngIf="activeSection === 'household-electricity'"></app-compare-prices>
-
-    <app-gas *ngIf="activeSection === 'gas'"></app-gas>
-
-    <app-heating-electricity *ngIf="activeSection === 'heating-electricity'"></app-heating-electricity>
-
-    <app-night-heaters *ngIf="activeSection === 'night-heaters'"></app-night-heaters>
-
-    <app-car-electricity *ngIf="activeSection === 'car-electricity'"></app-car-electricity>
-
+    <router-outlet></router-outlet>
   </div>
   <!-- -------------------------------------------- home right ------------------------------------------------ -->
 </div>

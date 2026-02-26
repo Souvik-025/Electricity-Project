@@ -1,3 +1,19 @@
+<ng-template #infoDialog let-dialogRef="dialogRef">
+  <div class="dialog-box">
+    <div class="dialog-header">
+      <button mat-icon-button (click)="dialog.closeAll()">
+        <mat-icon>close</mat-icon>
+      </button>
+    </div>
+
+    <div class="dialog-content">
+      {{ currentDialogText }}
+    </div>
+  </div>
+</ng-template>
+
+
+
 <div class="compare-all">
   <div class="compare-price">
     <div class="container-address">
@@ -14,10 +30,12 @@
           <input type="text" placeholder="Hausnummer" class="box small">
         </div>
       </div>
-      <div class="feature-header1">Haben Sie einen separaten Stromzähler für Autostrom bzw. Ladestrom? <mat-icon
-          class="info-icon-home">
-          info_i
-        </mat-icon>
+      <div class="feature-header1">
+        <div class="header-row">
+          Haben Sie einen separaten Stromzähler für Autostrom bzw. Ladestrom?
+          <mat-icon class="info-icon-home" (click)="openInfo(infoDialog, ladestrom)">info_i
+          </mat-icon>
+        </div>
       </div>
       <div class="container-button">
         <div class="container-option">
@@ -95,6 +113,9 @@
           </mat-icon>
         </span>
       </div>
+    </div>
+    <div class="info-box discount" *ngIf="activeInfo==='discountinfo'">
+      {{ discountinfo }}
     </div>
   </div>
 </div>

@@ -5,9 +5,15 @@
         <img src="assets/icons/Haken.png" class="icon-check" alt="check">
       </span>
     </div>
-    <div class="expert">Dauerhaft fester Ansprechpartner <mat-icon class="info-icon-discount">
-        info_i
-      </mat-icon>
+    <div class="expert">Dauerhaft fester Ansprechpartner
+      <div class="info-container" (mouseenter)="activeInfo='ansprechpartner'" (mouseleave)="activeInfo=null">
+        <mat-icon class="info-icon-discount">info_i</mat-icon>
+
+        <div class="info-box right" *ngIf="activeInfo==='ansprechpartner'">
+          {{ ansprechpartner }}
+        </div>
+      </div>
+
     </div>
   </div>
   <div class="container-partner">
@@ -16,10 +22,10 @@
         <img src="assets/icons/Haken.png" class="icon-check" alt="check">
       </span>
     </div>
-    <div class="expert">Über 90 Anbieter im Vergleich <mat-icon class="info-icon-discount">
-        info_i
-      </mat-icon>
+    <div class="expert">Über 90 Anbieter im Vergleich
     </div>
+
+
   </div>
   <div class="container-partner">
     <div class="icon">
@@ -27,9 +33,14 @@
         <img src="assets/icons/Haken.png" class="icon-check" alt="check">
       </span>
     </div>
-    <div class="expert">Automatische Wechselerinnerung <mat-icon class="info-icon-discount">
-        info_i
-      </mat-icon>
+    <div class="expert">Automatische Wechselerinnerung
+      <div class="info-container" (mouseenter)="activeInfo='wechselerinnerung'" (mouseleave)="activeInfo=null">
+        <mat-icon class="info-icon-discount">info_i</mat-icon>
+
+        <div class="info-box left" *ngIf="activeInfo==='wechselerinnerung'">
+          {{ wechselerinnerung }}
+        </div>
+      </div>
     </div>
   </div>
 </div>

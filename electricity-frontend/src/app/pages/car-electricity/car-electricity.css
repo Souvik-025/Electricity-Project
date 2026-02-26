@@ -95,3 +95,46 @@
     }
   }
 }
+
+
+.top {
+  top: 44%;
+  right: 13%;
+}
+
+.discount {
+  top: 74%;
+  right: 3%;
+}
+
+
+
+.dialog-box {
+  display: flex;
+  flex-direction: column;
+  padding: 0rem 0.5rem 0.5rem 1rem;
+  font-size: 14px;
+}
+
+button[mat-icon-button] {
+  border: none;
+  background: transparent;
+  box-shadow: none;
+  height: 20px;
+  padding: 0.5rem 0.5rem 0 0;
+}
+
+.dialog-header {
+  display: flex;
+  cursor: pointer;
+  line-height: 0.5;
+  font-weight: 600;
+  width: 100%;
+  justify-content: flex-end;
+  padding-bottom: 0.7rem ;
+}
+
+.dialog-content {
+  /* white-space: pre-line; */
+  line-height: 1.5;
+}
