@@ -594,5 +594,12 @@ button[mat-icon-button] {
 .calendar-icon { font-size: 14px; }
 
 
+/*  ---------------------------------------   calender ---------------------------------------- */
+/* Day numbers */
+.mat-calendar-body-cell-content, .mat-calendar-body-label {
+  font-size: 16px; font-family: 'Encode Sans', sans-serif;}
 
+/* Weekday labels (Mo, Tu, etc.) */
+.mat-calendar-table-header th, .mat-calendar-header, .mat-focus-indicator, .mdc-button__label {
+ font-family: 'Encode Sans', sans-serif;}
 
