@@ -37,17 +37,6 @@ h1, h2, h3, h4, h5, h6 {
 }
 
 
-.container-callback {
-  display: flex;
-  flex-direction: column;
-  background-color: rgba(255, 255, 255, 0.75);
-  align-items: center;
-  justify-content: center;
-  border-radius: 8px;
-  border: 1px solid #ff6b00;
-  padding: 0.6rem;
-}
-
 .feature-header {
   display: flex;
   flex-direction: column;
@@ -143,26 +132,6 @@ h1, h2, h3, h4, h5, h6 {
 
 .compare:hover{ background-color: #1976d2;}
 
-.container-wish{ font-size: 16px; color: #1a1a1a; align-items: center; padding-bottom: 0.6rem;}
-
-.center-text { display: block; text-align: center;}
-
-.container-wish strong { font-weight: 700;}
-
-.callback{
-  border: none;
-  font: inherit;
-  font-weight: 500;
-  outline: none;
-  color: #f8f9fa;
-  background-color: #ff6b00;
-  padding: 0.3rem 1rem 0.5rem 1rem;
-  cursor: pointer;
-  transition: background-color 0.3s;
-  border-radius: 8px;
-}
-
-.callback:hover { background-color: #e68830ef;}
 
 /* -------------------------------------------------- container provider one with discount  ----------------------------------------- */
 .container-provider{

@@ -1,0 +1,41 @@
+.container-callback {
+  display: flex;
+  flex-direction: column;
+  background-color: rgba(255, 255, 255, 0.75);
+  align-items: center;
+  justify-content: center;
+  border-radius: 8px;
+  border: 1px solid #ff6b00;
+  padding: 0.6rem 1rem;
+}
+
+.container-wish{ font-size: 16px; font-weight: 500; color: #1a1a1a; align-items: center; padding-bottom: 0.6rem;}
+.center-text { display: block; text-align: center;}
+
+.callback{
+  border: none;
+  font: inherit;
+  font-weight: 500;
+  outline: none;
+  color: #f8f9fa;
+  background-color: #ff6b00;
+  padding: 0.3rem 1rem 0.5rem 1rem;
+  cursor: pointer;
+  transition: background-color 0.3s;
+  border-radius: 8px;
+}
+
+.callback:hover { background-color: #e68830ef;}
+
+.telefon { display: flex; align-items: center;}
+.container-phone {display: flex; gap: 7px;}
+.country-code {width:6%; border-radius: 8px; border: 1px solid black;}
+.number { width: 51%; border-radius: 8px; border: 1px solid black;}
+
+
+.container-days { display: flex; gap: 12px; margin: 3px 0 6px 0;}
+.days {padding: 3px 8px; border-radius: 8px; border: 1px solid black; background-color:#ffffff; font-size: 14px;}
+.days:hover {background-color: #0085e0; color: #ffffff; border: 1px solid #ffffff; }
+.btn-time { padding: 0.17rem 1rem 0.37rem 1rem;}
+.information-box {border-radius: 8px; border: 1px solid black; width: 100%; padding: 3px 8px;}
+

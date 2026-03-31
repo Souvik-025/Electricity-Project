@@ -3,6 +3,7 @@ import { Component } from '@angular/core';
 import { MatDialogModule, MatDialog } from '@angular/material/dialog';
 import { MatIconModule } from '@angular/material/icon';
 import { RouterModule } from '@angular/router';
+import { Registration } from "../../layout/registration/registration";
 
 
 export interface SingelDoubleMeter {
@@ -22,7 +23,7 @@ export interface InfoDialogData {
 
 @Component({
   selector: 'app-heating-electricity',
-  imports: [CommonModule, MatIconModule, MatDialogModule, RouterModule],
+  imports: [CommonModule, MatIconModule, MatDialogModule, RouterModule, Registration],
   templateUrl: './heating-electricity.html',
   styleUrl: './heating-electricity.css',
 })

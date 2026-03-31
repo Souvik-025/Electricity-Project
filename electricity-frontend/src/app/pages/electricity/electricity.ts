@@ -7,10 +7,11 @@ import { MatDialogModule, MatDialog } from '@angular/material/dialog';
 import { FormBuilder, FormGroup, Validators, ReactiveFormsModule  } from '@angular/forms';
 import { debounceTime, switchMap, of } from 'rxjs';
 import { AddressService } from './../../services/address.service';
+import { Registration } from '../../layout/registration/registration';
 
 @Component({
   selector: 'app-electricity',
-  imports: [MatButtonModule, MatIconModule, MatInputModule, CommonModule, MatDialogModule, ReactiveFormsModule],
+  imports: [Registration, MatButtonModule, MatIconModule, MatInputModule, CommonModule, MatDialogModule, ReactiveFormsModule],
   templateUrl: './electricity.html',
   styleUrl: './electricity.css',
 })

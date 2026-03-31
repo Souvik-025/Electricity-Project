@@ -2,11 +2,12 @@ import { CommonModule } from '@angular/common';
 import { Component } from '@angular/core';
 import { MatDialog, MatDialogModule } from '@angular/material/dialog';
 import { MatIconModule } from '@angular/material/icon';
+import { Registration } from "../../layout/registration/registration";
 
 @Component({
   selector: 'app-car-electricity',
   standalone: true,
-  imports: [MatIconModule, CommonModule, MatDialogModule],
+  imports: [MatIconModule, CommonModule, MatDialogModule, Registration],
   templateUrl: './car-electricity.html',
   styleUrl: './car-electricity.css',
 })

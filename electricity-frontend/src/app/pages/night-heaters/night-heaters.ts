@@ -2,6 +2,7 @@ import { CommonModule } from '@angular/common';
 import { Component } from '@angular/core';
 import { MatDialogModule, MatDialog } from '@angular/material/dialog';
 import { MatIconModule } from '@angular/material/icon';
+import { Registration } from "../../layout/registration/registration";
 
 
 export interface SingelDoubleMeter {
@@ -30,7 +31,7 @@ export interface InfoDialogDiscount {
 
 @Component({
   selector: 'app-night-heaters',
-  imports: [MatIconModule, CommonModule, MatDialogModule],
+  imports: [MatIconModule, CommonModule, MatDialogModule, Registration],
   templateUrl: './night-heaters.html',
   styleUrl: './night-heaters.css',
 })

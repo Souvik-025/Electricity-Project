@@ -8,10 +8,11 @@ import { AddressService } from './../../services/address.service';
 import { MatInputModule } from '@angular/material/input';
 import { MatButtonModule } from '@angular/material/button';
 import { MatAutocompleteModule } from '@angular/material/autocomplete';
+import { Registration } from "../../layout/registration/registration";
 
 @Component({
   selector: 'app-gas',
-  imports: [MatIconModule, CommonModule, MatDialogModule, MatInputModule, MatButtonModule, ReactiveFormsModule, MatAutocompleteModule],
+  imports: [MatIconModule, CommonModule, MatDialogModule, MatInputModule, MatButtonModule, ReactiveFormsModule, MatAutocompleteModule, Registration],
   templateUrl: './gas.html',
   styleUrl: './gas.css',
 })

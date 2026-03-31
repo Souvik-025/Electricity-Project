@@ -1,0 +1,75 @@
+<div class="container-callback" *ngIf="currentStep === 'callback'">
+  <div class="container-wish">
+    <span><strong>Wünschen Sie eine persönliche Erstberatung per Telefon?</strong>
+      <br>
+      <span class="center-text">Dann fordern Sie jetzt Ihren Rückrufwunsch an.</span>
+    </span>
+  </div>
+  <div class="item-callback">
+    <button class="callback" (click)="goToStep('telefon')"> Rückruf anfordern
+    </button>
+  </div>
+</div>
+
+
+<div class="container-callback" *ngIf="currentStep === 'telefon'">
+  <div class="container-wish">
+    <span class="telefon"><strong>Bitte geben Sie Ihre Telefonnummer an, <br>
+        unter der wir Sie erreichen können.</strong>
+    </span>
+  </div>
+  <div class="container-phone">
+    <input class="country-code" type="text" value="+49">
+    <input type="text" placeholder="Mobilnummer oder Festnetznummer" class="number">
+    <button class="callback" (click)="goToStep('weekday')"> Rückrufzeit festlegen</button>
+  </div>
+</div>
+
+<div class="container-callback" *ngIf="currentStep === 'weekday'">
+  <div class="container-wishlist">
+    <span><strong>Bitte wählen Sie, an welchem Wochentag wir Sie erreichen können.</strong>
+    </span>
+  </div>
+  <div class="container-days">
+    <button class="days"> Heute (Mittwoch)</button>
+    <button class="days"> Morgen (Donnerstag)</button>
+    <button class="days"> Übermorgen (Freitag)</button>
+  </div>
+  <div class="item-callback">
+    <button class="callback btn-time" (click)="goToStep('time')"> Wochentag festlagen</button>
+  </div>
+</div>
+
+
+
+
+<div class="container-callback" *ngIf="currentStep === 'time'">
+  <div class="container-wishlist">
+    <span><strong>Bitte wählen Sie, zu welcher Uhrzeit wir Sie erreichen können.</strong>
+    </span>
+  </div>
+  <div class="container-days">
+    <button class="days"> 08:00 - 11:00</button>
+    <button class="days"> 11:00 - 14:00</button>
+    <button class="days"> 14:00 - 17:00</button>
+    <button class="days"> 17:00 - 20:00</button>
+  </div>
+  <div class="item-callback">
+    <button class="callback btn-time " (click)="goToStep('others')"> Uhrzeit festlegen
+    </button>
+  </div>
+</div>
+
+<div class="container-callback" *ngIf="currentStep === 'others'">
+  <div class="container-wishlist">
+    <span><strong>Möchten Sie noch weitere Informationen hinterlassen?</strong>
+    </span>
+    <div class="container-days">
+      <input class="information-box" placeholder="Platz für Infos, z.B. genaue Uhrzeit, an der Sie gut erreichbar sind">
+    </div>
+  </div>
+  <div class="item-callback">
+    <button class="callback btn-time"> Infos absenden & Rückruf erhalten
+    </button>
+  </div>
+</div>
