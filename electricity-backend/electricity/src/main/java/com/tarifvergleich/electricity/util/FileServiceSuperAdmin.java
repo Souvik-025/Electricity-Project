@@ -33,10 +33,10 @@ public class FileServiceSuperAdmin {
 			if (file.isEmpty())
 				throw new RuntimeException("Failed to store empty file.");
 
-			String folderName = contentType.toLowerCase().trim().replaceAll("[^a-z0-9]", "");
+			String folderName = contentType.toLowerCase().trim();
 			Path targetDir = this.rootLocation.resolve(folderName);
 			
-			String originalFileName = file.getOriginalFilename().replace(" ", "_");
+			String originalFileName = file.getOriginalFilename().replace(" ", "_").replaceAll("[^a-zA-Z0-9.-]", "_");
 
 			if (!Files.exists(targetDir)) {
 				Files.createDirectories(targetDir);

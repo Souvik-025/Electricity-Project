@@ -22,37 +22,43 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 @Entity
-@Table(name = "menus")
 @Getter
 @Setter
-@AllArgsConstructor
 @NoArgsConstructor
+@AllArgsConstructor
 @Builder
-public class AdminAsset {
+@Table(name = "admin_service_menu")
+public class AdminServiceMenu {
 
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	private Integer id;
 	
 	@ManyToOne(cascade = CascadeType.MERGE)
-	@JoinColumn(name = "adminAssets")
+	@JoinColumn(name = "adminServiceMenu")
 	@JsonIgnore
 	private AdminUser adminId;
-	
-	@Column(name="content_type")
-	private Integer type;
 	
 	@Column(name = "content_url")
 	private String contentUrl;
 	
+	@Column(name = "title")
+	private String heading;
+	
+	@Column(name = "description", columnDefinition = "TEXT")
+	private String subheading;
+	
 	@Column(name = "original_file_name")
 	private String originalFileName;
 	
-	@Column(name = "saving")
-	private String saving;
+	@Column(name = "content_service_type")
+	private Integer type;
 	
-	@Column(name = "saving_price_detail", columnDefinition = "TEXT")
-	private String savingPriceDetail;
+	@Column(name = "content_highlight")
+	private Integer highlight;
+	
+	@Column(name = "service_order")
+	private Integer order;
 	
 	@Column(name = "created_on")
 	private BigInteger createdOn;
@@ -60,16 +66,9 @@ public class AdminAsset {
 	@Column(name = "updated_on")
 	private BigInteger updatedOn;
 	
-	private String heading;
-	
-	@Column(name = "sub_heading", columnDefinition = "TEXT")
-	private String subHeading;
-	
-	@Column(name = "asset_order")
-	private Integer order;
-	
 	@PrePersist
-	protected void onCreate() {
-		createdOn = BigInteger.valueOf(Instant.now().getEpochSecond());			
+	public void onCreate() {
+		createdOn = BigInteger.valueOf(Instant.now().getEpochSecond());
 	}
+	
 }

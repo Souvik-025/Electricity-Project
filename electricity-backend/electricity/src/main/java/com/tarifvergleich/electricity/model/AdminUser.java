@@ -62,9 +62,13 @@ public class AdminUser {
 	@JsonIgnoreProperties("adminUser")
 	private List<AdminLoginHistory> loginHistory;
 	
-	@OneToMany(mappedBy = "adminId", cascade = {CascadeType.PERSIST, CascadeType.REMOVE, CascadeType.MERGE})
+	@OneToMany(mappedBy = "adminId", cascade = {CascadeType.PERSIST, CascadeType.REMOVE, CascadeType.MERGE}, orphanRemoval = true)
 	@JsonIgnoreProperties("adminId")
 	private List<AdminAsset> adminAssets;
+	
+	@OneToMany(mappedBy = "adminId", cascade = {CascadeType.PERSIST, CascadeType.REMOVE, CascadeType.MERGE}, orphanRemoval = true)
+	@JsonIgnoreProperties("adminId")
+	private List<AdminServiceMenu> adminServiceMenu;
 	
 	@PrePersist
 	protected void onCreate() {
@@ -86,5 +90,12 @@ public class AdminUser {
 		}
 		
 		this.adminAssets.add(asset);
+	}
+	
+	public void addAdminServiceMenu(AdminServiceMenu menu) {
+		if(this.adminServiceMenu == null)
+			this.adminServiceMenu = new LinkedList<AdminServiceMenu>();
+		
+		this.adminServiceMenu.add(menu);
 	}
 }
