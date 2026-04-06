@@ -1,31 +1,76 @@
-import { Component } from '@angular/core';
-import { CommonModule } from '@angular/common';
-import { FormsModule } from '@angular/forms';
-import { ApiService } from '../../shared/services/api.service';
+import { Component, OnInit } from "@angular/core";
+import { CommonModule } from "@angular/common";
+import { FormsModule } from "@angular/forms";
+import { ApiService } from "../../shared/services/api.service";
+import { AuthService } from "../../shared/services/auth.service";
+import { environment } from "../../../environments/environment";
 
 @Component({
-  selector: 'app-about-us',
+  selector: "app-about-us",
   standalone: true,
   imports: [CommonModule, FormsModule],
-  templateUrl: './about-us.component.html',
-  styleUrl: './about-us.component.css',
+  templateUrl: "./about-us.component.html",
+  styleUrl: "./about-us.component.css",
 })
-export class AboutUsComponent {
-  description = "";
+export class AboutUsComponent implements OnInit {
+  readonly imgBase = environment.imageBaseUrl;
+
+  heading = "";
+  contactNumber = "";
+  description = ""; // Dieses Feld wird im Formular als Textarea genutzt
+
   imageFile: File | null = null;
   imagePreview: string | null = null;
+  existingImageUrl: string | null = null;
 
   isLoading = false;
   errorMessage = "";
 
-  constructor(private api: ApiService) {}
+  constructor(private api: ApiService, private authService: AuthService) {}
+
+  ngOnInit() {
+    this.loadInitialData();
+  }
+
+  /* ================= DATA LOADING ================= */
+
+  loadInitialData() {
+    this.isLoading = true;
+    
+    // POST Request zum Laden der Daten
+    this.api.post("admin/content", {}).subscribe({
+      next: (res: any) => {
+        this.isLoading = false;
+        
+        if (res.res && res.menu?.about?.length > 0) {
+          const aboutData = res.menu.about[0];
+          
+          this.heading = aboutData.heading || "";
+          this.contactNumber = aboutData.contactNumber || "";
+          // Wir mappen das "subHeading" aus der API in unsere "description" Variable
+          this.description = aboutData.subHeading || ""; 
+          
+          if (aboutData.contentUrl) {
+            this.existingImageUrl = aboutData.contentUrl;
+            this.imagePreview = this.imgBase + aboutData.contentUrl; 
+          }
+        }
+      },
+      error: (err) => {
+        this.isLoading = false;
+        this.errorMessage = "Fehler beim Laden der Daten.";
+      }
+    });
+  }
+
+  /* ================= FILE HANDLING ================= */
 
   onFileChange(event: any) {
     const file = event.target.files[0];
     if (!file) return;
 
     if (!file.type.startsWith("image/")) {
-      this.errorMessage = "Nur Bilddateien sind erlaubt";
+      this.errorMessage = "Nur Bilddateien erlaubt";
       return;
     }
 
@@ -39,27 +84,46 @@ export class AboutUsComponent {
     reader.readAsDataURL(file);
   }
 
+  /* ================= SUBMIT ================= */
+
   onSubmit() {
-    if (!this.description || !this.imageFile) {
-      this.errorMessage = "Bild und Beschreibung sind erforderlich";
+    const adminId = this.authService.getUserId();
+
+    if (!this.heading || !this.description || (!this.imageFile && !this.existingImageUrl)) {
+      this.errorMessage = "Überschrift, Beschreibung und Bild sind erforderlich";
       return;
     }
 
     this.isLoading = true;
     this.errorMessage = "";
 
-    const formData = new FormData();
-    formData.append("image", this.imageFile);
-    formData.append("description", this.description);
+    const payload = {
+      adminId: adminId,
+      heading: this.heading,
+      contact: this.contactNumber,
+      // WICHTIG: Der Key heißt für die API "subheading", der Wert kommt aus "description"
+      subheading: this.description, 
+      type: 4 
+    };
 
-    this.api.post("admin/about-us/update", formData).subscribe({
+    const formData = new FormData();
+    
+    if (this.imageFile) {
+      formData.append("file", this.imageFile);
+    }
+    
+    formData.append("data", JSON.stringify(payload));
+
+    this.api.post("admin/add-menu", formData).subscribe({
       next: (res) => {
         this.isLoading = false;
-        alert("✅ Über uns erfolgreich aktualisiert");
+        alert("✅ Erfolgreich gespeichert");
+        this.imageFile = null;
+        this.loadInitialData(); 
       },
       error: (err) => {
         this.isLoading = false;
-        this.errorMessage = "Fehler beim Speichern der Daten";
+        this.errorMessage = "Fehler beim Speichern.";
       },
     });
   }

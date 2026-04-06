@@ -4,24 +4,19 @@
         Über uns bearbeiten
     </h2>
 
-    <form (ngSubmit)="onSubmit()" class="space-y-6">
+    <form (ngSubmit)="onSubmit()" class="space-y-5">
 
         <div>
             <label class="block text-sm font-medium mb-2 text-gray-700 dark:text-gray-300">
                 Hintergrundbild / Foto *
             </label>
-
             <div
                 class="border-2 border-dashed rounded-lg p-4 text-center cursor-pointer hover:border-brand-400 transition">
                 <input type="file" accept="image/*" (change)="onFileChange($event)" class="hidden" #fileInput />
-
                 <div (click)="fileInput.click()" class="cursor-pointer">
                     @if (!imagePreview) {
-                    <p class="text-sm text-gray-500">
-                        Klicken Sie hier, um ein Bild hochzuladen
-                    </p>
+                    <p class="text-sm text-gray-500">Klicken Sie hier, um ein Bild hochzuladen</p>
                     }
-
                     @if (imagePreview) {
                     <img [src]="imagePreview" class="mx-auto max-h-48 object-cover rounded-lg shadow-sm" />
                     <p class="text-xs mt-2 text-gray-500">Zum Ändern klicken</p>
@@ -31,19 +26,29 @@
         </div>
 
         <div>
-            <label class="block text-sm font-medium mb-1 text-gray-700 dark:text-gray-300">
-                Beschreibung *
-            </label>
-            <textarea [(ngModel)]="description" name="description" rows="8"
+            <label class="block text-sm font-medium mb-1 text-gray-700 dark:text-gray-300">Überschrift *</label>
+            <input type="text" [(ngModel)]="heading" name="heading"
+                class="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-brand-500 dark:bg-gray-800 dark:border-gray-700 outline-none"
+                placeholder="z.B. Willkommen bei unserem Team">
+        </div>
+
+        <div>
+            <label class="block text-sm font-medium mb-1 text-gray-700 dark:text-gray-300">Kontakttelefonnummer</label>
+            <input type="text" [(ngModel)]="contactNumber" name="contactNumber"
+                class="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-brand-500 dark:bg-gray-800 dark:border-gray-700 outline-none"
+                placeholder="+49 123 456789">
+        </div>
+
+        <div>
+            <label class="block text-sm font-medium mb-1 text-gray-700 dark:text-gray-300">Beschreibung *</label>
+            <textarea [(ngModel)]="description" name="description" rows="5"
                 placeholder="Schreiben Sie hier etwas über Ihr Unternehmen..."
                 class="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-brand-500 dark:bg-gray-800 dark:border-gray-700 outline-none resize-none">
-      </textarea>
+            </textarea>
         </div>
 
         @if (errorMessage) {
-        <p class="text-sm text-red-500">
-            {{ errorMessage }}
-        </p>
+        <p class="text-sm text-red-500 font-medium">{{ errorMessage }}</p>
         }
 
         <button type="submit" [disabled]="isLoading"

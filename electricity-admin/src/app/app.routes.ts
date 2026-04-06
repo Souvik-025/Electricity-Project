@@ -9,6 +9,8 @@ import { SidebarMenuCreateComponent } from "./pages/menus/sidebar-menu-create/si
 import { SidebarMenuListComponent } from "./pages/menus/sidebar-menu-list/sidebar-menu-list.component";
 import { FreeServicesListComponent } from "./pages/free-services/free-services-list/free-services-list.component";
 import { FreeServicesCreateComponent } from "./pages/free-services/free-services-create/free-services-create.component";
+import { AboutUsComponent } from "./pages/about-us/about-us.component";
+import { BannersComponent } from "./pages/banners/banners.component";
 
 
 export const routes: Routes = [
@@ -54,6 +56,17 @@ export const routes: Routes = [
         component: FreeServicesCreateComponent,
         title: "Create Service",
       },
+      {
+        path: "about-us",
+        component: AboutUsComponent,
+        title: "About Us",
+      },
+      {
+        path: "banners",
+        component: BannersComponent,
+        title: "Banners",
+      },
+    
     ],
   },
   {

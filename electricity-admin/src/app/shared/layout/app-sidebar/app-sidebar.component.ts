@@ -60,7 +60,24 @@ export class AppSidebarComponent implements OnInit, OnDestroy {
       <path d="M12 2L15.09 8.26L22 9.27L17 14.14L18.18 21.02L12 17.77L5.82 21.02L7 14.14L2 9.27L8.91 8.26L12 2Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
     </svg>`,
       subItems: [{ name: "All Services", path: "/services/free" }],
-    }
+    },
+    {
+      name: "About Us",
+      icon: `<svg width="1em" height="1em" viewBox="0 0 24 24" fill="none">
+      <path d="M12 2C6.47715 2 2 6.47715 2 12C2 17.5228 6.47715 22 12 22C17.5228 22 22 17.5228 22 12C22 6.47715 17.5228 2 12 2Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+      <path d="M12 16C10.3431 16 9 14.6569 9 13C9 11.3431 10.3431 10 12 10C13.6569 10 15 11.3431 15 13C15 14.6569 13.6569 16 12 16Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+      <path d="M12 10V8" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+    </svg>`,
+      subItems: [{ name: "About Us", path: "/about-us" }],
+    },
+    {
+      name: "Banners",
+      icon: `<svg width="1em" height="1em" viewBox="0 0 24 24" fill="none">
+      <path d="M4 4H20V20H4V4Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+      <path d="M4 9H20M4 15H20" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+    </svg>`,
+      subItems: [{ name: "Banners", path: "/banners" }],
+    },
   ];
 
   openSubmenu: string | null = null;
