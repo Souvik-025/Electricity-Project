@@ -1,9 +1,9 @@
 package com.tarifvergleich.electricity.model;
 
 import java.math.BigInteger;
-import java.time.Instant;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.tarifvergleich.electricity.util.Helper;
 
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
@@ -73,6 +73,6 @@ public class AdminAsset {
 	
 	@PrePersist
 	protected void onCreate() {
-		createdOn = BigInteger.valueOf(Instant.now().getEpochSecond());			
+		createdOn = Helper.getCurrentTimeBerlin();			
 	}
 }

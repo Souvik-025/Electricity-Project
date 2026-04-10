@@ -1,11 +1,11 @@
 package com.tarifvergleich.electricity.model;
 
 import java.math.BigInteger;
-import java.time.Instant;
 import java.util.LinkedList;
 import java.util.List;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import com.tarifvergleich.electricity.util.Helper;
 
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
@@ -82,9 +82,17 @@ public class Customer {
 	@JsonIgnoreProperties("customerId")
 	private List<CustomerLoginHistory> customerLoginHistories;
 	
+	@OneToMany(mappedBy = "customerId", cascade = {CascadeType.PERSIST, CascadeType.MERGE})
+	@JsonIgnoreProperties("customerId")
+	private List<CustomerAddress> customerAddresses;
+	
+	@OneToMany(mappedBy = "customerId", cascade = {CascadeType.PERSIST, CascadeType.MERGE})
+	@JsonIgnoreProperties("customerId")
+	private List<CustomerDelivery> customerDelivery;
+	
 	@PrePersist
 	protected void prePersist() {
-		joinedOn = BigInteger.valueOf(Instant.now().getEpochSecond());
+		joinedOn = Helper.getCurrentTimeBerlin();
 		isVerified = false;
 		isAcknowledged = false; 
 		status = true;
@@ -96,6 +104,20 @@ public class Customer {
 		}
 		
 		customerLoginHistories.add(record);
+	}
+	
+	public void addCustomerAddress(CustomerAddress record) {
+		if(customerAddresses == null)
+			customerAddresses = new LinkedList<CustomerAddress>();
+		record.setCustomerId(this);
+		customerAddresses.add(record);
+	}
+	
+	public void addCustomerDelivery(CustomerDelivery record) {
+		if(customerDelivery == null)
+			customerDelivery = new LinkedList<CustomerDelivery>();
+		record.setCustomerId(this);
+		customerDelivery.add(record);
 	}
 	
 }

@@ -1,11 +1,11 @@
 package com.tarifvergleich.electricity.model;
 
 import java.math.BigInteger;
-import java.time.Instant;
 import java.util.LinkedList;
 import java.util.List;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import com.tarifvergleich.electricity.util.Helper;
 
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
@@ -72,7 +72,7 @@ public class AdminUser {
 	
 	@PrePersist
 	protected void onCreate() {
-	    this.createdOn = BigInteger.valueOf(Instant.now().getEpochSecond());
+	    this.createdOn = Helper.getCurrentTimeBerlin();
 	}
 	
 	public void addLoginHistory(AdminLoginHistory loginHistory) {

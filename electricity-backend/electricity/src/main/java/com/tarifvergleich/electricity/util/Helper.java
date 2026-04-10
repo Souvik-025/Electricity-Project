@@ -1,6 +1,10 @@
 package com.tarifvergleich.electricity.util;
 
+import java.math.BigInteger;
 import java.security.SecureRandom;
+import java.time.LocalDate;
+import java.time.ZoneId;
+import java.time.ZonedDateTime;
 
 import org.springframework.stereotype.Component;
 
@@ -68,4 +72,16 @@ public class Helper {
 	    
 	    return hasUpper && hasLower && hasDigit && hasSpecial;
 	}
+	
+	public BigInteger toGermamUnixTimestamp(LocalDate localDate) {
+		ZoneId zoneId = ZoneId.of("Europe/Berlin");
+		ZonedDateTime zonedDateTime = localDate.atStartOfDay(zoneId);
+		return BigInteger.valueOf(zonedDateTime.toEpochSecond());
+	}
+	
+	public static final BigInteger getCurrentTimeBerlin() {
+		ZonedDateTime nowInBerlin = ZonedDateTime.now(ZoneId.of("Europe/Berlin"));
+		return BigInteger.valueOf(nowInBerlin.toEpochSecond());
+	}
+	
 }

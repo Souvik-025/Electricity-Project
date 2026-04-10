@@ -1,19 +1,28 @@
 package com.tarifvergleich.electricity.service;
 
+import java.time.LocalDate;
+import java.time.ZoneId;
 import java.util.Map;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 
-import com.tarifvergleich.electricity.dto.CustomerDto;
+import com.tarifvergleich.electricity.dto.CustomerBillingRequestDto;
+import com.tarifvergleich.electricity.dto.CustomerConnectionRequestDto;
+import com.tarifvergleich.electricity.dto.CustomerDeliveryDto;
 import com.tarifvergleich.electricity.exception.InternalServerException;
+import com.tarifvergleich.electricity.mapper.CustomerResponseMapper;
 import com.tarifvergleich.electricity.model.Customer;
-import com.tarifvergleich.electricity.model.CustomerLoginHistory;
+import com.tarifvergleich.electricity.model.CustomerAddress;
+import com.tarifvergleich.electricity.model.CustomerBillingAddress;
+import com.tarifvergleich.electricity.model.CustomerConnect;
+import com.tarifvergleich.electricity.model.CustomerDelivery;
+import com.tarifvergleich.electricity.repository.CustomerAddressRepository;
+import com.tarifvergleich.electricity.repository.CustomerBillingAddressRepository;
+import com.tarifvergleich.electricity.repository.CustomerDeliveryRepository;
 import com.tarifvergleich.electricity.repository.CustomerRepository;
-import com.tarifvergleich.electricity.util.EmailTemplate;
 import com.tarifvergleich.electricity.util.Helper;
 
-import jakarta.servlet.http.HttpServletRequest;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 
@@ -22,187 +31,159 @@ import lombok.RequiredArgsConstructor;
 public class CustomerService {
 
 	private final CustomerRepository customerRepo;
+	private final CustomerAddressRepository customerAddressRepo;
+	private final CustomerResponseMapper customerResponseMapper;
+	private final CustomerDeliveryRepository customerDeliveryRepo;
+	private final CustomerBillingAddressRepository customerBillingAddressRepo;
 	private final Helper helper;
-	private final MailService mailService;
-	private final EmailTemplate emailTemplate;
 
 	@Transactional
-	public Map<String, Object> customerSignUp(CustomerDto customerDto) {
+	public Map<String, Object> saveDelivery(Integer customerId, CustomerDeliveryDto deliveryDto,
+			CustomerBillingRequestDto billingRequestDto) {
 
-		if (customerDto.getEmail() == null || customerDto.getEmail().isEmpty())
-			throw new InternalServerException("Email not found", HttpStatus.BAD_REQUEST);
-		if (customerDto.getPassword() == null || customerDto.getPassword().isEmpty())
-			throw new InternalServerException("Password not found", HttpStatus.BAD_REQUEST);
-		if (customerDto.getUserType() == null || customerDto.getUserType().isEmpty())
-			throw new InternalServerException("User type missing", HttpStatus.BAD_REQUEST);
-		if (customerDto.getFirstName() == null || customerDto.getFirstName().isEmpty()
-				|| customerDto.getLastName() == null || customerDto.getLastName().isEmpty())
-			throw new InternalServerException("First name or last name missing", HttpStatus.BAD_REQUEST);
-		if (customerDto.getTitle() == null || customerDto.getTitle().isEmpty())
-			throw new InternalServerException("Title not found", HttpStatus.BAD_REQUEST);
-		if (customerDto.getSalutation() == null || customerDto.getSalutation().isEmpty())
-			throw new InternalServerException("Salutation missing", HttpStatus.BAD_REQUEST);
-		if (customerDto.getMobileNumber() == null || customerDto.getMobileNumber().isEmpty())
-			throw new InternalServerException("Mobile number missing", HttpStatus.BAD_REQUEST);
-		if (customerDto.getUserType().toLowerCase().equals("business")) {
-			if (customerDto.getCompanyName() == null || customerDto.getCompanyName().isEmpty())
-				throw new InternalServerException("Company name missing", HttpStatus.BAD_REQUEST);
-		}
-		
-		if(!(helper.isPasswordSecure(customerDto.getPassword(), customerDto.getEmail()))) {
-			throw new InternalServerException("Password not safe", HttpStatus.BAD_REQUEST);
-		}
-
-		if (customerRepo.existsByEmail(customerDto.getEmail())) {
-
-			Customer customer = customerRepo.findByEmail(customerDto.getEmail())
-					.orElseThrow(() -> new InternalServerException("Customer not found", HttpStatus.BAD_REQUEST));
-
-			if (customer.getIsVerified())
-				return Map.of("res", true, "data", Map.of("id", customer.getCustomerId(), "firstName",
-						customer.getFirstName(), "lastName", customer.getLastName(), "email", customer.getEmail()),
-						"page", "login");
-			else {
-				customer.setFirstName(customerDto.getFirstName());
-				customer.setLastName(customerDto.getLastName());
-				customer.setPassword(customerDto.getPassword());
-				customer.setTitle(customerDto.getTitle());
-				customer.setSalutation(customerDto.getSalutation());
-				customer.setMobileNumber(customerDto.getMobileNumber());
-				customer.setUserType(customerDto.getUserType().toUpperCase());
-				if (customer.getUserType().equals("BUSINESS"))
-					customer.setCompanyName(customerDto.getCompanyName());
-				
-				
-				String otp = helper.generateOtp();
-				customer.setOtp(otp);
-				String subject = "Verify Your Account - Tarifvergleich Electricity";
-				String body = emailTemplate.createOtpEmailBody(customer.getFirstName(), otp);
-				
-				mailService.sendMail(customer.getEmail(), subject, body);
-
-				customerRepo.save(customer);
-				return Map.of("res", true, "data", Map.of("id", customer.getCustomerId(), "firstName",
-						customer.getFirstName(), "lastName", customer.getLastName(), "email", customer.getEmail()),
-						"page", "verify");
-			}
-		}
-
-		String otp = helper.generateOtp();
-
-		Customer newCustomer = Customer.builder().email(customerDto.getEmail()).password(customerDto.getPassword())
-				.otp(otp).userType(customerDto.getUserType().toUpperCase()).firstName(customerDto.getFirstName())
-				.lastName(customerDto.getLastName()).title(customerDto.getTitle())
-				.salutation(customerDto.getSalutation()).mobileNumber(customerDto.getMobileNumber())
-				.companyName(customerDto.getUserType().toUpperCase().equals("BUSINESS") ? customerDto.getCompanyName() : null).build();
-
-		Customer savedCustomer = customerRepo.save(newCustomer);
-
-		String subject = "Verify Your Account - Tarifvergleich Electricity";
-		String body = emailTemplate.createOtpEmailBody(savedCustomer.getFirstName(), otp);
-
-		mailService.sendMail(savedCustomer.getEmail(), subject, body);
-
-		return Map
-				.of("res", true, "data",
-						Map.of("id", savedCustomer.getCustomerId(), "firstName", savedCustomer.getFirstName(),
-								"lastName", savedCustomer.getLastName(), "email", savedCustomer.getEmail()),
-						"page", "verify");
-	}
-
-	@Transactional
-	public Map<String, Object> verifyOtp(Integer id, String otp) {
-
-		if (otp == null || otp.isEmpty())
-			throw new InternalServerException("OTP missing", HttpStatus.BAD_REQUEST);
-
-		if (id == null || id <= 0)
-			throw new InternalServerException("Customer id missing", HttpStatus.BAD_REQUEST);
-
-		Customer customer = customerRepo.findById(id)
-				.orElseThrow(() -> new InternalServerException("Customer not found", HttpStatus.BAD_REQUEST));
-
-		if (customer.getOtp().equals(otp)) {
-			customer.setIsVerified(true);
-			customerRepo.save(customer);
-			return Map.of("res", true, "message", "Valid otp");
-		}
-
-		return Map.of("res", false, "message", "Invalid otp");
-	}
-
-	@Transactional
-	public Map<String, Object> markAcknowledgement(Integer customerId, HttpServletRequest request) {
 		if (customerId == null || customerId <= 0)
 			throw new InternalServerException("Customer id missing", HttpStatus.BAD_REQUEST);
 
 		Customer customer = customerRepo.findById(customerId)
 				.orElseThrow(() -> new InternalServerException("Customer not found", HttpStatus.BAD_REQUEST));
 
-		customer.setIsAcknowledged(true);
-		String loginIp = helper.getIp(request);
+		if (deliveryDto == null)
+			throw new InternalServerException("Delivery details not found", HttpStatus.BAD_REQUEST);
+		if (billingRequestDto == null)
+			throw new InternalServerException("Billing details not found", HttpStatus.BAD_REQUEST);
 
-		customer.addLoginHistory(CustomerLoginHistory.builder().customerId(customer).loginIp(loginIp).build());
+		if (deliveryDto.getFirstName() == null || deliveryDto.getFirstName().isEmpty()
+				|| deliveryDto.getLastName() == null || deliveryDto.getLastName().isEmpty())
+			throw new InternalServerException("Name missing", HttpStatus.BAD_REQUEST);
+
+		if (deliveryDto.getMobile() == null || deliveryDto.getMobile().isEmpty())
+			throw new InternalServerException("Mobile number missing", HttpStatus.BAD_REQUEST);
+
+//		if(deliveryDto.getTelephone() == null || deliveryDto.getTelephone().isEmpty())
+//			throw new InternalServerException("Telephone number missing", HttpStatus.BAD_REQUEST);
+
+		if (deliveryDto.getZip() == null || deliveryDto.getZip().isEmpty())
+			throw new InternalServerException("Zip code missing", HttpStatus.BAD_REQUEST);
+
+		if (deliveryDto.getCity() == null || deliveryDto.getCity().isEmpty())
+			throw new InternalServerException("City missing", HttpStatus.BAD_REQUEST);
+
+		if (deliveryDto.getStreet() == null || deliveryDto.getStreet().isEmpty())
+			throw new InternalServerException("Street missing", HttpStatus.BAD_REQUEST);
+
+		CustomerBillingAddress billingAddress = null;
+
+		if (billingRequestDto.getDifferent()) {
+
+			if (billingRequestDto.getZip() == null || billingRequestDto.getZip().isEmpty())
+				throw new InternalServerException("Billing zip code missing", HttpStatus.BAD_REQUEST);
+			if (billingRequestDto.getCity() == null || billingRequestDto.getCity().isEmpty())
+				throw new InternalServerException("Billing city missing", HttpStatus.BAD_REQUEST);
+			if (billingRequestDto.getStreet() == null || billingRequestDto.getStreet().isEmpty())
+				throw new InternalServerException("Billing street missing", HttpStatus.BAD_REQUEST);
+
+			billingAddress = CustomerBillingAddress.builder().zip(billingRequestDto.getZip())
+					.city(billingRequestDto.getCity()).street(billingRequestDto.getStreet())
+					.houseNumber(billingRequestDto.getHouseNumber()).isDifferent(true).build();
+		} else {
+			billingAddress = CustomerBillingAddress.builder().zip(deliveryDto.getZip()).city(deliveryDto.getCity())
+					.street(deliveryDto.getStreet()).houseNumber(deliveryDto.getHouseNumber()).isDifferent(false)
+					.build();
+		}
+
+		CustomerAddress address = customerAddressRepo.findAddress(customerId, deliveryDto.getZip(),
+				deliveryDto.getCity(), deliveryDto.getStreet(), deliveryDto.getHouseNumber()).orElse(null);
+
+		if (address == null) {
+			address = CustomerAddress.builder().zip(deliveryDto.getZip()).city(deliveryDto.getCity())
+					.street(deliveryDto.getStreet()).houseNumber(deliveryDto.getHouseNumber()).customerId(customer)
+					.build();
+
+			customer.addCustomerAddress(address);
+		}
+
+		CustomerDelivery delivery = CustomerDelivery.builder().firstName(deliveryDto.getFirstName())
+				.lastName(deliveryDto.getLastName()).address(address).billingAddress(billingAddress)
+				.mobile(deliveryDto.getMobile()).telephone(deliveryDto.getTelephone())
+				.deliveryDate(helper.toGermamUnixTimestamp(deliveryDto.getDeliveryDate())).build();
+
+		customer.addCustomerDelivery(delivery);
+
 		customerRepo.save(customer);
 
-		return Map.of("res", true, "message", "Signup completed");
+		Integer deliveryId = customer.getCustomerDelivery().getLast().getId();
+
+		return Map.of("res", true, "customerId", customerId, "deliveryId", deliveryId);
 	}
 
-	@Transactional
-	public Map<String, Object> resendOtp(Integer id, boolean isForget) {
-		if (id == null || id <= 0)
+	public Map<String, Object> saveConnection(Integer customerId, Integer deliveryId,
+			CustomerConnectionRequestDto customerConnectDto) {
+
+		if (customerId == null || customerId <= 0)
 			throw new InternalServerException("Customer id missing", HttpStatus.BAD_REQUEST);
 
-		Customer customer = customerRepo.findById(id)
+		if (deliveryId == null || deliveryId <= 0)
+			throw new InternalServerException("Devilery id missing", HttpStatus.BAD_REQUEST);
+
+		if (customerConnectDto.getIsMovingIn() == null)
+			throw new InternalServerException("Moving in missing", HttpStatus.BAD_REQUEST);
+
+		if (customerConnectDto.getIsMovingIn()) {
+			if (customerConnectDto.getMoveInDate() == null)
+				throw new InternalServerException("Moving in date missing", HttpStatus.BAD_REQUEST);
+
+			if (customerConnectDto.getMoveInDate().isBefore(LocalDate.now(ZoneId.of("Europe/Berlin"))))
+				throw new InternalServerException("Moving in date is past date", HttpStatus.BAD_REQUEST);
+		} else {
+			if (customerConnectDto.getAutoCancellation() == null)
+				throw new InternalServerException("Auto Cancellation missing", HttpStatus.BAD_REQUEST);
+
+			if (customerConnectDto.getAlreadyCancelled() == null)
+				throw new InternalServerException("Already cancelled missing", HttpStatus.BAD_REQUEST);
+
+			if (customerConnectDto.getSelfCancellation() == null)
+				throw new InternalServerException("Self cancellation missing", HttpStatus.BAD_REQUEST);
+
+			if (customerConnectDto.getDelivery() == null)
+				throw new InternalServerException("Delivery option missing", HttpStatus.BAD_REQUEST);
+
+			if (customerConnectDto.getDelivery()) {
+				if (customerConnectDto.getDesiredDelivery() == null
+						|| customerConnectDto.getDesiredDelivery().isBefore(LocalDate.now(ZoneId.of("Europe/Berlin"))))
+					;
+				throw new InternalServerException("Desired Delivery not found or ill formed", HttpStatus.BAD_REQUEST);
+			}
+		}
+
+		if (customerConnectDto.getSubmitLater() == null)
+			throw new InternalServerException("Submit later not found", HttpStatus.BAD_REQUEST);
+
+		if (customerConnectDto.getMeterNumber() == null || customerConnectDto.getMeterNumber().isEmpty())
+			throw new InternalServerException("Meter number missing", HttpStatus.BAD_REQUEST);
+
+		CustomerDelivery delivery = customerDeliveryRepo.findById(deliveryId)
+				.orElseThrow(() -> new InternalServerException("Delivery record not found", HttpStatus.BAD_REQUEST));
+		Customer customer = customerRepo.findById(customerId)
 				.orElseThrow(() -> new InternalServerException("Customer not found", HttpStatus.BAD_REQUEST));
 
-		String otp = helper.generateOtp();
+		CustomerConnect customerConnect = CustomerConnect.builder().isMovingIn(customerConnectDto.getIsMovingIn())
+				.moveInDate(customerConnectDto.getMoveInDate() != null
+						? helper.toGermamUnixTimestamp(customerConnectDto.getMoveInDate())
+						: null)
+				.submitLater(customerConnectDto.getSubmitLater()).meterNumber(customerConnectDto.getMeterNumber())
+				.currentProvider(customerConnectDto.getCurrentProvider())
+				.autoCancellation(customerConnectDto.getAutoCancellation())
+				.alreadyCancelled(customerConnectDto.getAlreadyCancelled())
+				.selfCancellation(customerConnectDto.getSelfCancellation()).delivery(customerConnectDto.getDelivery())
+				.desiredDelivery(customerConnectDto.getDesiredDelivery() != null
+						? helper.toGermamUnixTimestamp(customerConnectDto.getDesiredDelivery())
+						: null)
+				.marketLocationId(customerConnectDto.getMarketLocationId()).customerDelivery(delivery).build();
 
-		customer.setOtp(otp);
+		delivery.setCustomerConnection(customerConnect);
 
-		customerRepo.save(customer);
-
-		String subject = "";
-		String body = "";
-
-		if (isForget) {
-			subject = "Forget Password - Tarifvergleich Electricity";
-			body = emailTemplate.createForgotPasswordEmailBody(customer.getFirstName(), otp);
-		} else {
-			subject = "Verify Your Account - Tarifvergleich Electricity";
-			body = emailTemplate.createOtpEmailBody(customer.getFirstName(), otp);
-		}
-
-		mailService.sendMail(customer.getEmail(), subject, body);
-
-		return Map.of("res", true, "message", "Otp send successfully");
-	}
-
-	@Transactional
-	public Map<String, Object> login(String email, String password, HttpServletRequest request) {
-
-		if (email == null || email.isEmpty())
-			throw new InternalServerException("Email not found", HttpStatus.BAD_REQUEST);
-
-		Customer customer = customerRepo.findByEmail(email).orElseThrow(
-				() -> new InternalServerException("Customer not found with this credential", HttpStatus.BAD_REQUEST));
-
-		if (customer.getPassword() != null && customer.getPassword().equals(password) && customer.getIsVerified() && customer.getIsAcknowledged()
-				&& customer.getStatus()) {
-
-			String loginIp = helper.getIp(request);
-
-			customer.addLoginHistory(CustomerLoginHistory.builder().customerId(customer).loginIp(loginIp).build());
-			customerRepo.save(customer);
-
-			return Map.of("res", true, "message", "Login successful");
-		}
-		else if(customer.getPassword() == null)
-			return Map.of("res", false, "message", "New password is not set");
-		else if (customer.getPassword().equals(password))
-			return Map.of("res", false, "message", "Incomplete profile");
-		else
-			return Map.of("res", false, "message", "Incorrect password");
+		customerDeliveryRepo.save(delivery);
+		return Map.of("res", true, "customerId", customerId, "deliveryId", deliveryId);
 	}
 
 	public Map<String, Object> fetchCustomer(Integer id) {
@@ -212,53 +193,7 @@ public class CustomerService {
 		Customer customer = customerRepo.findById(id)
 				.orElseThrow(() -> new InternalServerException("Customer not found", HttpStatus.BAD_REQUEST));
 
-		return Map.of("res", true, "data", customer);
+		return Map.of("res", true, "data", customerResponseMapper.toResponseDto(customer));
 	}
 
-	@Transactional
-	public Map<String, Object> forgetPassword(String email) {
-
-		if (email == null || email.isEmpty())
-			throw new InternalServerException("Email not found", HttpStatus.BAD_REQUEST);
-
-		Customer customer = customerRepo.findByEmail(email)
-				.orElseThrow(() -> new InternalServerException("Customer not found", HttpStatus.BAD_REQUEST));
-
-		String otp = helper.generateOtp();
-		customer.setOtp(otp);
-		customer.setPassword(null);
-
-		String to = customer.getEmail();
-		String subject = "Forget Password - Tarifvergleich Electricity";
-		String body = emailTemplate.createForgotPasswordEmailBody(to, otp);
-
-		mailService.sendMail(to, subject, body);
-
-		customerRepo.save(customer);
-
-		return Map.of("res", true, "data", Map.of("id", customer.getCustomerId(), "firstName", customer.getFirstName(),
-				"lastName", customer.getLastName(), "email", customer.getEmail()));
-	}
-
-	@Transactional
-	public Map<String, Object> resetPassword(Integer id, String newPassword) {
-		if (id == null || id <= 0)
-			throw new InternalServerException("Customer id missing", HttpStatus.BAD_REQUEST);
-
-		Customer customer = customerRepo.findById(id)
-				.orElseThrow(() -> new InternalServerException("Customer not found", HttpStatus.BAD_REQUEST));
-		
-		if(!(helper.isPasswordSecure(newPassword, customer.getEmail()))) {
-			throw new InternalServerException("Password not safe", HttpStatus.BAD_REQUEST);
-		}
-		
-		if(customer.getPassword() != null)
-			return Map.of("res", false, "message", "Forget password to set new password");
-
-		customer.setPassword(newPassword);
-
-		customerRepo.save(customer);
-
-		return Map.of("res", true, "message", "Password changed successfully");
-	}
 }

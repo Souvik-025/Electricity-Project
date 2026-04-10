@@ -20,35 +20,37 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
-@Builder
 @Entity
 @NoArgsConstructor
 @AllArgsConstructor
+@Builder
 @Getter
 @Setter
-@Table(name = "customer_loginHistory")
-public class CustomerLoginHistory {
+@Table(name = "customer_address")
+public class CustomerAddress {
 
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	private Integer id;
 	
-	@Column(name = "loggedin_time")
-	private BigInteger loggedInTime;
+	private String zip;
 	
-	@Column(name = "loggedout_time")
-	private BigInteger loggedOutTime;
+	private String city;
 	
-	@Column(name = "login_ip")
-	private String loginIp;
+	private String street;
+	
+	@Column(name = "house_number")
+	private String houseNumber;
 	
 	@ManyToOne
 	@JoinColumn(name = "customer_id")
 	@JsonIgnore
 	private Customer customerId;
+		
+	private BigInteger createdOn;
 	
 	@PrePersist
 	protected void onCreate() {
-		loggedInTime = Helper.getCurrentTimeBerlin();
+		createdOn = Helper.getCurrentTimeBerlin();
 	}
 }

@@ -1,9 +1,9 @@
 package com.tarifvergleich.electricity.model;
 
 import java.math.BigInteger;
-import java.time.Instant;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.tarifvergleich.electricity.util.Helper;
 
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
@@ -46,6 +46,6 @@ public class AdminLoginHistory {
 	
 	@PrePersist
 	protected void onCreate() {
-		loginTime = BigInteger.valueOf(Instant.now().getEpochSecond());
+		loginTime = Helper.getCurrentTimeBerlin();
 	}
 }

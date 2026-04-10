@@ -10,8 +10,7 @@ import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
-import jakarta.persistence.JoinColumn;
-import jakarta.persistence.ManyToOne;
+import jakarta.persistence.OneToOne;
 import jakarta.persistence.PrePersist;
 import jakarta.persistence.Table;
 import lombok.AllArgsConstructor;
@@ -20,35 +19,39 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
-@Builder
 @Entity
 @NoArgsConstructor
 @AllArgsConstructor
+@Builder
 @Getter
 @Setter
-@Table(name = "customer_loginHistory")
-public class CustomerLoginHistory {
+@Table(name = "customer_billing_address")
+public class CustomerBillingAddress {
 
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	private Integer id;
 	
-	@Column(name = "loggedin_time")
-	private BigInteger loggedInTime;
+	private String zip;
 	
-	@Column(name = "loggedout_time")
-	private BigInteger loggedOutTime;
+	private String city;
 	
-	@Column(name = "login_ip")
-	private String loginIp;
+	private String street;
 	
-	@ManyToOne
-	@JoinColumn(name = "customer_id")
+	@Column(name = "is_different")
+	private Boolean isDifferent;
+	
+	@Column(name = "house_number")
+	private String houseNumber;
+	
+	private BigInteger createdOn;
+	
+	@OneToOne(mappedBy = "billingAddress")
 	@JsonIgnore
-	private Customer customerId;
+	private CustomerDelivery deliveryId;
 	
 	@PrePersist
 	protected void onCreate() {
-		loggedInTime = Helper.getCurrentTimeBerlin();
+		createdOn = Helper.getCurrentTimeBerlin();
 	}
 }
