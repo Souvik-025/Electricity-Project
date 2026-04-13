@@ -13,32 +13,32 @@
       <div class="progress-header">Nur noch wenige Klicks zu Ihrem neuen Tarif</div>
       <div class="progress-steps">
         <div class="step active">
-          <div class="step-circle">
+          <div class="step-circle" style="cursor: pointer" (click)="navigateToMainStep(1)">
             <div class="inner-circle">1</div>
           </div>
           <div class="step-label">Account</div>
         </div>
         <div class="step">
-          <div class="step-circle">
+          <div class="step-circle" style="cursor: pointer" (click)="navigateToMainStep(2)">
             <div class="inner-circle">2</div>
           </div>
           <div class="step-label">Lieferadresse</div>
         </div>
         <div class="step">
-          <div class="step-circle">
+          <div class="step-circle" style="cursor: pointer" (click)="navigateToMainStep(3)">
             <div class="inner-circle">3</div>
           </div>
           <div class="step-label">Anschlussdaten</div>
         </div>
         <div class="step">
-          <div class="step-circle">
+          <div class="step-circle" style="cursor: pointer" (click)="navigateToMainStep(4)">
             <div class="inner-circle">4</div>
           </div>
           <div class="step-label">Zahlungsart</div>
         </div>
 
         <div class="step">
-          <div class="step-circle">
+          <div class="step-circle" style="cursor: pointer" (click)="navigateToMainStep(5)">
             <div class="inner-circle">5</div>
           </div>
           <div class="step-label">Abschluss</div>
@@ -62,31 +62,14 @@
         </div>
 
         <div class="container-checkbox">
-          <div
-            class="field-wrap-checkbox"
-            [class.active]="authMode === 'register'"
-            (click)="setAuthMode('register')"
-          >
-            <input
-              type="radio"
-              name="authMode"
-              [checked]="authMode === 'register'"
-              (change)="setAuthMode('register')"
-            />
+          <div class="field-wrap-checkbox" [class.active]="authMode === 'register'" (click)="setAuthMode('register')">
+            <input type="radio" name="authMode" [checked]="authMode === 'register'"
+              (change)="setAuthMode('register')" />
             Weiter zur Registrierung
           </div>
 
-          <div
-            class="field-wrap-checkbox"
-            [class.active]="authMode === 'login'"
-            (click)="setAuthMode('login')"
-          >
-            <input
-              type="radio"
-              name="authMode"
-              [checked]="authMode === 'login'"
-              (change)="setAuthMode('login')"
-            />
+          <div class="field-wrap-checkbox" [class.active]="authMode === 'login'" (click)="setAuthMode('login')">
+            <input type="radio" name="authMode" [checked]="authMode === 'login'" (change)="setAuthMode('login')" />
             Weiter zum Login-Bereich
           </div>
         </div>
@@ -110,24 +93,16 @@
               <span class="field-label">Passwort</span>
 
               <input #loginPwField [type]="showLoginPw ? 'text' : 'password'" />
-              <span
-                class="material-symbols-outlined pw-toggle"
-                (click)="showLoginPw = !showLoginPw"
-                >{{ showLoginPw ? 'visibility' : 'visibility_off' }}</span
-              >
+              <span class="material-symbols-outlined pw-toggle" (click)="showLoginPw = !showLoginPw">{{ showLoginPw ?
+                'visibility' : 'visibility_off' }}</span>
             </div>
           </div>
 
           <div class="error-msg" *ngIf="loginError">{{ loginError }}</div>
 
-          <div
-            style="display: flex; flex-direction: row; justify-content: flex-end; margin-top: 10px"
-          >
-            <button
-              class="btn-primary"
-              [disabled]="isLoading"
-              (click)="doLogin(loginEmailField.value, loginPwField.value)"
-            >
+          <div style="display: flex; flex-direction: row; justify-content: flex-end; margin-top: 10px">
+            <button class="btn-primary" [disabled]="isLoading"
+              (click)="doLogin(loginEmailField.value, loginPwField.value)">
               <span *ngIf="isLoading" class="spinner"></span>
               {{ isLoading ? 'Bitte warten...' : 'Anmelden' }}
             </button>
@@ -177,15 +152,10 @@
             <div class="field-wrap">
               <div>
                 <span class="field-label">E-Mail-Adresse</span>
-                <input
-                  #emailField
-                  type="email"
-                  [value]="formData.email"
-                  (input)="
+                <input #emailField type="email" [value]="formData.email" (input)="
                     formData.email = $any($event.target).value;
                     validatePassword(pwField.value, $any($event.target).value, repField.value)
-                  "
-                />
+                  " />
               </div>
             </div>
             <div class="field-error-msg" *ngIf="fieldErrors['email']">
@@ -199,23 +169,15 @@
             <div class="field-wrap">
               <div>
                 <span class="field-label">Passwort</span>
-                <input
-                  #pwField
-                  name="password"
-                  [type]="showPw ? 'text' : 'password'"
-                  [value]="formData.password"
-                  (input)="
-                    formData.password = $any($event.target).value;
-                    validatePassword($any($event.target).value, emailField.value, repField.value)
-                  "
-                />
+                <input #pwField name="password" [type]="showPw ? 'text' : 'password'" [value]="formData.password"
+                  [style.background-color]="passwordMismatch ? '#fff0f0' : 'white'" (input)="
+          formData.password = $any($event.target).value;
+          validatePassword($any($event.target).value, emailField.value, repField.value)
+        " />
               </div>
               <span class="material-symbols-outlined pw-toggle" (click)="showPw = !showPw">{{
                 showPw ? 'visibility' : 'visibility_off'
-              }}</span>
-            </div>
-            <div class="field-error-msg" *ngIf="fieldErrors['password']">
-              {{ fieldErrors['password'] }}
+                }}</span>
             </div>
           </div>
 
@@ -223,79 +185,67 @@
             <div class="field-wrap">
               <div>
                 <span class="field-label">Passwort wiederholen</span>
-                <input
-                  #repField
-                  name="passwordRepeat"
-                  [type]="showRepPw ? 'text' : 'password'"
-                  (input)="
-                    validatePassword(pwField.value, emailField.value, $any($event.target).value)
-                  "
-                />
+                <input #repField name="passwordRepeat" [type]="showRepPw ? 'text' : 'password'"
+                  [style.background-color]="passwordMismatch ? '#fff0f0' : 'white'" (input)="
+          validatePassword(pwField.value, emailField.value, $any($event.target).value)
+        " />
               </div>
               <span class="material-symbols-outlined pw-toggle" (click)="showRepPw = !showRepPw">{{
                 showRepPw ? 'visibility' : 'visibility_off'
-              }}</span>
+                }}</span>
             </div>
           </div>
 
-          <!-- Password mismatch error -->
-          <div class="login-text" style="color: #cc0000" *ngIf="passwordMismatch">
-            Die Passwörter stimmen nicht überein
-          </div>
-
-          <!-- Password guidelines -->
           <div class="password-guidelines">
             <div class="login-text" style="font-weight: 600; margin-bottom: 6px">
-              Grundlagen sicherer Passwörter / Passwortrichtlinien
+              Grundlagen sicherer Passwörter
             </div>
 
             <div class="guideline-row">
-              <span class="guideline-icon valid"></span>
-              <span class="login-text">
-                Ihr Passwort besteht aus mindestens 8 und maximal 50 Zeichen
+              <span class="guideline-icon" [class.valid]="pw_length" [class.invalid]="!pw_length"></span>
+              <span class="login-text" [style.color]="pw_length ? 'green' : '#666'">
+                Mindestens 8 und maximal 50 Zeichen
               </span>
             </div>
 
             <div class="guideline-row">
-              <span class="guideline-icon valid"></span>
-              <span class="login-text">
-                Ihr Passwort enthält mindestens einen Groß- und einen Kleinbuchstaben
+              <span class="guideline-icon" [class.valid]="pw_case" [class.invalid]="!pw_case"></span>
+              <span class="login-text" [style.color]="pw_case ? 'green' : '#666'">
+                Ein Groß- und ein Kleinbuchstabe
               </span>
             </div>
 
             <div class="guideline-row">
-              <span class="guideline-icon valid"></span>
-              <span class="login-text">
-                Ihr Passwort enthält mindestens ein Sonderzeichen (!, @, $, %, ^, &, *, +, #)
+              <span class="guideline-icon" [class.valid]="pw_special" [class.invalid]="!pw_special"></span>
+              <span class="login-text" [style.color]="pw_special ? 'green' : '#666'">
+                Mindestens ein Sonderzeichen (!, @, $, %, ^, &, *, +, #)
               </span>
             </div>
 
             <div class="guideline-row">
-              <span class="guideline-icon invalid"></span>
-              <span class="login-text"> Ihr Passwort enthält mindestens eine Zahl </span>
+              <span class="guideline-icon" [class.valid]="pw_number" [class.invalid]="!pw_number"></span>
+              <span class="login-text" [style.color]="pw_number ? 'green' : '#666'">
+                Mindestens eine Zahl
+              </span>
             </div>
 
             <div class="guideline-row">
-              <span class="guideline-icon invalid"></span>
-              <span class="login-text"> Ihr Passwort darf Ihrer E-Mail-Adresse nicht ähneln </span>
+              <span class="guideline-icon" [class.valid]="pw_noEmail" [class.invalid]="!pw_noEmail"></span>
+              <span class="login-text" [style.color]="pw_noEmail ? 'green' : '#666'">
+                Darf E-Mail-Adresse nicht ähneln
+              </span>
             </div>
           </div>
 
           <!-- Customer type toggle -->
           <div class="container-checkbox">
-            <div
-              class="field-wrap-checkbox"
-              [class.active]="customerType === 'private'"
-              (click)="setCustomerType('private')"
-            >
+            <div class="field-wrap-checkbox" [class.active]="customerType === 'private'"
+              (click)="setCustomerType('private')">
               <input type="radio" name="custType" [checked]="customerType === 'private'" />
               Privatkunde
             </div>
-            <div
-              class="field-wrap-checkbox"
-              [class.active]="customerType === 'business'"
-              (click)="setCustomerType('business')"
-            >
+            <div class="field-wrap-checkbox" [class.active]="customerType === 'business'"
+              (click)="setCustomerType('business')">
               <input type="radio" name="custType" [checked]="customerType === 'business'" />
               Geschäftskunde
             </div>
@@ -306,11 +256,8 @@
             <div class="field-wrap">
               <div>
                 <span class="field-label">Firma</span>
-                <input
-                  type="text"
-                  [value]="formData.companyName"
-                  (input)="formData.companyName = $any($event.target).value"
-                />
+                <input type="text" [value]="formData.companyName"
+                  (input)="formData.companyName = $any($event.target).value" />
               </div>
             </div>
             <div class="field-error-msg" *ngIf="fieldErrors['companyName']">
@@ -321,22 +268,13 @@
           <!-- Salutation / Title -->
           <div style="display: flex; gap: 15px">
             <div class="form-group" style="flex: 1">
-              <div
-                class="input-field select-wrap"
-                [class.field-error]="fieldErrors['salutation']"
-                style="display: inline-block"
-              >
+              <div class="input-field select-wrap" [class.field-error]="fieldErrors['salutation']"
+                style="display: inline-block">
                 <div>
-                  <span
-                    class="field-label"
-                    style="margin-left: 10px; font-size: 12px; font-weight: 500; display: block"
-                    >Anrede/Titel</span
-                  >
-                  <select
-                    class="styled-select"
-                    [value]="formData.salutation"
-                    (change)="formData.salutation = $any($event.target).value"
-                  >
+                  <span class="field-label"
+                    style="margin-left: 10px; font-size: 12px; font-weight: 500; display: block">Anrede/Titel</span>
+                  <select class="styled-select" [value]="formData.salutation"
+                    (change)="formData.salutation = $any($event.target).value">
                     <option value="">Bitte wählen...</option>
                     <option value="Herr">Herr</option>
                     <option value="Frau">Frau</option>
@@ -353,16 +291,10 @@
             <div class="form-group" style="flex: 1">
               <div class="input-field select-wrap" style="display: inline-block">
                 <div>
-                  <span
-                    class="field-label"
-                    style="margin-left: 10px; font-size: 12px; font-weight: 500; display: block"
-                    >Titel</span
-                  >
-                  <select
-                    class="styled-select"
-                    [value]="formData.title"
-                    (change)="formData.title = $any($event.target).value"
-                  >
+                  <span class="field-label"
+                    style="margin-left: 10px; font-size: 12px; font-weight: 500; display: block">Titel</span>
+                  <select class="styled-select" [value]="formData.title"
+                    (change)="formData.title = $any($event.target).value">
                     <option value="">Kein Titel</option>
                     <option value="Dr.">Dr.</option>
                     <option value="Prof.">Prof.</option>
@@ -379,11 +311,8 @@
           <div class="form-group">
             <div class="field-wrap">
               <span class="field-label">Vorname</span>
-              <input
-                type="text"
-                [value]="formData.firstName"
-                (input)="formData.firstName = $any($event.target).value"
-              />
+              <input type="text" [value]="formData.firstName"
+                (input)="formData.firstName = $any($event.target).value" />
             </div>
             <div class="field-error-msg" *ngIf="fieldErrors['firstName']">
               {{ fieldErrors['firstName'] }}
@@ -393,11 +322,7 @@
           <div class="form-group">
             <div class="field-wrap">
               <span class="field-label">Nachname</span>
-              <input
-                type="text"
-                [value]="formData.lastName"
-                (input)="formData.lastName = $any($event.target).value"
-              />
+              <input type="text" [value]="formData.lastName" (input)="formData.lastName = $any($event.target).value" />
             </div>
             <div class="field-error-msg" *ngIf="fieldErrors['lastName']">
               {{ fieldErrors['lastName'] }}
@@ -417,17 +342,9 @@
             <div class="input-field prefix-input">
               <input type="text" value="+49" readonly />
             </div>
-            <div
-              class="input-field"
-              style="width: 30%;"
-              [class.field-error]="fieldErrors['mobileNumber']"
-            >
-              <input
-                type="text"
-                placeholder="z.B. 175 654897"
-                [value]="formData.mobileNumberLocal"
-                (input)="formData.mobileNumberLocal = $any($event.target).value"
-              />
+            <div class="input-field" style="width: 30%;" [class.field-error]="fieldErrors['mobileNumber']">
+              <input type="text" placeholder="z.B. 175 654897" [value]="formData.mobileNumberLocal"
+                (input)="formData.mobileNumberLocal = $any($event.target).value" />
             </div>
           </div>
           <div class="field-error-msg" *ngIf="fieldErrors['mobileNumber']">
@@ -438,21 +355,15 @@
           <div class="error-msg" *ngIf="apiError">{{ apiError }}</div>
 
           <!-- Back / Next -->
-          <div
-            style="
+          <div style="
               display: flex;
               flex-direction: row;
               justify-content: space-between;
               margin-top: 10px;
-            "
-          >
+            ">
             <button class="btn-back">&lt; Zurück</button>
             <div class="form-actions">
-              <button
-                class="btn-primary"
-                [disabled]="isLoading"
-                (click)="submitRegistration(repField.value)"
-              >
+              <button class="btn-primary" [disabled]="isLoading" (click)="submitRegistration(repField.value)">
                 <span *ngIf="isLoading" class="spinner"></span>
                 {{ isLoading ? 'Bitte warten...' : 'Weiter' }}
               </button>
@@ -462,11 +373,8 @@
           <!-- Already have account -->
           <div class="login-text">
             Haben Sie bereits einen Account?
-            <a
-              (click)="setAuthMode('login')"
-              style="color: #0085e0; text-decoration: none; cursor: pointer"
-              >Jetzt anmelden</a
-            >
+            <a (click)="setAuthMode('login')" style="color: #0085e0; text-decoration: none; cursor: pointer">Jetzt
+              anmelden</a>
           </div>
         </div>
       </div>
@@ -487,13 +395,7 @@
           <div class="email-field">
             <div class="input-field" style="flex: 1; background-color: #f0f0f0; border: none">
               <span class="material-symbols-outlined">account_circle</span>
-              <input
-                name="email"
-                type="email"
-                [value]="formData.email"
-                style="background-color: #f0f0f0"
-                readonly
-              />
+              <input name="email" type="email" [value]="formData.email" style="background-color: #f0f0f0" readonly />
             </div>
             <span style="display: flex; align-items: center; padding-left: 20px">
               <span class="material-symbols-outlined" style="color: black">lock</span>
@@ -507,44 +409,28 @@
 
           <div class="login-text">Code aus E-Mail eingeben</div>
           <div class="code-inputs" [class.code-error]="otpError">
-            <input
-              *ngFor="let i of [0, 1, 2, 3, 4, 5]"
-              type="text"
-              maxlength="1"
-              [id]="'otp-' + i"
-              (input)="onOtpInput($event, i)"
-              (keydown)="onOtpKeydown($event, i)"
-              (paste)="onOtpPaste($event)"
-            />
+            <input *ngFor="let i of [0, 1, 2, 3, 4, 5]" type="text" maxlength="1" [id]="'otp-' + i"
+              (input)="onOtpInput($event, i)" (keydown)="onOtpKeydown($event, i)" (paste)="onOtpPaste($event)" />
           </div>
 
           <div class="error-msg" *ngIf="otpError">{{ otpError }}</div>
 
           <div class="login-text">
             Keinen Code erhalten? Bitte prüfen Sie auch Ihren Spam-Ordner.
-            <span style="color: black; cursor: pointer" (click)="resendOtp()"
-              >Code erneut senden
+            <span style="color: black; cursor: pointer" (click)="resendOtp()">Code erneut senden
             </span>
-            <span *ngIf="resendSuccess" style="color: green; margin-left: 8px"
-              >✓ Code gesendet</span
-            >
+            <span *ngIf="resendSuccess" style="color: green; margin-left: 8px">✓ Code gesendet</span>
           </div>
 
-          <div
-            style="
+          <div style="
               display: flex;
               flex-direction: row;
               justify-content: space-between;
               margin-top: 10px;
-            "
-          >
+            ">
             <button class="btn-back" (click)="goToStep(1)">&lt; Zurück</button>
             <div class="form-actions">
-              <button
-                class="btn-primary"
-                [disabled]="isLoading || otpValue.length < 6"
-                (click)="verifyOtp()"
-              >
+              <button class="btn-primary" [disabled]="isLoading || otpValue.length < 6" (click)="verifyOtp()">
                 <span *ngIf="isLoading" class="spinner"></span>
                 {{ isLoading ? 'Prüfen...' : 'Code überprüfen' }}
               </button>
@@ -576,20 +462,18 @@
 
           <div class="error-msg" *ngIf="apiError">{{ apiError }}</div>
 
-          <div
-            style="
+          <div style="
               display: flex;
               flex-direction: row;
               justify-content: space-between;
               margin-top: 10px;
-            "
-          >
+            ">
             <button class="btn-back" (click)="goToStep(2)">&lt; Zurück</button>
             <div class="form-actions">
               <button class="btn-primary" [disabled]="isLoading" (click)="completRegistration()">
                 <span *ngIf="isLoading" class="spinner"></span>
                 {{
-                  isLoading ? 'Bitte warten...' : 'Registrierung abschließen & weiter zum Wechsel'
+                isLoading ? 'Bitte warten...' : 'Registrierung abschließen & weiter zum Wechsel'
                 }}
               </button>
             </div>
@@ -607,13 +491,7 @@
           <div class="email-field">
             <div class="input-field" style="flex: 1; background-color: #f0f0f0; border: none">
               <span class="material-symbols-outlined">account_circle</span>
-              <input
-                name="email"
-                type="email"
-                [value]="formData.email"
-                style="background-color: #f0f0f0"
-                readonly
-              />
+              <input name="email" type="email" [value]="formData.email" style="background-color: #f0f0f0" readonly />
             </div>
             <span style="display: flex; align-items: center; padding-left: 20px">
               <span class="material-symbols-outlined" style="color: black">lock</span>
@@ -623,14 +501,12 @@
             <input type="checkbox" id="stayLogin" />
             <label for="stayLogin" class="login-text"> bleiben Sie angemeldet </label>
           </div>
-          <div
-            style="
+          <div style="
               display: flex;
               flex-direction: row;
               justify-content: space-between;
               margin-top: 10px;
-            "
-          >
+            ">
             <button class="btn-back" (click)="goToStep(3)">&lt; Zurück</button>
             <div class="form-actions">
               <button class="btn-primary" [disabled]="isLoading" (click)="redirectToAccount()">
