@@ -108,6 +108,8 @@ export class SelectProvider implements OnInit {
   allRates: Rate[] = [];
   filteredRates: Rate[] = [];
   totalCount = 0;
+  baseProvider: any = null;
+  baseRate: any = null;
 
   selectedOption = 'Sortieren nach: Beste Treffer';
   activeTabMap: { [rateId: number]: string } = {};
@@ -148,7 +150,6 @@ export class SelectProvider implements OnInit {
     this.router.navigate(['/home/electricity']);
   }
 
-
   private fetchRates(): void {
     if (!this.hasAddress) {
       console.warn('Missing address, skipping API call');
@@ -171,6 +172,8 @@ export class SelectProvider implements OnInit {
       type: this.type,
       branch: this.branch,
     };
+
+    this.fetchBaseProvider();
 
     this.http.post<RatesResponse>('http://192.168.0.155:8080/api/get-rates', body).subscribe({
       next: (res) => {
@@ -203,6 +206,46 @@ export class SelectProvider implements OnInit {
         this.hasLoadedRates = true;
       },
     });
+  }
+
+  private fetchBaseProvider(): void {
+    //   if (!this.hasAddress) {
+    //   console.warn('Missing address, skipping API call');
+    //   alert('Please select an address before compare');
+    //   return;
+    // }
+
+    const params = {
+      zip: this.zip,
+      city: this.city,
+      street: this.street,
+      houseNumber: this.houseNumber,
+      branch: this.branch,
+      consum: this.consum.toString(),
+      type: this.type,
+    };
+
+    this.http
+      .get<any>('/baseProvider/', {
+        params,
+        headers: {
+          Authorization: `Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiJnOExmWFluajVxUXdDQ3hmcyIsImFwcElkIjoiYUF4TTR6WFNpSG1qSFJNcXEiLCJzZXJ2aWNlTmFtZSI6IlVzZXJTZXJ2aWNlIiwiZWdvbkFwaUtleSI6IjhhYWVkOWY0ZjkxMDQ1ZGY1NjI5MjJlN2Q2YmVjYjhlIiwiaWF0IjoxNzcwOTA5ODkwfQ.95AXT8kMNaFk5d-_XOodQU5L0DbEZCjsMy-m4ZdVtdY`,
+          Accept: 'application/json',
+        },
+      })
+      .subscribe({
+        next: (res) => {
+          console.log('Base Provider:', res);
+
+          this.baseProvider = res?.result?.[0] || null;
+          this.baseRate = this.baseProvider?.rates?.[0] || null;
+
+          this.cdr.detectChanges();
+        },
+        error: (err) => {
+          console.error('Base Provider API Error:', err);
+        },
+      });
   }
 
   applyFiltersAndSort(): void {

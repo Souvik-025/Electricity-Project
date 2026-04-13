@@ -5,6 +5,7 @@ import { RouterModule } from '@angular/router';
 import { MatIconModule } from '@angular/material/icon';
 import { MatButtonModule } from '@angular/material/button';
 import { MatToolbarModule } from '@angular/material/toolbar';
+import { ContentService } from '../../services/content.service';
 
 export interface NavItem {
   id: number;
@@ -53,14 +54,26 @@ export class Navigation implements OnInit {
   constructor(
     private http: HttpClient,
     private cdr: ChangeDetectorRef,
+    public contentService: ContentService,
   ) {}
 
   ngOnInit(): void {
-    this.http.post<any>('http://192.168.0.155:8080/api/content', {}).subscribe({
+    // this.http.post<any>('http://192.168.0.155:8080/api/content', {}).subscribe({
+    //   next: (data) => {
+    //     if (data?.res && data?.menu?.nav) {
+    //       this.navItems = [...data.menu.nav].sort((a, b) => a.order - b.order);
+    //     }
+    //     this.isLoading = false;
+    //     this.cdr.detectChanges();
+    //   },
+    //   error: () => {
+    //     this.isLoading = false;
+    //     this.cdr.detectChanges();
+    //   },
+    // });
+    this.contentService.getNav().subscribe({
       next: (data) => {
-        if (data?.res && data?.menu?.nav) {
-          this.navItems = [...data.menu.nav].sort((a, b) => a.order - b.order);
-        }
+        this.navItems = data;
         this.isLoading = false;
         this.cdr.detectChanges();
       },
@@ -71,8 +84,12 @@ export class Navigation implements OnInit {
     });
   }
 
-  getImageUrl(contentUrl: string): string {
-    return `${this.BASE_IMAGE_URL}${contentUrl}`;
+  // getImageUrl(contentUrl: string): string {
+  //   return `${this.BASE_IMAGE_URL}${contentUrl}`;
+  // }
+
+  getImageUrl(url: string | null): string {
+    return this.contentService.getImageUrl(url);
   }
 
   getIconClass(fileName: string): string {

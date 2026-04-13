@@ -421,15 +421,15 @@
         </div>
 
         <!-- Provider comparison row — first result from API -->
-        <div class="vergleich-bar__provider" *ngIf="!isLoading && filteredRates.length > 0">
-          <div class="provider-name">{{ filteredRates[0].providerName }}</div>
+        <div class="vergleich-bar__provider" *ngIf="!isLoading && baseProvider && baseRate">
+          <div class="provider-name">{{ baseProvider.providerName }}</div>
           <div class="provider-details">
-            <div class="tarif-title">{{ filteredRates[0].rateName }}</div>
+            <div class="tarif-title">{{ baseRate.rateName }}</div>
             <div class="tarif-sub">
               Arbeitspreis:
-              <strong>{{ filteredRates[0].workPrice | number: '1.2-2' }} Ct./kWh</strong>
+              <strong>{{ baseRate.workPrice | number: '1.2-2' }} Ct./kWh</strong>
               | Grundpreis:
-              <strong>{{ filteredRates[0].basePriceMonth | number: '1.2-2' }} €/Monat</strong>
+              <strong>{{ baseRate.basePriceMonth | number: '1.2-2' }} €/Monat</strong>
             </div>
             <a href="#" class="toggle-link" style="margin-top: 4px; display: inline-flex"
               >Tarif- und Preisdetails <span class="arrow down-v"></span
@@ -437,7 +437,11 @@
           </div>
           <div class="provider-price">
             <div class="provider-price__amount">
-              {{ filteredRates[0].totalPriceMonth | number: '1.2-2' }} €
+              <!-- {{ filteredRates[0].totalPriceMonth | number: '1.2-2' }} € -->
+              {{
+                baseRate.basePriceMonth + (consum * baseRate.workPrice) / 100 / 12 | number: '1.2-2'
+              }}
+              €
             </div>
             <div class="provider-price__sub">
               Ø pro Monat &nbsp;<span class="info-base info-circ">i</span>

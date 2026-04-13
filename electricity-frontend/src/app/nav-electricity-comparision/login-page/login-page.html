@@ -1,14 +1,13 @@
 <div class="page-layout">
-
   <!-- ══════════ SIDEBAR ══════════ -->
   <div class="sidebar">
     <app-contact-person></app-contact-person>
     <app-need-support></app-need-support>
-  </div><!-- /sidebar -->
+  </div>
+  <!-- /sidebar -->
 
   <!-- ══════════ MAIN CONTENT ══════════ -->
   <div class="main-content">
-
     <!-- Progress stepper -->
     <div class="progress-card">
       <div class="progress-header">Nur noch wenige Klicks zu Ihrem neuen Tarif</div>
@@ -48,31 +47,41 @@
     </div>
 
     <div class="section-panel">
-      <div class="section-header">
-        Haben Sie schon einen Account bei uns?
-      </div>
+      <div class="section-header">Haben Sie schon einen Account bei uns?</div>
     </div>
 
     <div class="section-login">
       <div class="login-row">
         <div class="form-group">
-          <div class="login-header">Wenn ja, loggen sie sich bitte ein, damit der Auftrag in Ihrem Account gespeichert
-            wird.</div>
-          <div class="login-text">Falls Sie noch keinen Account haben, registrieren Sie sich bitte jetzt.</div>
+          <div class="login-header">
+            Wenn ja, loggen sie sich bitte ein, damit der Auftrag in Ihrem Account gespeichert wird.
+          </div>
+          <div class="login-text">
+            Falls Sie noch keinen Account haben, registrieren Sie sich bitte jetzt.
+          </div>
         </div>
 
         <div class="container-checkbox">
           <div class="field-wrap-checkbox">
-            <label class="cb-row"><input type="checkbox" /></label>
+            <!-- <label class="cb-row"><input type="checkbox" /></label> -->
+            <input type="radio" name="authMode" />
             Weiter zur Registrierung
           </div>
-          <div class="field-wrap-checkbox">
-            <label class="cb-row"><input type="checkbox" /></label>
+          <div
+            class="field-wrap-checkbox"
+            [class.active]="currentStep === 'login'"
+            (click)="setAuthMode('login')"
+          >
+            <input
+              type="radio"
+              name="authMode"
+              [checked]="currentStep === 'login'"
+              (change)="setAuthMode('login')"
+            />
             Weiter zum Login-Bereich
           </div>
         </div>
       </div>
-
 
       <div class="container-login" *ngIf="currentStep === 'login'">
         <div class="login-berich">Login Berich</div>
@@ -81,76 +90,96 @@
           <div class="login-text">Melden Sie sich mit Ihrer E-Mail-Adresse an.</div>
           <div class="email-field">
             <div class="input-field">
-              <span class="material-symbols-outlined">
-                account_circle
-              </span>
-              <input name="email" type="email" value="max@mustermann.de" readonly>
+              <span class="material-symbols-outlined"> account_circle </span>
+              <input #emailField name="email" type="email" [value]="email" [(ngModel)]="email" />
             </div>
-            <button class="btn-next" style="margin-left: 10px;">
+            <button class="btn-next" style="margin-left: 10px">
               ändern
-              <span><img src="assets/icons/Bearbeiten_schwarz.png" class="icon-check" alt="check"
-                  style="margin-left: 8px;"></span>
+              <span
+                ><img
+                  src="assets/icons/Bearbeiten_schwarz.png"
+                  class="icon-check"
+                  alt="check"
+                  style="margin-left: 8px"
+              /></span>
             </button>
           </div>
 
           <div class="login-text">Geben Sie Ihr Passwort ein.</div>
-          <div class="form-group">
+          <!-- <div class="form-group">
             <div class="field-wrap">
               <div>
                 <span class="field-label">Passwort</span>
-                <input name="password" type="password" value="manuel.markovic@gmx.net">
+                <input name="password" type="password" value="manuel.markovic@gmx.net" />
               </div>
-              <span class="material-symbols-outlined">
-                visibility_off
-              </span>
+              <span class="material-symbols-outlined"> visibility_off </span>
+            </div>
+          </div> -->
+
+          <div class="form-group">
+            <div class="field-wrap">
+              <span class="field-label">Passwort</span>
+
+              <input
+                #loginPwField
+                [type]="showLoginPw ? 'text' : 'password'"
+                [(ngModel)]="password"
+              />
+              <span
+                class="material-symbols-outlined pw-toggle"
+                (click)="showLoginPw = !showLoginPw"
+                >{{ showLoginPw ? 'visibility' : 'visibility_off' }}</span
+              >
             </div>
           </div>
-          <button class="btn-password">
+
+          <div class="error-msg" *ngIf="loginError">{{ loginError }}</div>
+
+          <button class="btn-password" style="cursor: pointer" (click)="goToStep('forgotPassword')">
             Passwort vergessen?
           </button>
           <div class="field-reg">
             <label class="cb-row"><input type="checkbox" /></label>
             angemeldet bleiben
           </div>
-          <div style="display: flex; flex-direction: row; justify-content: space-between;">
-            <button class="btn-back">
-              &lt; Zurück
-            </button>
+
+          <div style="display: flex; flex-direction: row; justify-content: space-between">
+            <button class="btn-back">&lt; Zurück</button>
             <div class="form-actions">
-              <button class="btn-primary" (click)="goToStep('loggedIn')">Anmelden und weiter</button>
+              <button class="btn-primary" (click)="loginUser()">
+                {{ isLoading ? 'Bitte warten...' : 'Anmelden und weiter' }}
+              </button>
             </div>
           </div>
         </div>
       </div>
 
-
-
-
-
-
       <div class="container-login" *ngIf="currentStep === 'loggedIn'">
-        <div class="login-berich" style="background-color:#00a651 ;">Bereits
-          eingeloggt
-        </div>
+        <div class="login-berich" style="background-color: #00a651">Bereits eingeloggt</div>
         <div class="login-row">
           <div class="email-field">
             <div class="input-field">
-              <span class="material-symbols-outlined">
-                account_circle
-              </span>
-              <input name="email" type="email" value="max@mustermann.de "
-                style="background-color: #afadad; border: none;" readonly>
+              <span class="material-symbols-outlined"> account_circle </span>
+              <input
+                name="email"
+                type="email"
+                value="max@mustermann.de "
+                style="background-color: #afadad; border: none"
+                readonly
+              />
             </div>
-            <span style="display:flex; align-items:center; padding-left: 20px;"><img src="assets/icons/Schloss.png"
-                class="icon-schloss" alt="check"></span>
+            <span style="display: flex; align-items: center; padding-left: 20px"
+              ><img src="assets/icons/Schloss.png" class="icon-schloss" alt="check"
+            /></span>
           </div>
           <div>
-            <div class="login-text" style="margin-bottom: 10px;">Wir haben erkannt, dass Sie bereits mit der oben
-              angezeigten E-Mail-Adresse
-              eingeloggt
-              sind. </div>
-            <div class="login-text">Wollen Sie mit diesem Account fortfahren oder sich in einen anderen Account
-              einloggen?</div>
+            <div class="login-text" style="margin-bottom: 10px">
+              Wir haben erkannt, dass Sie bereits mit der oben angezeigten E-Mail-Adresse eingeloggt
+              sind.
+            </div>
+            <div class="login-text">
+              Wollen Sie mit diesem Account fortfahren oder sich in einen anderen Account einloggen?
+            </div>
           </div>
           <div class="container-checkbox">
             <div class="field-wrap-checkbox">
@@ -162,10 +191,8 @@
               Mit einem anderen Account fortfahren
             </div>
           </div>
-          <div style="display: flex; flex-direction: row; justify-content: space-between;">
-            <button class="btn-back" (click)="goToStep('login')">
-              &lt; Zurück
-            </button>
+          <div style="display: flex; flex-direction: row; justify-content: space-between">
+            <button class="btn-back" (click)="goToStep('login')">&lt; Zurück</button>
             <div class="form-actions">
               <button class="btn-primary" (click)="goToStep('forgotPassword')">Weiter</button>
             </div>
@@ -173,32 +200,66 @@
         </div>
       </div>
 
-
-
-
       <div class="container-login" *ngIf="currentStep === 'forgotPassword'">
-        <div class="login-berich">Haben Sie Ihr Passwort vergessen?
-        </div>
+        <div class="login-berich">Haben Sie Ihr Passwort vergessen?</div>
         <div class="login-row">
-          <div class="login-text">Ihre E-Mail-Adresse: </div>
+          <div class="login-text">Ihre E-Mail-Adresse:</div>
+          <!-- <div class="email-field">
+            <div class="input-field">
+              <span class="material-symbols-outlined"> account_circle </span>
+              <input
+                name="email"
+                type="email"
+                [value]="email"
+                style="background-color: #afadad; border: none"
+                readonly
+              />
+            </div>
+            <span style="display: flex; align-items: center; padding-left: 20px"
+              ><img src="assets/icons/Schloss.png" class="icon-schloss" alt="check"
+            /></span>
+          </div> -->
           <div class="email-field">
             <div class="input-field">
-              <span class="material-symbols-outlined">
-                account_circle
-              </span>
-              <input name="email" type="email" value="max@mustermann.de "
-                style="background-color: #afadad; border: none;" readonly></div>
-            <span style="display:flex; align-items:center; padding-left: 20px;"><img src="assets/icons/Schloss.png"
-                class="icon-schloss" alt="check"></span>
-          </div>
-          <div class="login-text">Wir senden Ihnen einen Code an <strong>max@mustermann.de</strong>, um Ihr Passwort zu
-            erneuern.</div>
-          <div style="display: flex; flex-direction: row; justify-content: space-between;">
-            <button class="btn-back" (click)="goToStep('loggedIn')">
-              &lt; Zurück
+              <span class="material-symbols-outlined"> account_circle </span>
+              <input
+                #emailField
+                name="forgotEmail"
+                type="email"
+                [value]="email"
+                [(ngModel)]="email"
+              />
+            </div>
+            <button class="btn-next" style="margin-left: 10px">
+              ändern
+              <span
+                ><img
+                  src="assets/icons/Bearbeiten_schwarz.png"
+                  class="icon-check"
+                  alt="check"
+                  style="margin-left: 8px"
+              /></span>
             </button>
+          </div>
+          <!-- <div class="login-text">
+            Wir senden Ihnen einen Code an <strong>{{ email }}</strong
+            >, um Ihr Passwort zu erneuern.
+          </div> -->
+          <div class="error-text" *ngIf="apiError">
+            {{ apiError }}
+          </div>
+          <div style="display: flex; flex-direction: row; justify-content: space-between">
+            <button class="btn-back" (click)="goToStep('login')">&lt; Zurück</button>
             <div class="form-actions">
-              <button class="btn-primary" (click)="goToStep('generatedCode')">Code anfordern</button>
+              <button
+                type="button"
+                class="btn-primary"
+                [disabled]="isLoadingForgot"
+                (click)="sendForgotPasswordOtp()"
+              >
+                <span *ngIf="isLoadingForgot" class="spinner"></span>
+                {{ isLoadingForgot ? 'Senden...' : 'Code anfordern' }}
+              </button>
             </div>
           </div>
         </div>
@@ -207,150 +268,238 @@
       <div class="container-login" *ngIf="currentStep === 'generatedCode'">
         <div class="login-berich">Geben Sie den Code ein</div>
         <div class="login-row">
-          <div class="login-text">Ihre E-Mail-Adresse: </div>
+          <div class="login-text">Ihre E-Mail-Adresse:</div>
           <div class="email-field">
             <div class="input-field">
-              <span class="material-symbols-outlined">
-                account_circle
-              </span>
-              <input name="email" type="email" value="max@mustermann.de "
-                style="background-color: #afadad; border: none;" readonly></div>
-            <span style="display:flex; align-items:center; padding-left: 20px;"><img src="assets/icons/Schloss.png"
-                class="icon-schloss" alt="check"></span>
+              <span class="material-symbols-outlined"> account_circle </span>
+              <input
+                name="email"
+                type="email"
+                [value]="email"
+                style="background-color: #afadad; border: none"
+                readonly
+              />
+            </div>
+            <span style="display: flex; align-items: center; padding-left: 20px"
+              ><img src="assets/icons/Schloss.png" class="icon-schloss" alt="check"
+            /></span>
           </div>
-          <div class="login-text">Bitte geben Sie den Code ein, den wir an <strong>max@mustermann.de</strong> gesendet
-            haben.</div>
+          <div class="login-text">
+            Bitte geben Sie den Code ein, den wir an <strong>{{ email }}</strong> gesendet haben.
+          </div>
           <div class="login-text">Code aus E-Mail eingeben</div>
-          <div class="code-inputs">
-            <input type="text" maxlength="1" autocomplete="one-time-code">
-            <input type="text" maxlength="1">
-            <input type="text" maxlength="1">
-            <input type="text" maxlength="1">
-            <input type="text" maxlength="1">
-            <input type="text" maxlength="1">
+          <div class="code-inputs" [class.code-error]="otpError">
+            <input
+              *ngFor="let i of [0, 1, 2, 3, 4, 5]"
+              type="text"
+              maxlength="1"
+              [id]="'otp-' + i"
+              (input)="onOtpInput($event, i)"
+              (keydown)="onOtpKeydown($event, i)"
+              (paste)="onOtpPaste($event)"
+            />
           </div>
 
-          <div class="login-text">Keinen Code erhalten? Bitte prüfen Sie auch Ihren Spam-Ordner.
-            <span style="color:#0085e0 ;">Code erneut senden</span>
+          <div class="error-msg" *ngIf="otpError">{{ otpError }}</div>
+
+          <div class="login-text">
+            Keinen Code erhalten? Bitte prüfen Sie auch Ihren Spam-Ordner.
+            <span style="color: #0085e0" (click)="resendOtp()">Code erneut senden</span>
           </div>
 
-          <div style="display: flex; flex-direction: row; justify-content: space-between;">
-            <button class="btn-back" (click)="goToStep('forgotPassword')">
-              &lt; Zurück
-            </button>
+          <div style="display: flex; flex-direction: row; justify-content: space-between">
+            <button class="btn-back" (click)="goToStep('forgotPassword')">&lt; Zurück</button>
             <div class="form-actions">
-              <button class="btn-primary" (click)="goToStep('verifyCode')">Code prüfen</button>
+              <button
+                class="btn-primary"
+                [disabled]="isLoading || otpValue.length < 6"
+                (click)="verifyOtp()"
+              >
+                <span *ngIf="isLoading" class="spinner"></span>
+                {{ isLoading ? 'Prüfen...' : 'Code prüfen' }}
+              </button>
             </div>
           </div>
         </div>
       </div>
-
-
 
       <div class="container-login" *ngIf="currentStep === 'verifyCode'">
         <div class="login-berich">Bitte überprüfen Sie den Code</div>
         <div class="login-row">
-          <div class="login-text"><strong>Der eingegebene Code stimmt leider nicht mit dem gesendeten Code
-              überein.</strong> </div>
-          <div class="login-text">Wir haben bereits einen neuen Code an Ihre E-Mail-Adresse gesendet. </div>
+          <div class="login-text">
+            <strong
+              >Der eingegebene Code stimmt leider nicht mit dem gesendeten Code überein.</strong
+            >
+          </div>
+          <div class="login-text">
+            Wir haben bereits einen neuen Code an Ihre E-Mail-Adresse gesendet.
+          </div>
           <div class="email-field">
             <div class="input-field">
-              <span class="material-symbols-outlined">
-                account_circle
-              </span>
-              <input name="email" type="email" value="max@mustermann.de "
-                style="background-color: #afadad; border: none;" readonly></div>
-            <span style="display:flex; align-items:center; padding-left: 20px;"><img src="assets/icons/Schloss.png"
-                class="icon-schloss" alt="check"></span>
-          </div>
-          <div class="login-text">Bitte geben Sie den Code erneut ein, den wir an <strong>max@mustermann.de</strong>
-            gesendet haben.</div>
-          <div class="login-text">Code aus E-Mail eingeben</div>
-          <div class="container-code">
-            <div class="code-inputs">
-              <input type="text" maxlength="1">
-              <input type="text" maxlength="1">
-              <input type="text" maxlength="1">
-              <input type="text" maxlength="1">
-              <input type="text" maxlength="1">
-              <input type="text" maxlength="1">
+              <span class="material-symbols-outlined"> account_circle </span>
+              <input
+                name="email"
+                type="email"
+                [value]="email"
+                style="background-color: #afadad; border: none"
+                readonly
+              />
             </div>
+            <span style="display: flex; align-items: center; padding-left: 20px"
+              ><img src="assets/icons/Schloss.png" class="icon-schloss" alt="check"
+            /></span>
+          </div>
+          <div class="login-text">
+            Bitte geben Sie den Code erneut ein, den wir an
+            <strong>{{ email }}</strong> gesendet haben.
+          </div>
+          <div class="login-text">Code aus E-Mail eingeben</div>
+          <!-- <div class="container-code"> -->
+          <div class="code-inputs" [class.code-error]="otpError">
+            <input
+              *ngFor="let i of [0, 1, 2, 3, 4, 5]"
+              type="text"
+              maxlength="1"
+              [id]="'otp-' + i"
+              (input)="onOtpInput($event, i)"
+              (keydown)="onOtpKeydown($event, i)"
+              (paste)="onOtpPaste($event)"
+            />
           </div>
 
-          <div class="login-text">Keinen Code erhalten? Bitte prüfen Sie auch Ihren Spam-Ordner.
-            <span style="color:#0085e0 ;">Code erneut senden</span>
+          <div class="error-msg" *ngIf="otpError">{{ otpError }}</div>
+
+          <!-- </div> -->
+
+          <div class="login-text">
+            Keinen Code erhalten? Bitte prüfen Sie auch Ihren Spam-Ordner.
+            <span style="color: #0085e0" (click)="resendOtp()">Code erneut senden</span>
           </div>
 
-          <div style="display: flex; flex-direction: row; justify-content: space-between;">
-            <button class="btn-back" (click)="goToStep('generatedCode')">
-              &lt; Zurück
-            </button>
+          <div style="display: flex; flex-direction: row; justify-content: space-between">
+            <button class="btn-back" (click)="goToStep('forgotPassword')">&lt; Zurück</button>
             <div class="form-actions">
-              <button class="btn-primary" (click)="goToStep('changePassword')">Code erneut prüfen</button>
+              <button
+                class="btn-primary"
+                [disabled]="isLoading || otpValue.length < 6"
+                (click)="verifyOtp()"
+              >
+                <span *ngIf="isLoading" class="spinner"></span>
+                {{ isLoading ? 'Prüfen...' : 'Code prüfen' }}
+              </button>
             </div>
           </div>
         </div>
       </div>
-
 
       <div class="container-login" *ngIf="currentStep === 'changePassword'">
         <div class="login-berich">Bitte geben Sie Ihr neues Passwort ein</div>
         <div class="login-row">
           <div class="login-text">Neues Passwort eingeben:</div>
-          <div class="login-text">Bitte Passwort mit Groß- und Kleinbuchstaben sowie Zahlen und idealerweise auch
-            Sonderzeichen verwenden.</div>
-          <div class="form-group">
+          <div class="login-text">
+            Bitte Passwort mit Groß- und Kleinbuchstaben sowie Zahlen und idealerweise auch
+            Sonderzeichen verwenden.
+          </div>
+          <!-- <div class="form-group">
             <div class="field-wrap">
               <div>
                 <span class="field-label">Passwort</span>
-                <input name="password" type="password" value="manuel.markovic@gmx.net">
+                <input name="password" type="password" value="manuel.markovic@gmx.net" />
               </div>
-              <span class="material-symbols-outlined">
-                visibility_off
-              </span>
+              <span class="material-symbols-outlined"> visibility_off </span>
+            </div>
+          </div> -->
+
+          <div class="form-group">
+            <div class="field-wrap">
+              <span class="field-label">Passwort</span>
+
+              <input
+                [type]="showLoginPw ? 'text' : 'password'"
+                [(ngModel)]="password"
+                (input)="validatePassword(password, repeatPassword, email)"
+              />
+              <span
+                class="material-symbols-outlined pw-toggle"
+                (click)="showLoginPw = !showLoginPw"
+                >{{ showLoginPw ? 'visibility' : 'visibility_off' }}</span
+              >
+            </div>
+            <div class="field-error-msg" *ngIf="fieldErrors['password']">
+              {{ fieldErrors['password'] }}
             </div>
           </div>
 
           <div class="login-text">Passwort wiederholen:</div>
+          <!-- <div class="form-group">
+            <div class="field-wrap">
+              <div>
+                <span class="field-label">Passwort</span>
+                <input name="password" type="password" value="manuel.markovic@gmx.net" />
+              </div>
+              <span class="material-symbols-outlined"> visibility_off </span>
+            </div>
+          </div> -->
           <div class="form-group">
             <div class="field-wrap">
               <div>
                 <span class="field-label">Passwort</span>
-                <input name="password" type="password" value="manuel.markovic@gmx.net">
+                <input
+                  name="passwordRepeat"
+                  [type]="showRepPw ? 'text' : 'password'"
+                  [(ngModel)]="repeatPassword"
+                  [style.background-color]="passwordMismatch ? '#fff0f0' : 'white'"
+                  (input)="validatePassword(password, repeatPassword, email)"
+                />
               </div>
-              <span class="material-symbols-outlined">
-                visibility_off
-              </span>
+              <span class="material-symbols-outlined pw-toggle" (click)="showRepPw = !showRepPw">{{
+                showRepPw ? 'visibility' : 'visibility_off'
+              }}</span>
             </div>
           </div>
+          <!-- Password mismatch error -->
+          <div class="login-text" style="color: #cc0000" *ngIf="passwordMismatch">
+            Die Passwörter stimmen nicht überein
+          </div>
+          <div class="error-msg" *ngIf="apiError">{{ apiError }}</div>
 
-          <div style="display: flex; flex-direction: row; justify-content: space-between;">
-            <button class="btn-back" (click)="goToStep('verifyCode')">
-              &lt; Zurück
-            </button>
+          <div style="display: flex; flex-direction: row; justify-content: space-between">
+            <button class="btn-back" (click)="goToStep('verifyCode')">&lt; Zurück</button>
             <div class="form-actions">
-              <button class="btn-primary" (click)="goToStep('LoginFurther')">Neues Passwort absenden</button>
+              <button
+                type="button"
+                class="btn-primary"
+                [disabled]="isLoadingReset"
+                (click)="resetPassword()"
+              >
+                <span *ngIf="isLoadingReset" class="spinner"></span>
+                {{ isLoadingReset ? 'Prüfen...' : 'Neues Passwort absenden' }}
+              </button>
             </div>
           </div>
         </div>
       </div>
 
-
-      <div class="container-login" *ngIf="currentStep === 'LoginFurther'">
+      <!-- <div class="container-login" *ngIf="currentStep === 'LoginFurther'">
         <div class="login-berich">Bitte loggen Sie sich mit Ihrem neuen Passwort ein</div>
         <div class="login-row">
-          <div class="login-text">Geschafft! Bitte melden Sie sich mit Ihrer E-Mail-Adresse an.</div>
+          <div class="login-text">
+            Geschafft! Bitte melden Sie sich mit Ihrer E-Mail-Adresse an.
+          </div>
           <div class="email-field">
             <div class="input-field">
-              <span class="material-symbols-outlined">
-                account_circle
-              </span>
-              <input name="email" type="email" value="max@mustermann.de" readonly>
+              <span class="material-symbols-outlined"> account_circle </span>
+              <input name="email" type="email" value="max@mustermann.de" readonly />
             </div>
-            <button class="btn-next" style="margin-left: 10px;">
+            <button class="btn-next" style="margin-left: 10px">
               ändern
-              <span><img src="assets/icons/Bearbeiten_schwarz.png" class="icon-check" alt="check"
-                  style="margin-left: 8px;"></span>
+              <span
+                ><img
+                  src="assets/icons/Bearbeiten_schwarz.png"
+                  class="icon-check"
+                  alt="check"
+                  style="margin-left: 8px"
+              /></span>
             </button>
           </div>
 
@@ -359,35 +508,24 @@
             <div class="field-wrap">
               <div>
                 <span class="field-label">Passwort</span>
-                <input name="password" type="password" value="manuel.markovic@gmx.net">
+                <input name="password" type="password" value="manuel.markovic@gmx.net" />
               </div>
-              <span class="material-symbols-outlined">
-                visibility_off
-              </span>
+              <span class="material-symbols-outlined"> visibility_off </span>
             </div>
           </div>
-          <button class="btn-password">
-            Passwort vergessen?
-          </button>
+          <button class="btn-password">Passwort vergessen?</button>
           <div class="field-reg">
             <label class="cb-row"><input type="checkbox" /></label>
             angemeldet bleiben
           </div>
-          <div style="display: flex; flex-direction: row; justify-content: space-between;">
-            <button class="btn-back" (click)="goToStep('changePassword')">
-              &lt; Zurück
-            </button>
+          <div style="display: flex; flex-direction: row; justify-content: space-between">
+            <button class="btn-back" (click)="goToStep('changePassword')">&lt; Zurück</button>
             <div class="form-actions">
               <button class="btn-primary" (click)="openPage()">Anmelden und weiter</button>
             </div>
           </div>
         </div>
-      </div>
-
-
-
-
-
+      </div> -->
     </div>
   </div>
 </div>
