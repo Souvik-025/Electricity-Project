@@ -1,12 +1,4 @@
-import {
-  Component,
-  AfterViewInit,
-  ViewChild,
-  ElementRef,
-  Inject,
-  PLATFORM_ID,
-  afterNextRender,
-} from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 import { MatInputModule } from '@angular/material/input';
 import { MatNativeDateModule } from '@angular/material/core';
 import { MatIconModule } from '@angular/material/icon';
@@ -18,6 +10,9 @@ import { Sidebar } from '../../layout/sidebar/sidebar';
 import { ContactPerson } from '../../layout/contact-person/contact-person';
 import { NeedSupport } from '../../layout/need-support/need-support';
 import { HttpClient } from '@angular/common/http';
+import { AuthService } from '../../services/auth.service';
+
+const API_BASE = 'http://192.168.0.155:8080';
 
 @Component({
   selector: 'app-connection-data',
@@ -36,10 +31,7 @@ import { HttpClient } from '@angular/common/http';
   templateUrl: './connection-data.html',
   styleUrl: './connection-data.css',
 })
-export class ConnectionData {
-  readonly CUSTOMER_ID = 1;
-  readonly DELIVERY_ID = 1;
-
+export class ConnectionData implements OnInit {
   // ── Move-in toggle ───────────────────────────────────────────────────────
   selection: string = 'no';
 
@@ -64,92 +56,147 @@ export class ConnectionData {
   successMessage: string = '';
   errorMessage: string = '';
 
+  /** Per-field validation error messages shown inline under each input */
+  validationErrors: Record<string, string> = {};
+
+  // ── Main progress-bar step routes ────────────────────────────────────────
+  private readonly mainStepRoutes: Record<number, string> = {
+    1: '/electricity-comparision/register', // Account (adjust if different)
+    2: '/electricity-comparision/delivery-address',
+    3: '/electricity-comparision/connection-data', // replace with actual path
+    4: '/electricity-comparision/payment-method', // replace with actual path
+    5: '/electricity-comparision/checkout', // replace with actual path
+  };
+
   constructor(
     private router: Router,
     private route: ActivatedRoute,
     private http: HttpClient,
+    private authService: AuthService,
   ) {}
 
-  /** Toggle move-in selection (Ja / Nein) */
+  ngOnInit(): void {
+    const userId = this.authService.getUserId();
+    const deliveryId = this.authService.getDeliveryId();
+    console.log('ConnectionData init — userId:', userId, '| deliveryId:', deliveryId);
+  }
+
+  // ── Toggle helpers ───────────────────────────────────────────────────────
+
   selectOption(value: string): void {
     this.selection = value;
-    // Reset move-in date when switching away from 'yes'
     if (value !== 'yes') {
       this.moveInDate = null;
+      delete this.validationErrors['moveInDate'];
+    }
+    if (value !== 'no') {
+      delete this.validationErrors['currentProvider'];
+      delete this.validationErrors['desiredDeliveryDate'];
     }
   }
 
-  /** Toggle desired delivery option (Schnellstmöglich / Wunschtermin) */
   selectDeliveryOption(value: string): void {
     this.deliveryOption = value;
     if (value !== 'wunschtermin') {
       this.desiredDeliveryDate = null;
+      delete this.validationErrors['desiredDeliveryDate'];
     }
   }
 
-  /** Toggle cancellation sub-option (alreadyCancelled / selfCancellation) */
   selectCancellation(type: 'alreadyCancelled' | 'selfCancellation'): void {
     this.alreadyCancelled = type === 'alreadyCancelled';
     this.selfCancellation = type === 'selfCancellation';
   }
 
-  /** Build and POST the payload, then navigate to next step */
+  // ── Validation ───────────────────────────────────────────────────────────
+
+  /**
+   * Validates all required fields based on the current form state.
+   * Populates `validationErrors` with a message for every invalid field.
+   * Returns true only when the form is fully valid.
+   */
+  private validate(): boolean {
+    this.validationErrors = {};
+
+    // Move-in date — required only when user is moving in
+    if (this.selection === 'yes') {
+      if (!this.moveInDate) {
+        this.validationErrors['moveInDate'] = 'Bitte wählen Sie ein Einzugsdatum.';
+      }
+    }
+
+    // Meter number — required unless the user checked "Ich reiche … nach"
+    if (!this.submitLaterChecked && !this.meterNumber?.trim()) {
+      this.validationErrors['meterNumber'] = 'Bitte geben Sie Ihre Zählernummer ein.';
+    }
+
+    if (this.selection === 'no') {
+      // Current provider
+      if (!this.currentProvider) {
+        this.validationErrors['currentProvider'] =
+          'Bitte wählen Sie Ihren derzeitigen Stromanbieter.';
+      }
+
+      // Desired delivery date — required only when "Wunschtermin" is chosen
+      if (this.deliveryOption === 'wunschtermin' && !this.desiredDeliveryDate) {
+        this.validationErrors['desiredDeliveryDate'] = 'Bitte wählen Sie Ihren Wunschtermin.';
+      }
+    }
+
+    return Object.keys(this.validationErrors).length === 0;
+  }
+
+  // ── Submit ───────────────────────────────────────────────────────────────
+
+  /** Validate, then build and POST the payload, then navigate to step 4 */
   openPage(): void {
+    if (!this.validate()) {
+      return;
+    }
+
+    const userId = this.authService.getUserId();
+    const deliveryId = this.authService.getDeliveryId();
+
     this.successMessage = '';
     this.errorMessage = '';
     this.isLoading = true;
 
-    // ── Debug: verify all bound values before sending ──────────────────────
-    console.log('Form values before submit:', {
-      selection: this.selection,
-      moveInDate: this.moveInDate,
-      submitLaterChecked: this.submitLaterChecked,
-      meterNumber: this.meterNumber,
-      marketLocationId: this.marketLocationId,
-      currentProvider: this.currentProvider,
-      autoCancellation: this.autoCancellation,
-      alreadyCancelled: this.alreadyCancelled,
-      selfCancellation: this.selfCancellation,
-      deliveryOption: this.deliveryOption,
-      desiredDeliveryDate: this.desiredDeliveryDate,
-    });
-
     const payload = {
-      customerId: this.CUSTOMER_ID,
-      deliveryId: this.DELIVERY_ID,
+      customerId: userId,
+      ...(deliveryId && { deliveryId }),
       connectionData: {
-      isMovingIn: this.selection === 'yes',
-      ...(this.selection === 'yes' && {
-        moveInDate: this.moveInDate ? this.formatDate(this.moveInDate) : null,
-      }),
-      submitLater: this.submitLaterChecked,
-      meterNumber: this.meterNumber,
-      marketLocationId: this.marketLocationId,
-      ...(this.selection === 'no' && {
-        currentProvider: this.currentProvider,
-        cancellation: {
-        autoCancellation: this.autoCancellation,
-        alreadyCancelled: this.alreadyCancelled,
-        selfCancellation: this.selfCancellation,
-        },
-        deliveryDate: {
-        hasDesiredDate: this.deliveryOption === 'wunschtermin',
-        desiredDate:
-          this.deliveryOption === 'wunschtermin' && this.desiredDeliveryDate
-          ? this.formatDate(this.desiredDeliveryDate)
-          : null,
-        },
-      }),
+        isMovingIn: this.selection === 'yes',
+        ...(this.selection === 'yes' && {
+          moveInDate: this.moveInDate ? this.formatDate(this.moveInDate) : null,
+        }),
+        submitLater: this.submitLaterChecked,
+        meterNumber: this.meterNumber,
+        marketLocationId: this.marketLocationId,
+        ...(this.selection === 'no' && {
+          currentProvider: this.currentProvider,
+          cancellation: {
+            autoCancellation: this.autoCancellation,
+            alreadyCancelled: this.alreadyCancelled,
+            selfCancellation: this.selfCancellation,
+          },
+          deliveryDate: {
+            hasDesiredDate: this.deliveryOption === 'wunschtermin',
+            desiredDate:
+              this.deliveryOption === 'wunschtermin' && this.desiredDeliveryDate
+                ? this.formatDate(this.desiredDeliveryDate)
+                : null,
+          },
+        }),
       },
     };
 
     console.log('Payload being sent to API:', JSON.stringify(payload, null, 2));
 
-    this.http.post('http://localhost:8080/api/connection-data', payload).subscribe({
+    this.http.post(`${API_BASE}/customer/add-connection`, payload).subscribe({
       next: () => {
         this.isLoading = false;
         this.successMessage = 'Daten erfolgreich gespeichert.';
-        this.router.navigate(['/electricity-comparision/payment-method'], {});
+        this.router.navigate([this.mainStepRoutes[4]]);
       },
       error: (err) => {
         this.isLoading = false;

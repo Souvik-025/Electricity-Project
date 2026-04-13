@@ -202,7 +202,7 @@
 } */
 
 /* Style radio as checkbox */
-.field-wrap-checkbox input[type='radio'] {
+.field-wrap-checkbox input[type="radio"] {
   appearance: none;
   -webkit-appearance: none;
   width: 16px;
@@ -214,14 +214,14 @@
 }
 
 /* Checked state */
-.field-wrap-checkbox input[type='radio']:checked {
+.field-wrap-checkbox input[type="radio"]:checked {
   background-color: white;
   border-color: white;
 }
 
 /* Tick mark */
-.field-wrap-checkbox input[type='radio']:checked::after {
-  content: '✔';
+.field-wrap-checkbox input[type="radio"]:checked::after {
+  content: "✔";
   position: absolute;
   font-size: 11px;
   color: #0085e0;
@@ -231,7 +231,7 @@
 }
 
 /* When box active (your blue background) */
-.field-wrap-checkbox.active input[type='radio'] {
+.field-wrap-checkbox.active input[type="radio"] {
   border-color: white;
 }
 
@@ -281,12 +281,12 @@
 
 /* Green tick */
 .guideline-icon.valid {
-  background-image: url('/right.png');
+  background-image: url("/right.png");
 }
 
 /* Red cross */
 .guideline-icon.invalid {
-  background-image: url('/cross.png');
+  background-image: url("/cross.png");
 }
 
 /* ══════════════════════════════════════════════
@@ -326,4 +326,27 @@
   font-size: 18px !important;
   color: #888;
   pointer-events: none;
+}
+
+.guideline-icon {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  display: inline-block;
+  margin-right: 8px;
+  background-color: #ccc; /* Default gray */
+  transition: background-color 0.3s ease;
+}
+
+.guideline-icon.valid {
+  background-color: #28a745; /* Success green */
+}
+
+.guideline-icon.invalid {
+  background-color: #dc3545; /* Error red */
+}
+
+/* Optional: Smooth transition for input background */
+input {
+  transition: background-color 0.3s ease;
 }

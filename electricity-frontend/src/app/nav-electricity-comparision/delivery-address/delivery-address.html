@@ -61,10 +61,12 @@
         <!-- Email -->
         <div class="form-row" style="align-items:center;">
           <div class="form-group">
-            <div class="field-wrap">
-              <span class="field-label">E-Mail-Adresse</span>
+            <div class="field-wrap" [class.field-error]="validationErrors['deliveryEmail']">
+              <span class="field-label">E-Mail-Adresse *</span>
               <input name="deliveryEmail" autocomplete="email" type="email" placeholder="manuel.markovic@gmx.net"
                 [(ngModel)]="deliveryEmail">
+              <span *ngIf="validationErrors['deliveryEmail']" class="error-hint">{{ validationErrors['deliveryEmail']
+                }}</span>
             </div>
           </div>
           <span class="info-base info-icon" style="flex-shrink:0;">i</span>
@@ -72,25 +74,30 @@
 
         <!-- Title buttons -->
         <div class="form-row container-salutation">
-          <button class="title-btn" [class.active]="deliveryTitle === 'Dr.'" (click)="selectTitle('Dr.')">Dr.</button>
-          <button class="title-btn" [class.active]="deliveryTitle === 'Prof.'"
+          <button type="button" class="title-btn" [class.active]="deliveryTitle === 'Dr.'"
+            (click)="selectTitle('Dr.')">Dr.</button>
+          <button type="button" class="title-btn" [class.active]="deliveryTitle === 'Prof.'"
             (click)="selectTitle('Prof.')">Prof.</button>
-          <button class="title-btn" [class.active]="deliveryTitle === 'Prof. Dr.'"
+          <button type="button" class="title-btn" [class.active]="deliveryTitle === 'Prof. Dr.'"
             (click)="selectTitle('Prof. Dr.')">Prof. Dr.</button>
         </div>
 
         <!-- Name row -->
         <div class="form-row" style="align-items:center;">
           <div class="form-group">
-            <div class="field-wrap">
-              <span class="field-label">Vorname</span>
+            <div class="field-wrap" [class.field-error]="validationErrors['deliveryFirstName']">
+              <span class="field-label">Vorname *</span>
               <input name="deliveryFirstName" type="text" [(ngModel)]="deliveryFirstName">
+              <span *ngIf="validationErrors['deliveryFirstName']" class="error-hint">{{
+                validationErrors['deliveryFirstName'] }}</span>
             </div>
           </div>
           <div class="form-group">
-            <div class="field-wrap">
-              <span class="field-label">Nachname</span>
+            <div class="field-wrap" [class.field-error]="validationErrors['deliveryLastName']">
+              <span class="field-label">Nachname *</span>
               <input name="deliveryLastName" type="text" [(ngModel)]="deliveryLastName">
+              <span *ngIf="validationErrors['deliveryLastName']" class="error-hint">{{
+                validationErrors['deliveryLastName'] }}</span>
             </div>
           </div>
           <span class="info-base info-icon" style="flex-shrink:0;">i</span>
@@ -148,9 +155,11 @@
         <!-- Telefon -->
         <div class="form-row" style="align-items:center;">
           <div class="form-group">
-            <div class="field-wrap">
-              <span class="field-label">Handynummer</span>
+            <div class="field-wrap" [class.field-error]="validationErrors['deliveryMobile']">
+              <span class="field-label">Handynummer *</span>
               <input name="deliveryMobile" type="tel" placeholder="" [(ngModel)]="deliveryMobile">
+              <span *ngIf="validationErrors['deliveryMobile']" class="error-hint">{{ validationErrors['deliveryMobile']
+                }}</span>
             </div>
           </div>
           <div class="form-group">
@@ -165,13 +174,15 @@
         <!-- Gewünschter Liefertermin -->
         <div class="form-row" style="align-items:center;">
           <div class="form-group">
-            <div class="field-wrap date">
+            <div class="field-wrap date" [class.field-error]="validationErrors['deliveryDate']">
               <div style="width: 100%;">
-                <span class="field-label">Gewünschter Liefertermin</span>
+                <span class="field-label">Gewünschter Liefertermin *</span>
                 <div style="display: flex; flex-direction: row;">
                   <input matInput name="deliveryDate" [matDatepicker]="picker" placeholder="TT.MM.JJJJ"
                     [(ngModel)]="deliveryDate" (click)="picker.open()">
                 </div>
+                <span *ngIf="validationErrors['deliveryDate']" class="error-hint">{{ validationErrors['deliveryDate']
+                  }}</span>
               </div>
               <mat-datepicker-toggle matSuffix [for]="picker">
                 <mat-icon>calendar_month</mat-icon>
@@ -196,20 +207,21 @@
       <div class="section-body">
         <div class="toggle-row">
           <div class="toggle-box" style="width: 98.5%;">
+
+            <!-- FIX: use radio inputs so only one can ever be selected -->
             <div class="toggle-opt" [class.selected]="hasDifferentBilling === true" (click)="setBillingToggle(true)">
               <label class="cb-row">
-                <input type="checkbox" name="billingToggleJa" [checked]="hasDifferentBilling === true"
-                  (click)="$event.stopPropagation()" />
+                <input type="radio" name="billingToggle" [value]="true" [(ngModel)]="hasDifferentBilling" />
               </label>
               Ja
             </div>
             <div class="toggle-opt" [class.selected]="hasDifferentBilling === false" (click)="setBillingToggle(false)">
               <label class="cb-row">
-                <input type="checkbox" name="billingToggleNein" [checked]="hasDifferentBilling === false"
-                  (click)="$event.stopPropagation()" />
+                <input type="radio" name="billingToggle" [value]="false" [(ngModel)]="hasDifferentBilling" />
               </label>
               Nein
             </div>
+
           </div>
           <div style="display: flex; margin-bottom: 20px;">
             <span class="info-base info-icon">i</span>
@@ -220,29 +232,37 @@
         <div *ngIf="hasDifferentBilling">
           <div class="form-row">
             <div class="form-group" style="flex:0 0 160px;">
-              <div class="field-wrap">
-                <span class="field-label">Ihre PLZ</span>
+              <div class="field-wrap" [class.field-error]="validationErrors['billingPLZ']">
+                <span class="field-label">Ihre PLZ *</span>
                 <input name="billingPLZ" type="text" [(ngModel)]="billingPLZ" placeholder="">
+                <span *ngIf="validationErrors['billingPLZ']" class="error-hint">{{ validationErrors['billingPLZ']
+                  }}</span>
               </div>
             </div>
             <div class="form-group">
-              <div class="field-wrap">
-                <span class="field-label">Ort</span>
+              <div class="field-wrap" [class.field-error]="validationErrors['billingOrt']">
+                <span class="field-label">Ort *</span>
                 <input name="billingOrt" type="text" [(ngModel)]="billingOrt" placeholder="">
+                <span *ngIf="validationErrors['billingOrt']" class="error-hint">{{ validationErrors['billingOrt']
+                  }}</span>
               </div>
             </div>
           </div>
           <div class="form-row">
             <div class="form-group">
-              <div class="field-wrap">
-                <span class="field-label">Ihre Straße</span>
+              <div class="field-wrap" [class.field-error]="validationErrors['billingStreet']">
+                <span class="field-label">Ihre Straße *</span>
                 <input name="billingStreet" type="text" [(ngModel)]="billingStreet" placeholder="">
+                <span *ngIf="validationErrors['billingStreet']" class="error-hint">{{ validationErrors['billingStreet']
+                  }}</span>
               </div>
             </div>
             <div class="form-group" style="flex:0 0 160px;">
-              <div class="field-wrap">
-                <span class="field-label">Hausnummer</span>
+              <div class="field-wrap" [class.field-error]="validationErrors['billingHouseNumber']">
+                <span class="field-label">Hausnummer *</span>
                 <input name="billingHouseNumber" type="text" [(ngModel)]="billingHouseNumber" placeholder="">
+                <span *ngIf="validationErrors['billingHouseNumber']" class="error-hint">{{
+                  validationErrors['billingHouseNumber'] }}</span>
               </div>
             </div>
           </div>

@@ -504,10 +504,20 @@ AUTH MODE
       next: (res) => {
         this.isLoading = false;
         if (res.res) {
-          console.log('Registration fully completed — redirecting to Lieferadresse');
-          // Unlock main step 2 so the user can reach Lieferadresse
-          // this.authService.setMaxReachedStep(2);
-          this.router.navigate([this.mainStepRoutes[2]]);
+          if (res.res && res.data) {
+            /* 🔥 Store user WITHOUT token */
+            this.authService.login({
+              user_id: res.data.id.toString(),
+              email: res.data.email,
+              full_name: `${res.data.firstName} ${res.data.lastName}`,
+              token: undefined,
+            });
+
+            this.router.navigate([this.mainStepRoutes[2]]);
+            console.log('Login successful');
+          } else {
+            this.loginError = res.message || 'Anmeldung fehlgeschlagen.';
+          }
         }
       },
       error: (err) => {

@@ -1,1 +1,36 @@
-.field-wrap.date {display: flex; flex-direction: row; justify-content: space-between;}
+.field-wrap.date {
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+}
+.title-btn.active {
+    background: #0085e0;
+    color: #fff;
+    border: none;
+    border-radius: 8px;
+    padding: 8px 40px;
+    font-size: 16px;
+    font-weight: 600;
+    cursor: pointer;
+    display: block;
+    margin-left: auto;
+}
+/* ── Validation error styles — add these to delivery-address.css ── */
+
+/* Red border on the field wrapper when invalid */
+.field-wrap.field-error input {
+    border-color: #e53935;
+}
+
+/* Small red hint text below the input */
+.error-hint {
+    display: block;
+    margin-top: 4px;
+    font-size: 12px;
+    color: #e53935;
+}
+
+/* In delivery-address.css */
+.toggle-opt input[type="radio"] {
+    accent-color: #1565c0; /* match your existing blue */
+}
