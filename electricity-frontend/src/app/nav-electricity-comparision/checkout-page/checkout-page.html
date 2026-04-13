@@ -1,12 +1,10 @@
 <div class="page-layout">
 
-  <!-- ══════════ SIDEBAR ══════════ -->
   <div class="sidebar">
     <app-contact-person></app-contact-person>
     <app-need-support></app-need-support>
-  </div><!-- /sidebar -->
+  </div>
 
-  <!-- ══════════ MAIN CONTENT ══════════ -->
   <div class="main-content">
 
     <!-- Progress stepper -->
@@ -19,19 +17,19 @@
           </div>
           <div class="step-label">Account</div>
         </div>
-        <div class="step ">
+        <div class="step">
           <div class="step-circle">
             <div class="inner-circle">2</div>
           </div>
           <div class="step-label">Lieferadresse</div>
         </div>
-        <div class="step ">
+        <div class="step">
           <div class="step-circle">
             <div class="inner-circle">3</div>
           </div>
           <div class="step-label">Anschlussdaten</div>
         </div>
-        <div class="step ">
+        <div class="step">
           <div class="step-circle">
             <div class="inner-circle">4</div>
           </div>
@@ -47,63 +45,305 @@
       </div>
     </div>
 
-
-    <div class="section-panel" *ngIf="!showConfirmation">
-      <div class="section-header">
-        Bestätigung
+    <ng-container *ngIf="!showConfirmation">
+      <div class="summary-state" *ngIf="isLoading">
+        Ihre gespeicherten Angaben werden geladen.
       </div>
 
-      <div class="section-body">
-        <div class="toggle-row text">
-          Mit Klick auf „Kauf abschließen“
-        </div>
+      <div class="api-message api-error" *ngIf="errorMessage">
+        {{ errorMessage }}
+      </div>
 
-        <div class="toggle-row text">
-          <div class="check-list">
-            <span><img src="assets/icons/Kreis_Haken_schwarz.png" class="icon-check" alt="check"></span>
-            <span>erteile ich dem Anbieter eine <a href="" class="open-link">Versorgervollmacht,</a></span></div>
-          <div class="check-list">
-            <span><img src="assets/icons/Kreis_Haken_schwarz.png" class="icon-check" alt="check"></span>
-            <span>akzeptiere ich die <a href="" class="open-link">AGB</a> des Anbieters und</span>
+      <ng-container *ngIf="formData as data">
+        <!-- Lieferadresse section -->
+        <div class="section-panel">
+          <div class="section-header">
+            Lieferadresse
+            <span class="image-tick">
+              <img src="assets/icons/Haken.png" class="icon-tick" alt="">
+            </span>
+            <button type="button" class="anpassen" (click)="navigateToMainStep(2)">
+              ändern
+              <span><img src="assets/icons/Bearbeiten_schwarz.png" class="icon-check" alt=""></span>
+            </button>
           </div>
-          <div class="check-list">
-            <span><img src="assets/icons/Kreis_Haken_schwarz.png" class="icon-check" alt="check"></span>
-            <span>akzeptiere ich die <a href="" class="open-link">AGB</a> der
-              Tarifvergleich.Bayern powered by
-              Energiehandel.Bayern</span></div>
-        </div>
 
-        <div class="toggle-row">
-          <span style="line-height: 1.5;">Es gelten die <a href="" class="open-link">Widerrufsbelehrung</a> und die <a
-              href="" class="open-link">Datenschutzinformationen</a> des
-            Anbieters. Zudem gilt die
-            Datenschutzerklärung der Tarifvergleich.Bayern. <br>
-            Ich bevollmächtige Tarifvergleich.Bayern zur Übermittlung meines aktuellen Angebots in meinem Namen an den
-            Anbieter zur weiteren Bearbeitung.</span>
-        </div>
+          <div class="section-body">
+            <div class="form-row">
+              <div class="form-group">
+                <div class="field-wrap readonly">
+                  <span class="field-label">E-Mail-Adresse</span>
+                  <input type="email" [value]="email" readonly>
+                </div>
+              </div>
+            </div>
 
-        <div class="toggle-row">
-          <span>Ich kann <a href="" class="open-link">hier</a> mein Angebot herunterladen, das eine Zusammenfassung der
-            wichtigsten Vertragsbedingungen
-            enthält.</span>
-        </div>
+            <div class="form-row">
+              <div class="form-group">
+                <div class="field-wrap readonly">
+                  <span class="field-label">Name</span>
+                  <input type="text" [value]="fullName" readonly>
+                </div>
+              </div>
+            </div>
 
-        <div class="toggle-row date">
-          <div class="check-list">
-            <span><img src="assets/icons/Kreis_Haken_gruen.png" class="icon-green-tick" alt="check"></span>
-            <span>Sie können innerhalb von 14 Tagen kostenlos widerrufen.</span>
+            <div class="container-readonly">
+              <div class="form-row">
+                <div class="form-group" style="flex:0 0 160px;">
+                  <div class="field-wrap readonly">
+                    <span class="field-label">Ihre PLZ</span>
+                    <input type="text" class="text-field" [value]="valueOrFallback(deliveryAddress?.zip)" readonly>
+                    <span class="field-icon">
+                      <img src="assets/icons/Schloss.png" class="icon-schloss" alt="">
+                    </span>
+                  </div>
+                </div>
+                <div class="form-group">
+                  <div class="field-wrap readonly">
+                    <span class="field-label">Ort</span>
+                    <input type="text" class="text-field" [value]="valueOrFallback(deliveryAddress?.city)" readonly>
+                    <span class="field-icon">
+                      <img src="assets/icons/Schloss.png" class="icon-schloss" alt="">
+                    </span>
+                  </div>
+                </div>
+              </div>
+
+              <div class="form-row">
+                <div class="form-group">
+                  <div class="field-wrap readonly">
+                    <span class="field-label">Ihre Straße</span>
+                    <input type="text" class="text-field" [value]="valueOrFallback(deliveryAddress?.street)" readonly>
+                    <span class="field-icon">
+                      <img src="assets/icons/Schloss.png" class="icon-schloss" alt="">
+                    </span>
+                  </div>
+                </div>
+                <div class="form-group" style="flex:0 0 160px;">
+                  <div class="field-wrap readonly">
+                    <span class="field-label">Hausnummer</span>
+                    <input type="text" class="text-field" [value]="valueOrFallback(deliveryAddress?.houseNumber)" readonly>
+                    <span class="field-icon">
+                      <img src="assets/icons/Schloss.png" class="icon-schloss" alt="">
+                    </span>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div class="form-row">
+              <div class="form-group">
+                <div class="field-wrap readonly">
+                  <span class="field-label">Handynummer</span>
+                  <input type="tel" [value]="valueOrFallback(data.mobile)" readonly>
+                </div>
+              </div>
+              <div class="form-group">
+                <div class="field-wrap readonly">
+                  <span class="field-label">Telefonnummer</span>
+                  <input type="tel" [value]="valueOrFallback(data.telephone)" readonly>
+                </div>
+              </div>
+            </div>
+
+            <div class="form-row">
+              <div class="form-group">
+                <div class="field-wrap readonly">
+                  <span class="field-label">Gewünschter Liefertermin</span>
+                  <input type="text" [value]="formatTimestamp(data.deliveryDate)" readonly>
+                </div>
+              </div>
+            </div>
           </div>
-          <div class="check-list">
-            <span><img src="assets/icons/Kreis_Haken_gruen.png" class="icon-green-tick" alt="check"></span>
-            <span>Alle Tarifvergleich.Bayern Leistungen sind kostenlos.</span>
+        </div>
+
+        <!-- Rechnungsadresse section -->
+        <div class="section-panel">
+          <div class="section-header">
+            {{ billingAddressTitle }}
+            <span class="image-tick">
+              <img src="assets/icons/Haken.png" class="icon-tick" alt="">
+            </span>
+            <button type="button" class="anpassen" (click)="navigateToMainStep(2)">
+              ändern
+              <span><img src="assets/icons/Bearbeiten_schwarz.png" class="icon-check" alt=""></span>
+            </button>
+          </div>
+
+          <div class="section-body">
+            <div class="summary-line">
+              <span>Abweichende Rechnungsadresse</span>
+              <strong>{{ billingAddressHint }}</strong>
+            </div>
+
+            <div class="container-readonly">
+              <div class="form-row">
+                <div class="form-group" style="flex:0 0 160px;">
+                  <div class="field-wrap readonly">
+                    <span class="field-label">Ihre PLZ</span>
+                    <input type="text" class="text-field" [value]="valueOrFallback(billingDisplayAddress?.zip)" readonly>
+                    <span class="field-icon">
+                      <img src="assets/icons/Schloss.png" class="icon-schloss" alt="">
+                    </span>
+                  </div>
+                </div>
+                <div class="form-group">
+                  <div class="field-wrap readonly">
+                    <span class="field-label">Ort</span>
+                    <input type="text" class="text-field" [value]="valueOrFallback(billingDisplayAddress?.city)" readonly>
+                    <span class="field-icon">
+                      <img src="assets/icons/Schloss.png" class="icon-schloss" alt="">
+                    </span>
+                  </div>
+                </div>
+              </div>
+
+              <div class="form-row">
+                <div class="form-group">
+                  <div class="field-wrap readonly">
+                    <span class="field-label">Ihre Straße</span>
+                    <input type="text" class="text-field" [value]="valueOrFallback(billingDisplayAddress?.street)" readonly>
+                    <span class="field-icon">
+                      <img src="assets/icons/Schloss.png" class="icon-schloss" alt="">
+                    </span>
+                  </div>
+                </div>
+                <div class="form-group" style="flex:0 0 160px;">
+                  <div class="field-wrap readonly">
+                    <span class="field-label">Hausnummer</span>
+                    <input type="text" class="text-field" [value]="valueOrFallback(billingDisplayAddress?.houseNumber)" readonly>
+                    <span class="field-icon">
+                      <img src="assets/icons/Schloss.png" class="icon-schloss" alt="">
+                    </span>
+                  </div>
+                </div>
+              </div>
+            </div>
           </div>
         </div>
-        <!-- ── Submit ── -->
-        <div class="form-actions">
-          <button class="btn-primary" (click)="openPage()">Kauf abschließen</button>
+
+        <!-- Anschlussdaten section -->
+        <div class="section-panel">
+          <div class="section-header">
+            Anschlussdaten
+            <span class="image-tick">
+              <img src="assets/icons/Haken.png" class="icon-tick" alt="">
+            </span>
+            <button type="button" class="anpassen" (click)="navigateToMainStep(3)">
+              ändern
+              <span><img src="assets/icons/Bearbeiten_schwarz.png" class="icon-check" alt=""></span>
+            </button>
+          </div>
+
+          <div class="section-body container-data">
+            <div class="toggle-column left">
+              <span>Ziehen Sie an der angegebenen Adresse neu ein?</span>
+              <span>Zählernummer</span>
+              <span>Marktlokations-ID</span>
+              <span>Ihr derzeitiger Stromanbieter</span>
+              <span>Kündigung des bisherigen Vertrags</span>
+              <span>Gewünschter Liefertermin</span>
+            </div>
+            <div class="toggle-column right">
+              <span>{{ moveInLabel }}</span>
+              <span>{{ meterNumberLabel }}</span>
+              <span>{{ marketLocationLabel }}</span>
+              <span>{{ currentProviderLabel }}</span>
+              <span>{{ cancellationLabel }}</span>
+              <span>{{ desiredDeliveryLabel }}</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Zahlungsart section -->
+        <div class="section-panel">
+          <div class="section-header">
+            Zahlungsart
+            <span class="image-tick">
+              <img src="assets/icons/Haken.png" class="icon-tick" alt="">
+            </span>
+            <button type="button" class="anpassen" (click)="navigateToMainStep(4)">
+              ändern
+              <span><img src="assets/icons/Bearbeiten_schwarz.png" class="icon-check" alt=""></span>
+            </button>
+          </div>
+
+          <div class="section-body container-data">
+            <div class="toggle-column left">
+              <span>Zahlungsart</span>
+              <span>IBAN</span>
+              <span>Kontoinhaber</span>
+              <span>SEPA-Lastschriftmandat</span>
+            </div>
+            <div class="toggle-column right">
+              <span>{{ paymentMethodLabel }}</span>
+              <span>{{ valueOrFallback(payment?.iban) }}</span>
+              <span>{{ accountHolderLabel }}</span>
+              <span>{{ valueOrFallback(payment?.sepaConsent) }}</span>
+            </div>
+          </div>
+        </div>
+      </ng-container>
+
+      <div class="section-panel">
+        <div class="section-header">
+          Bestätigung
+        </div>
+
+        <div class="section-body">
+          <div class="toggle-row text">
+            Mit Klick auf „Kauf abschließen“
+          </div>
+
+          <div class="toggle-row text">
+            <div class="check-list">
+              <span><img src="assets/icons/Kreis_Haken_schwarz.png" class="icon-check" alt="check"></span>
+              <span>erteile ich dem Anbieter eine <a href="" class="open-link">Versorgervollmacht,</a></span>
+            </div>
+            <div class="check-list">
+              <span><img src="assets/icons/Kreis_Haken_schwarz.png" class="icon-check" alt="check"></span>
+              <span>akzeptiere ich die <a href="" class="open-link">AGB</a> des Anbieters und</span>
+            </div>
+            <div class="check-list">
+              <span><img src="assets/icons/Kreis_Haken_schwarz.png" class="icon-check" alt="check"></span>
+              <span>akzeptiere ich die <a href="" class="open-link">AGB</a> der
+                Tarifvergleich.Bayern powered by
+                Energiehandel.Bayern</span>
+            </div>
+          </div>
+
+          <div class="toggle-row">
+            <span style="line-height: 1.5;">Es gelten die <a href="" class="open-link">Widerrufsbelehrung</a> und die <a
+                href="" class="open-link">Datenschutzinformationen</a> des
+              Anbieters. Zudem gilt die
+              Datenschutzerklärung der Tarifvergleich.Bayern. <br>
+              Ich bevollmächtige Tarifvergleich.Bayern zur Übermittlung meines aktuellen Angebots in meinem Namen an den
+              Anbieter zur weiteren Bearbeitung.</span>
+          </div>
+
+          <div class="toggle-row">
+            <span>Ich kann <a href="" class="open-link">hier</a> mein Angebot herunterladen, das eine Zusammenfassung der
+              wichtigsten Vertragsbedingungen
+              enthält.</span>
+          </div>
+
+          <div class="toggle-row date">
+            <div class="check-list">
+              <span><img src="assets/icons/Kreis_Haken_gruen.png" class="icon-green-tick" alt="check"></span>
+              <span>Sie können innerhalb von 14 Tagen kostenlos widerrufen.</span>
+            </div>
+            <div class="check-list">
+              <span><img src="assets/icons/Kreis_Haken_gruen.png" class="icon-green-tick" alt="check"></span>
+              <span>Alle Tarifvergleich.Bayern Leistungen sind kostenlos.</span>
+            </div>
+          </div>
+
+          <div class="form-actions">
+            <button class="btn-primary" (click)="openPage()">Kauf abschließen</button>
+          </div>
         </div>
       </div>
-    </div>
+    </ng-container>
 
     <div class="section-panel" *ngIf="showConfirmation">
       <div class="section-header">
@@ -121,16 +361,14 @@
           Kontaktaufnahme telefonisch vorzunehmen, Ihr Ansprechpartner meldet
           sich also sehr wahrscheinlich per Telefon bei Ihnen.</div>
 
-
-
         <div class="toggle-row text">
           Wollen Sie Ihrem Ansprechpartner noch mitteilen, wann Sie am Besten telefonisch erreichbar sind?
         </div>
 
         <div class="toggle-row">
           <div class="container-days">
-            <div class="field-wrap-days active"> Montag</div>
-            <div class="field-wrap-days"> Dienstag</div>
+            <div class="field-wrap-days active">Montag</div>
+            <div class="field-wrap-days">Dienstag</div>
             <div class="field-wrap-days">Mittwoch</div>
           </div>
           <div class="container-days">
@@ -159,7 +397,7 @@
           </div>
 
         </div>
-        <!-- ── Submit ── -->
+
         <div class="form-actions">
           <button class="btn-primary">Rückrufzeit & Infos übermitteln</button>
         </div>

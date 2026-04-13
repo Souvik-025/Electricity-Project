@@ -1,9 +1,10 @@
 import { Component, ChangeDetectorRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { HttpClient } from '@angular/common/http';
+import { Router } from '@angular/router';
 import { ContactPerson } from '../../layout/contact-person/contact-person';
 import { NeedSupport } from '../../layout/need-support/need-support';
-
+import { AuthService } from '../../services/auth.service';
 const API_BASE = 'http://192.168.0.155:8080';
 
 @Component({
@@ -19,6 +20,18 @@ export class Register {
 
   /* ── Step control ──────────────────────────────────────────────── */
   currentStep: number = 1;
+
+  /* ── Main progress-bar step guard ──────────────────────────────── */
+  // Tracks the highest main step the user is allowed to enter.
+  // Starts at 1 (Account). Advances to 2 only after redirectToAccount()
+  // succeeds. Persisted in AuthService so other pages can read it too.
+  // get maxReachedMainStep(): number {
+  //   return this.authService.getMaxReachedStep();
+  // }
+
+  // isMainStepAccessible(step: number): boolean {
+  //   return step <= this.maxReachedMainStep;
+  // }
 
   /* ── Loading / error state ─────────────────────────────────────── */
   isLoading: boolean = false;
@@ -67,11 +80,13 @@ export class Register {
   constructor(
     private http: HttpClient,
     private cdr: ChangeDetectorRef,
+    private authService: AuthService,
+    private router: Router,
   ) {}
 
   /* ══════════════════════════════════════════════════════════════════
-     AUTH MODE
-  ══════════════════════════════════════════════════════════════════ */
+AUTH MODE
+══════════════════════════════════════════════════════════════════ */
 
   setAuthMode(mode: 'register' | 'login') {
     this.authMode = mode;
@@ -80,24 +95,38 @@ export class Register {
   }
 
   /* ══════════════════════════════════════════════════════════════════
-     LOGIN
+  LOGIN
   ══════════════════════════════════════════════════════════════════ */
 
   doLogin(email: string, password: string) {
     this.loginError = '';
+
     if (!email || !password) {
       this.loginError = 'Bitte E-Mail und Passwort eingeben.';
       return;
     }
 
     this.isLoading = true;
+
     this.http
-      .post<{ res: boolean; message: string }>(`${API_BASE}/auth/login`, { email, password })
+      .post<{
+        res: boolean;
+        message: string;
+        data: { id: number; firstName: string; lastName: string; email: string };
+      }>(`${API_BASE}/auth/login`, { email, password })
       .subscribe({
         next: (res) => {
           this.isLoading = false;
-          if (res.res) {
-            // Successful login — navigate or emit event as needed
+
+          if (res.res && res.data) {
+            /* 🔥 Store user WITHOUT token */
+            this.authService.login({
+              user_id: res.data.id.toString(),
+              email: res.data.email,
+              full_name: `${res.data.firstName} ${res.data.lastName}`,
+              token: undefined,
+            });
+
             console.log('Login successful');
           } else {
             this.loginError = res.message || 'Anmeldung fehlgeschlagen.';
@@ -112,17 +141,42 @@ export class Register {
   }
 
   /* ══════════════════════════════════════════════════════════════════
-     STEP NAVIGATION
+  MAIN STEP NAVIGATION (progress bar clicks)
+  ══════════════════════════════════════════════════════════════════ */
+
+  /** Maps outer progress-bar step numbers to their routes.
+   *  Adjust the route paths to match your actual Angular routing config. */
+  private readonly mainStepRoutes: Record<number, string> = {
+    1: '/electricity-comparision/register', // Account (adjust if different)
+    2: '/electricity-comparision/delivery-address',
+    3: '/electricity-comparision/connection-data', // replace with actual path
+    4: '/electricity-comparision/payment-method', // replace with actual path
+    5: '/electricity-comparision/checkout', // replace with actual path
+  };
+
+  navigateToMainStep(step: number) {
+    // if (!this.isMainStepAccessible(step)) {
+    //   return; // silently block — step not yet unlocked
+    // }
+    const route = this.mainStepRoutes[step];
+    if (route) {
+      this.router.navigate([route]);
+    }
+  }
+
+  /* ══════════════════════════════════════════════════════════════════
+  STEP NAVIGATION
   ══════════════════════════════════════════════════════════════════ */
 
   goToStep(step: number) {
     this.currentStep = step;
     this.apiError = '';
     this.otpError = '';
+    this.isLoading = false; // always re-enable submit when navigating back
   }
 
   /* ══════════════════════════════════════════════════════════════════
-     CUSTOMER TYPE
+  CUSTOMER TYPE
   ══════════════════════════════════════════════════════════════════ */
 
   setCustomerType(type: 'private' | 'business') {
@@ -134,28 +188,22 @@ export class Register {
   }
 
   /* ══════════════════════════════════════════════════════════════════
-     STEP 1 — FORM VALIDATION
+  STEP 1 — FORM VALIDATION
   ══════════════════════════════════════════════════════════════════ */
 
   validatePassword(password: string, email: string, repeat: string) {
-    if (!password) {
-      this.pw_length = this.pw_case = this.pw_special = this.pw_number = this.pw_noEmail = false;
-      this.passwordMismatch = false;
-      return;
-    }
+    // Update form data
+    this.formData.password = password;
 
+    // Criteria validation
     this.pw_length = password.length >= 8 && password.length <= 50;
     this.pw_case = /[a-z]/.test(password) && /[A-Z]/.test(password);
     this.pw_special = /[!@\$%\^&\*\+#]/.test(password);
     this.pw_number = /[0-9]/.test(password);
+    this.pw_noEmail = email ? !password.toLowerCase().includes(email.toLowerCase()) : true;
 
-    if (email) {
-      this.pw_noEmail = !password.toLowerCase().includes(email.toLowerCase());
-    } else {
-      this.pw_noEmail = true;
-    }
-
-    if (repeat) {
+    // Mismatch logic: Only show error if repeat field is not empty
+    if (repeat.length > 0) {
       this.passwordMismatch = password !== repeat;
     } else {
       this.passwordMismatch = false;
@@ -220,7 +268,7 @@ export class Register {
   }
 
   /* ══════════════════════════════════════════════════════════════════
-     STEP 1 — SUBMIT (SIGNUP API)
+  STEP 1 — SUBMIT (SIGNUP API)
   ══════════════════════════════════════════════════════════════════ */
 
   submitRegistration(passwordRepeat: string) {
@@ -252,11 +300,12 @@ export class Register {
         next: (res) => {
           this.isLoading = false;
           if (res.res && res.data) {
-            this.registeredCustomerId = res.data.id;
-            this.currentStep = 2; // This updates the variable
+            /* Store in AuthService */
+            this.authService.setTempUid(res.data.id.toString());
+
+            this.currentStep = 2;
             this.apiError = '';
 
-            // FORCE THE UI TO SEE THE CHANGE
             this.cdr.detectChanges();
             console.log('UI update triggered for step:', this.currentStep);
           }
@@ -270,7 +319,7 @@ export class Register {
   }
 
   /* ══════════════════════════════════════════════════════════════════
-     STEP 2 — OTP INPUT HELPERS
+  STEP 2 — OTP INPUT HELPERS
   ══════════════════════════════════════════════════════════════════ */
 
   onOtpInput(event: Event, index: number) {
@@ -324,11 +373,11 @@ export class Register {
   }
 
   /* ══════════════════════════════════════════════════════════════════
-     STEP 2 — RESEND OTP
+  STEP 2 — RESEND OTP
   ══════════════════════════════════════════════════════════════════ */
 
   resendOtp() {
-    if (!this.registeredCustomerId) return;
+    if (!this.authService.getTempUid()) return;
     this.resendSuccess = false;
     this.otpError = '';
 
@@ -336,7 +385,7 @@ export class Register {
       .post<{
         res: boolean;
         message: string;
-      }>(`${API_BASE}/auth/resend-otp`, { id: this.registeredCustomerId })
+      }>(`${API_BASE}/auth/resend-otp`, { id: this.authService.getTempUid() })
       .subscribe({
         next: (res) => {
           this.resendSuccess = true;
@@ -355,7 +404,7 @@ export class Register {
   }
 
   /* ══════════════════════════════════════════════════════════════════
-     STEP 2 — VERIFY OTP
+  STEP 2 — VERIFY OTP
   ══════════════════════════════════════════════════════════════════ */
   otpInvalid = false;
   verifyOtp() {
@@ -364,7 +413,7 @@ export class Register {
       this.otpError = 'Bitte alle 6 Stellen eingeben.';
       return;
     }
-    if (!this.registeredCustomerId) {
+    if (!this.authService.getTempUid()) {
       this.otpError = 'Sitzung abgelaufen. Bitte neu registrieren.';
       return;
     }
@@ -376,15 +425,17 @@ export class Register {
       .post<{
         res: boolean;
         message: string;
-      }>(`${API_BASE}/auth/verify-otp`, { id: this.registeredCustomerId, otp: this.otpValue })
+      }>(`${API_BASE}/auth/verify-otp`, { id: this.authService.getTempUid(), otp: this.otpValue })
       .subscribe({
         // inside subscribe next block for verify-otp
         next: (res) => {
           this.isLoading = false;
           if (res.res) {
-            this.currentStep = 3; // Update the step to 3
+            this.currentStep = 3;
             this.otpInvalid = false;
-            // FORCE THE UI TO SEE THE CHANGE
+
+            this.authService.finalizeUser(this.authService.getTempUid()!);
+
             this.cdr.detectChanges();
             console.log('Step changed to 3. UI should update now.');
           } else {
@@ -402,11 +453,13 @@ export class Register {
   }
 
   /* ══════════════════════════════════════════════════════════════════
-     STEP 3 — COMPLETE REGISTRATION (mark-terms)
+  STEP 3 — COMPLETE REGISTRATION (mark-terms)
   ══════════════════════════════════════════════════════════════════ */
 
   completRegistration() {
-    if (!this.registeredCustomerId) {
+    const userId = this.authService.getUserId();
+
+    if (!userId) {
       this.apiError = 'Sitzung abgelaufen. Bitte neu registrieren.';
       return;
     }
@@ -414,21 +467,63 @@ export class Register {
     this.isLoading = true;
     this.apiError = '';
 
-    this.http
-      .post<any>(`${API_BASE}/auth/mark-terms`, { id: this.registeredCustomerId })
-      .subscribe({
-        next: (res) => {
-          this.isLoading = false;
-          if (res.res) {
-            this.currentStep = 4;
-            console.log('Registration fully completed');
+    this.http.post<any>(`${API_BASE}/auth/mark-terms`, { id: userId }).subscribe({
+      next: (res) => {
+        this.isLoading = false;
+        if (res.res) {
+          this.currentStep = 4;
+          console.log('Registration fully completed');
 
-            this.cdr.detectChanges();
-          }
-        },
-      });
+          this.cdr.detectChanges();
+        }
+      },
+      error: (err) => {
+        this.isLoading = false;
+        this.apiError =
+          err?.error?.message || 'Ein Fehler ist aufgetreten. Bitte erneut versuchen.';
+      },
+    });
   }
-  redirectToAccount(){
-    console.log("btn click");
+
+  /* ══════════════════════════════════════════════════════════════════
+  STEP 4 — DIREKT LOGIN (mark-terms)
+  ══════════════════════════════════════════════════════════════════ */
+
+  redirectToAccount() {
+    const userId = this.authService.getUserId();
+
+    if (!userId) {
+      this.apiError = 'Sitzung abgelaufen. Bitte neu registrieren.';
+      return;
+    }
+
+    this.isLoading = true;
+    this.apiError = '';
+
+    this.http.post<any>(`${API_BASE}/auth/register-login`, { id: userId }).subscribe({
+      next: (res) => {
+        this.isLoading = false;
+        if (res.res) {
+          if (res.res && res.data) {
+            /* 🔥 Store user WITHOUT token */
+            this.authService.login({
+              user_id: res.data.id.toString(),
+              email: res.data.email,
+              full_name: `${res.data.firstName} ${res.data.lastName}`,
+              token: undefined,
+            });
+
+            this.router.navigate([this.mainStepRoutes[2]]);
+            console.log('Login successful');
+          } else {
+            this.loginError = res.message || 'Anmeldung fehlgeschlagen.';
+          }
+        }
+      },
+      error: (err) => {
+        this.isLoading = false;
+        this.apiError = err?.error?.message || 'Anmeldung fehlgeschlagen. Bitte erneut versuchen.';
+      },
+    });
   }
 }
