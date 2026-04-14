@@ -259,8 +259,8 @@ public class CustomerAuthService {
 			throw new InternalServerException("Password not safe", HttpStatus.BAD_REQUEST);
 		}
 		
-		if(customer.getPassword() != null)
-			return Map.of("res", false, "message", "Forget password to set new password");
+//		if(customer.getPassword() != null)
+//			return Map.of("res", false, "message", "Forget password to set new password");
 
 		customer.setPassword(newPassword);
 

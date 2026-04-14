@@ -90,6 +90,10 @@ public class Customer {
 	@JsonIgnoreProperties("customerId")
 	private List<CustomerDelivery> customerDelivery;
 	
+	@OneToMany(mappedBy = "customer", cascade = {CascadeType.PERSIST, CascadeType.MERGE})
+	@JsonIgnoreProperties("customer")
+	private List<CustomerComparingEnergy> energycomparison;
+	
 	@PrePersist
 	protected void prePersist() {
 		joinedOn = Helper.getCurrentTimeBerlin();
@@ -118,6 +122,13 @@ public class Customer {
 			customerDelivery = new LinkedList<CustomerDelivery>();
 		record.setCustomerId(this);
 		customerDelivery.add(record);
+	}
+	
+	public void addEnergyComparison(CustomerComparingEnergy record) {
+		if(energycomparison == null)
+			energycomparison = new LinkedList<CustomerComparingEnergy>();
+		record.setCustomer(this);
+		energycomparison.add(record);
 	}
 	
 }

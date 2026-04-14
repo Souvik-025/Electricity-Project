@@ -94,7 +94,7 @@ public class AddressService {
 	        })
 	        .filter(m -> !"Unknown Street".equals(m.get("street")))
 	        .filter(distinctByKey(m -> m.get("street")))
-	        .sorted((a,b) -> a.get("street").toString().charAt(0) -  b.get("street").toString().charAt(0))
+	        .sorted((a,b) -> a.get("street").toString().compareTo(b.get("street").toString()))
 	        .toList();
 
 	    return Map.of("res", true, "data", streetData);

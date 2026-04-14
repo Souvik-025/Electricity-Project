@@ -5,10 +5,13 @@ import java.security.SecureRandom;
 import java.time.LocalDate;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
+import java.util.Map;
 
 import org.springframework.stereotype.Component;
 
 import jakarta.servlet.http.HttpServletRequest;
+import ua_parser.Client;
+import ua_parser.Parser;
 
 @Component
 public class Helper {
@@ -82,6 +85,17 @@ public class Helper {
 	public static final BigInteger getCurrentTimeBerlin() {
 		ZonedDateTime nowInBerlin = ZonedDateTime.now(ZoneId.of("Europe/Berlin"));
 		return BigInteger.valueOf(nowInBerlin.toEpochSecond());
+	}
+	
+	public Map<String, Object> getDeviceInfo(String userAgentString){
+		Parser uaParser = new Parser();
+		Client client = uaParser.parse(userAgentString);
+		
+		return Map.of(
+		        "os", client.os.family,        // e.g., "Windows", "Android", "Linux"
+		        "device", client.device.family, // e.g., "iPhone", "Samsung SM-G950F"
+		        "browser", client.userAgent.family // e.g., "Chrome", "Firefox"
+		    );
 	}
 	
 }
