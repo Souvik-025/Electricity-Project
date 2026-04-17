@@ -1,14 +1,17 @@
-import { Component } from '@angular/core';
+import { ChangeDetectorRef, Component, computed, effect, OnDestroy, OnInit } from '@angular/core';
 import { MatIconModule } from '@angular/material/icon';
 import { MatToolbarModule } from '@angular/material/toolbar';
 import { MatButtonModule } from '@angular/material/button';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { CommonModule } from '@angular/common';
+import { Observable, Subscription } from 'rxjs';
+import { map } from 'rxjs/operators';
 import { AuthService } from '../../services/auth.service';
 
 @Component({
   selector: 'app-header',
+  standalone: true,
   imports: [
     MatButtonModule,
     MatIconModule,
@@ -21,16 +24,23 @@ import { AuthService } from '../../services/auth.service';
   styleUrl: './header.css',
 })
 export class Header {
-  constructor(private authService: AuthService) {}
-  isLoggedIn: boolean = false;
+  isLoggedIn = computed(() => !!this.authService.currentUser()?.user_id);
 
-  ngOnInit(): void {
-    this.isLoggedIn = this.authService.isLoggedIn();
+  constructor(
+    private authService: AuthService,
+    private cdr: ChangeDetectorRef 
+  ) {
+    // This 'effect' runs automatically every time the signal changes
+    effect(() => {
+      const state = this.isLoggedIn();
+      console.log('UI Signal changed to:', state);
+      
+      // Manually tell Angular: "I don't care what you think, redraw now!"
+      this.cdr.detectChanges();
+    });
   }
 
   logout() {
-    if (this.isLoggedIn) {
-      this.authService.logout();
-    }
+    this.authService.logout();
   }
 }

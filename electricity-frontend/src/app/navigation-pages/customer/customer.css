@@ -1,0 +1,176 @@
+.btn-text {
+  display: flex;
+  align-items: center;
+  padding-bottom: 0.1rem;
+}
+
+.partner-photo-wrap img {
+  border-radius: 8px;
+  width: 130px;
+}
+.partner-photo-wrap {
+  display: flex;
+  justify-content: center;
+  align-items: flex-end;
+  width: 100%;
+  padding-top: 12px;
+  overflow: hidden;
+}
+.partner-photo-wrap img {
+  border-radius: 8px;
+  width: 130px;
+}
+
+.partner-info {
+  padding: 9px 10px 10px;
+  text-align: center;
+}
+.partner-name {
+  font-weight: 700;
+  font-size: 16px;
+  margin-bottom: 0.5rem;
+}
+.container-main-btn {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 0.55rem;
+  align-items: center;
+  justify-content: center;
+}
+.partner-btn {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+.login-image-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin-top: 20px;
+}
+
+.login-image {
+  width: 120px; /* adjust size as needed */
+  height: auto;
+}
+
+.login-icon {
+  width: 50px;
+  height: 50px;
+  border-radius: 50%;
+  border: 1px solid #1a1a1a;
+}
+.login {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin-top: 20px;
+}
+.profile-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 20px 0;
+  /* background: #f3f3f3; */
+}
+
+/* Avatar */
+.profile-image img {
+  width: 90px;
+  height: 90px;
+  border-radius: 50%;
+  border: 2px solid #333;
+  object-fit: cover;
+  background: #fff;
+}
+
+/* Name */
+.profile-name {
+  margin-top: 10px;
+  font-weight: 600;
+  font-size: 16px;
+}
+
+/* Email */
+.profile-email {
+  font-size: 13px;
+  color: #555;
+  margin-top: 4px;
+}
+
+/* Logout */
+.profile-logout {
+  margin-top: 6px;
+  font-size: 13px;
+  color: #1e88e5;
+  cursor: pointer;
+}
+
+.tabs-container {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  padding: 10px;
+  /* background: #eaeaea; */
+  border-radius: 8px;
+}
+
+/* Default tab */
+.tab {
+  border-top-left-radius: 10px;
+  border-top-right-radius: 10px;
+  background: transparent;
+  transition: all 0.2s ease;
+  padding: 15px 10px;
+  border: 1px solid black;
+  border-right: none;
+  font-size: 13px;
+  cursor: pointer;
+  white-space: nowrap;
+}
+
+/* Active (light selected) */
+.tab.active {
+  background: #1e88e5;
+  color: #fff;
+  border-color: #1e88e5;
+}
+
+/* Blue active tab (like Beratervollmacht) */
+.tab.active-blue {
+  background: #1e88e5;
+  color: #fff;
+  border: 1px solid #1e88e5;
+}
+.tabs-wrapper {
+  overflow-x: auto;
+  overflow-y: hidden;
+
+  /* Hide scrollbar - Firefox */
+  scrollbar-width: none;
+  margin-bottom: 20px;
+}
+
+/* Hide scrollbar - Chrome, Safari, Edge */
+.tabs-wrapper::-webkit-scrollbar {
+  display: none;
+}
+
+.tabs {
+  display: flex;
+  flex-wrap: nowrap;
+}
+
+.profile-section-header {
+  background: #fc770aee;
+  margin-bottom: 20px;
+  color: #fff;
+  font-weight: 600;
+  font-size: 16px;
+  padding: 9px 16px;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  justify-content: center;
+}

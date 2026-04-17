@@ -20,21 +20,49 @@
             formControlName="postalCode"
             maxlength="5"
           />
-          <div class="input-arrow">
-            <!-- <input type="text" placeholder="Ihre Ort" class="box large" formControlName="city"
+          <!-- <div class="input-arrow"> -->
+          <!-- <input type="text" placeholder="Ihre Ort" class="box large" formControlName="city"
               [attr.list]="'cityList'" />
             <datalist id="cityList">
               <option *ngFor="let c of cityOptions" [value]="c.city"></option>
             </datalist> -->
-            <select formControlName="city" class="box large">
+          <!-- <select formControlName="city" class="box large">
               <option [ngValue]="null" disabled>Ihre Ort</option>
 
               <option *ngFor="let c of cityOptions" [ngValue]="c.city_id">
                 {{ c.city }}
               </option>
-            </select>
+            </select> -->
+          <div class="dropdown-wrapper box large" #cityDropdown>
+            <input
+              type="text"
+              class="box large"
+              placeholder="Ihre Ort"
+              [value]="citySearch"
+              (input)="onCityInput($event)"
+              (focus)="closeAllDropdowns(); showCityDropdown = true"
+              (click)="$event.stopPropagation()"
+              [disabled]="addressForm.get('city')?.disabled"
+            />
+
+            <div class="dropdown" *ngIf="showCityDropdown">
+              <div *ngIf="filteredCityOptions.length === 0" class="dropdown-item disabled">
+                Keine Orte gefunden
+              </div>
+
+              <div
+                *ngFor="let c of filteredCityOptions"
+                (click)="selectCity(c)"
+                class="dropdown-item"
+                spellcheck="false"
+                translate="no"
+              >
+                {{ c.city }}
+              </div>
+            </div>
           </div>
         </div>
+        <!-- </div> -->
         <div class="row row-2">
           <!-- <input
             type="text"
@@ -46,17 +74,48 @@
           <datalist id="streetList">
             <option *ngFor="let s of streetOptions" [value]="s.street"></option>
           </datalist> -->
-          <select [attr.data-key]="streetDropdownKey" formControlName="street" class="box large">
-            <option [ngValue]="null" disabled>
-             Ihre Straße
-            </option>
+          <!-- <select [attr.data-key]="streetDropdownKey" formControlName="street" class="box large">
+            <option [ngValue]="null" disabled>Ihre Straße</option>
 
             <option *ngIf="isStreetLoading" disabled>Laden...</option>
 
             <option *ngFor="let s of streetOptions; trackBy: trackByStreet" [ngValue]="s.street">
               {{ s.street }}
             </option>
-          </select>
+          </select> -->
+          <div class="dropdown-wrapper box large" #streetDropdown>
+            <input
+              type="text"
+              class="box large"
+              placeholder="Ihre Straße"
+              [value]="streetSearch"
+              (input)="onStreetInput($event)"
+              (focus)="closeAllDropdowns(); showDropdown = true"
+              (click)="$event.stopPropagation()"
+              [disabled]="addressForm.get('street')?.disabled"
+            />
+
+            <div class="dropdown" *ngIf="showDropdown">
+              <div *ngIf="isStreetLoading" class="dropdown-item">Laden...</div>
+
+              <div
+                *ngIf="!isStreetLoading && filteredStreetOptions.length === 0"
+                class="dropdown-item disabled"
+              >
+                Keine Straße gefunden
+              </div>
+
+              <div
+                *ngFor="let s of filteredStreetOptions"
+                (click)="selectStreet(s)"
+                class="dropdown-item"
+                spellcheck="false"
+                translate="no"
+              >
+                {{ s.street }}
+              </div>
+            </div>
+          </div>
           <input
             type="text"
             placeholder="Hausnummer"
@@ -148,7 +207,6 @@
               <span>Personen im Haushalt</span>
             </div>
             <div class="total-consumption">
-              
               <span id="consumptionValue" class="consumption-number">
                 {{ consumption | number }}</span
               >

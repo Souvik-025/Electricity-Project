@@ -1,23 +1,30 @@
-import { Component, ChangeDetectorRef } from '@angular/core';
+import { Component, ChangeDetectorRef, NgZone, ViewChild } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { HttpClient } from '@angular/common/http';
-import { Router } from '@angular/router';
+import { Router, NavigationEnd } from '@angular/router';
 import { ContactPerson } from '../../layout/contact-person/contact-person';
 import { NeedSupport } from '../../layout/need-support/need-support';
 import { AuthService } from '../../services/auth.service';
 import { FormsModule } from '@angular/forms';
-const API_BASE = 'http://192.168.0.155:8080';
 import { interval, Subscription } from 'rxjs';
-import { NgZone } from '@angular/core';
+import { filter, map, takeWhile } from 'rxjs/operators';
+import { CountdownComponent, CountdownConfig, CountdownEvent } from 'ngx-countdown';
+import { environment } from '../../environments/environment';
+const API_BASE = 'http://192.168.0.155:8080';
 
 @Component({
   selector: 'app-register',
   standalone: true,
-  imports: [CommonModule, ContactPerson, NeedSupport, FormsModule],
+  imports: [CommonModule, ContactPerson, NeedSupport, FormsModule, CountdownComponent],
   templateUrl: './register.html',
   styleUrl: './register.css',
 })
 export class Register {
+  //  remainingTime$ = interval(1000).pipe(
+  //   map(val => 60 - val), // Start from 60 seconds
+  //   takeWhile(val => val >= 0) // Stop at 0
+  // );
+
   /* ── Auth mode ─────────────────────────────────────────────────── */
   authMode: 'register' | 'login' = 'register';
 
@@ -93,6 +100,8 @@ export class Register {
 
   /* ── OTP ────────────────────────────────────────────────────────── */
   otpValue: string = ''; // assembled 6-digit string
+  private routerSub?: Subscription;
+  maxAccessibleStep: number = 1;
 
   constructor(
     private http: HttpClient,
@@ -102,9 +111,27 @@ export class Register {
     private zone: NgZone,
   ) {}
 
+  @ViewChild('countdown', { static: false }) private countdown!: CountdownComponent;
+
+  // Configuration: 60 seconds, displayed as m:s
+  config: CountdownConfig = {
+    leftTime: environment.resendTimer,
+    format: 'm:ss',
+    demand: false,
+  };
+
+  isResendDisabled: boolean = true;
+
+  // This handles the state change when the timer hits 0
+  handleEvent(event: CountdownEvent) {
+    // Use 'action' to check the state
+    if (event.action === 'done') {
+      this.isResendDisabled = false;
+    }
+  }
   /* ══════════════════════════════════════════════════════════════════
-  AUTH MODE
-  ══════════════════════════════════════════════════════════════════ */
+AUTH MODE
+══════════════════════════════════════════════════════════════════ */
   isLoggedIn: boolean = false;
 
   setAuthMode(mode: 'register' | 'login') {
@@ -126,7 +153,6 @@ export class Register {
     this.loginError = '';
     this.currentStep = 1;
   }
-
   selectedOption: 'same' | 'different' | null = null;
   backCheck() {
     if (this.isLoggedIn && this.authMode == 'login') {
@@ -135,7 +161,6 @@ export class Register {
       this.currentStep = 1;
     }
   }
-
   handleContinue() {
     if (this.selectedOption === 'same') {
       this.router.navigate([this.mainStepRoutes[2]]);
@@ -148,20 +173,113 @@ export class Register {
   }
 
   ngOnInit(): void {
+    if (this.authMode === 'login' && this.currentStep === 7) {
+      this.countdown.restart();
+    }
+
+    this.initPrefillData();
+
+    this.routerSub = this.router.events
+      .pipe(filter((e) => e instanceof NavigationEnd))
+      .subscribe((e: any) => {
+        if (e.urlAfterRedirects === this.mainStepRoutes[1]) {
+          this.initPrefillData();
+        }
+      });
+
     this.isLoggedIn = this.authService.isLoggedIn();
 
     if (this.isLoggedIn) {
-      // user logged in
       const customerId = this.authService.getUserId();
       this.existingEmail = this.authService.getUserEmailId() ?? '';
       this.email = this.existingEmail;
       console.log('Logged in user:', customerId);
     } else {
-      // guest / temp user
       const tempId = this.authService.getTempUid();
       console.log('Guest user:', tempId);
     }
+
+    const address = this.authService.getAddressData();
+    if (address) {
+      console.log('Stored Address:', address);
+    } else {
+      console.log('No address data found in storage.');
+    }
+
+    // 3. Console Provider Data
+    const provider = this.authService.getSelectedProvider();
+    if (provider) {
+      console.log('Selected Provider:', provider);
+    } else {
+      console.log('No provider selected yet.');
+    }
   }
+
+  ngOnDestroy(): void {
+    this.routerSub?.unsubscribe();
+  }
+
+  private initPrefillData(): void {
+    this.prefillFromAuthState();
+    this.fetchStoredFormData();
+  }
+
+  private prefillFromAuthState(): void {
+    const user = this.authService.getCurrentUser();
+    if (!user) {
+      return;
+    }
+
+    this.formData.email = this.formData.email || user.email || '';
+  }
+
+  private fetchStoredFormData(): void {
+    const userId = this.authService.getUserId();
+    const deliveryId = this.authService.getDeliveryId();
+
+    if (!userId || !deliveryId) {
+      return;
+    }
+
+    const payload = {
+      customerId: parseInt(userId, 10),
+      deliveryId: parseInt(deliveryId, 10),
+      step: 0,
+    };
+
+    this.http.post<any>(`${API_BASE}/customer/fetch-form`, payload).subscribe({
+      next: (res) => {
+        if (res?.res === true && res.data) {
+          this.prefillRegistrationFields(res.data);
+          this.maxAccessibleStep = this.getMaxAccessibleStep(res.data);
+        }
+      },
+      error: () => {
+        // Keep register usable even when fetch-form is unavailable.
+      },
+    });
+  }
+
+  private prefillRegistrationFields(data: any): void {
+    this.formData.email = data.email ?? this.formData.email;
+    this.formData.firstName = data.firstName ?? this.formData.firstName;
+    this.formData.lastName = data.lastName ?? this.formData.lastName;
+    this.formData.title = data.title ?? this.formData.title;
+    this.formData.companyName = data.companyName ?? this.formData.companyName;
+
+    const salutation = (data.salutation ?? this.formData.salutation ?? '').toString().toLowerCase();
+    if (salutation.includes('herr')) {
+      this.formData.salutation = 'herr';
+    } else if (salutation.includes('frau')) {
+      this.formData.salutation = 'frau';
+    }
+
+    const mobile = (data.mobileNumber ?? data.mobile ?? '').toString().trim();
+    if (mobile) {
+      this.formData.mobileNumberLocal = mobile.replace(/^\+49/, '').replace(/\s+/g, '');
+    }
+  }
+
   /* ══════════════════════════════════════════════════════════════════
   LOGIN
   ══════════════════════════════════════════════════════════════════ */
@@ -223,6 +341,10 @@ export class Register {
   };
 
   navigateToMainStep(step: number) {
+    if (step > this.maxAccessibleStep) {
+      return;
+    }
+
     // if (!this.isMainStepAccessible(step)) {
     //   return; // silently block — step not yet unlocked
     // }
@@ -230,6 +352,48 @@ export class Register {
     if (route) {
       this.router.navigate([route]);
     }
+  }
+
+  private getMaxAccessibleStep(data: any): number {
+    const hasAccount = !!(data?.email && data?.firstName && data?.lastName);
+    if (!hasAccount) {
+      return 1;
+    }
+
+    const address = data?.deliveryAddress ?? data?.address ?? data?.customerAddress ?? data;
+    const hasDelivery = !!(
+      address?.zip &&
+      address?.city &&
+      address?.street &&
+      address?.houseNumber &&
+      data?.mobile &&
+      data?.deliveryDate
+    );
+    if (!hasDelivery) {
+      return 2;
+    }
+
+    const connection = data?.customerConnection ?? data?.connectionData;
+    const hasConnection = !!(
+      connection &&
+      (connection.submitLater || connection.meterNumber) &&
+      (connection.isMovingIn ? connection.moveInDate : connection.currentProvider)
+    );
+    if (!hasConnection) {
+      return 3;
+    }
+
+    const payment = data?.customerPayment ?? data?.paymentData;
+    const hasPayment = !!(
+      payment?.paymentMethod &&
+      (!String(payment.paymentMethod).toLowerCase().includes('lastschrift') ||
+        (payment?.iban &&
+          (payment?.accountHolderFirstName || payment?.accountHolder?.firstName) &&
+          (payment?.accountHolderLastName || payment?.accountHolder?.lastName) &&
+          payment?.sepaConsent))
+    );
+
+    return hasPayment ? 5 : 4;
   }
 
   /* ══════════════════════════════════════════════════════════════════
@@ -242,9 +406,13 @@ export class Register {
     this.otpError = '';
     this.isLoading = false;
 
-    // if (step === 7) {
-    //   this.startResendTimer();
-    // }
+    if (step === 7) {
+      setTimeout(() => {
+        if (this.countdown) {
+          this.countdown.restart();
+        }
+      }, 0);
+    }
   }
 
   /* ══════════════════════════════════════════════════════════════════
@@ -364,7 +532,7 @@ export class Register {
     this.http
       .post<{
         res: boolean;
-        data?: { id: number; firstName: string; lastName: string; email: string };
+        data?: { id: number; firstName: string; lastName: string; email: string; adminId: 1 };
         page?: string;
         message?: string;
       }>(`${API_BASE}/auth/signup`, payload)
@@ -659,7 +827,7 @@ export class Register {
         },
       });
   }
-  newOtp = false;
+
   sendForgotPasswordOtp() {
     this.apiError = '';
 
@@ -670,30 +838,27 @@ export class Register {
 
     this.isLoadingForgot = true;
     this.cdr.detectChanges();
-    console.log('loading value', this.isLoadingForgot);
-    // this.goToStep(7);
+
     this.http
       .post<{
         res: boolean;
         message: string;
-        newOtp?: boolean;
+
         data?: { id: number };
       }>(`${API_BASE}/auth/forget-password`, { email: this.email })
       .subscribe({
         next: (res) => {
-          // this.isLoadingForgot = false;
-          console.log('loading value1', this.isLoadingForgot);
+          this.isLoadingForgot = false;
+
           if (res.res) {
             //  store temp user id for OTP verification
             if (res.data?.id) {
               this.authService.setTempUid(res.data.id.toString());
             }
 
-            this.newOtp = !!res.newOtp;
             //  move to OTP screen
             this.goToStep(7);
             this.cdr.detectChanges();
-            console.log('loading value2', this.isLoadingForgot);
           } else {
             this.apiError = res.message || 'Diese E-Mail-Adresse ist nicht registriert.';
           }
@@ -711,36 +876,15 @@ export class Register {
   /* ══════════════════════════════════════════════════════════════════
   RESEND OTP Forgot
   ══════════════════════════════════════════════════════════════════ */
-  resendTimer: number = 60;
-  isResendDisabled: boolean = true;
-  private timerSub!: Subscription;
-
-  startResendTimer() {
-    if (this.timerSub) {
-      this.timerSub.unsubscribe();
-    }
-
-    this.resendTimer = 60;
-    this.isResendDisabled = true;
-
-    this.zone.runOutsideAngular(() => {
-      this.timerSub = interval(1000).subscribe(() => {
-        this.zone.run(() => {
-          if (this.resendTimer > 0) {
-            this.resendTimer--;
-          } else {
-            this.isResendDisabled = false;
-            this.timerSub.unsubscribe();
-          }
-        });
-      });
-    });
-  }
 
   resendOtpForgot() {
     if (!this.authService.getTempUid()) return;
-    // if (this.isResendDisabled) return;
+    if (this.isResendDisabled) return;
+    this.isResendDisabled = true;
 
+    setTimeout(() => {
+      this.countdown?.restart();
+    });
     this.resendSuccess = false;
     this.otpError = '';
 
@@ -758,8 +902,19 @@ export class Register {
             if (el) el.value = '';
           }
           this.otpValue = '';
+
+          // this.isResendDisabled = false;
+
+          // setTimeout(() => {
+          //   this.isResendDisabled = true;
+
+          //   // restart countdown AFTER DOM update
+          //   setTimeout(() => {
+          //     this.countdown?.restart();
+          //   });
+          // });
+
           setTimeout(() => (this.resendSuccess = false), 4000);
-          this.startResendTimer();
         },
         error: () => {
           this.otpError = 'Code konnte nicht gesendet werden. Bitte erneut versuchen.';
@@ -770,8 +925,7 @@ export class Register {
   formatTime(seconds: number): string {
     const min = Math.floor(seconds / 60);
     const sec = seconds % 60;
-
-    return `${this.pad(min)}:${this.pad(sec)}`;
+    return `${min}:${sec < 10 ? '0' + sec : sec}`;
   }
 
   pad(value: number): string {
@@ -780,7 +934,7 @@ export class Register {
   /* ══════════════════════════════════════════════════════════════════
   VERIFY OTP Forgot
   ══════════════════════════════════════════════════════════════════ */
-
+  newOtp = false;
   verifyOtpForgot() {
     this.collectOtp();
     if (this.otpValue.length < 6) {
@@ -798,6 +952,7 @@ export class Register {
     this.http
       .post<{
         res: boolean;
+        newOtp?: boolean;
         message: string;
       }>(`${API_BASE}/auth/verify-otp`, { id: this.authService.getTempUid(), otp: this.otpValue })
       .subscribe({
@@ -814,6 +969,7 @@ export class Register {
           } else {
             this.otpError = 'Der eingegebene Code ist ungültig.';
             this.otpInvalid = true;
+            this.newOtp = !!res.newOtp;
             // this.goToStep(8);
             this.cdr.detectChanges();
           }

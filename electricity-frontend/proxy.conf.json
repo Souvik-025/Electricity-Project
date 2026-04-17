@@ -1,8 +1,0 @@
-{
-  "/baseProvider": {
-    "target": "https://gateway.eg-on.com",
-    "secure": true,
-    "changeOrigin": true,
-    "logLevel": "debug"
-  }
-}

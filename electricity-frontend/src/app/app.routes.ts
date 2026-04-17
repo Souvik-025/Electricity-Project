@@ -18,33 +18,38 @@ import { Account } from './nav-electricity-comparision/account/account';
 import { LoginPage } from './nav-electricity-comparision/login-page/login-page';
 import { Sidebar } from './layout/sidebar/sidebar';
 import { Register } from './nav-electricity-comparision/register/register';
+import { Customer } from './navigation-pages/customer/customer';
 
 export const routes: Routes = [
   { path: '', redirectTo: 'home', pathMatch: 'full' },
 
-  { path: 'home', component: Home, children: [
+  {
+    path: 'home',
+    component: Home,
+    children: [
       { path: '', redirectTo: 'electricity', pathMatch: 'full' },
       { path: 'electricity', component: Electricity },
       { path: 'gas', component: Gas },
       { path: 'heating-electricity', component: HeatingElectricity },
       { path: 'night-heaters', component: NightHeaters },
       { path: 'car-electricity', component: CarElectricity },
-    ]
+    ],
   },
-  { path: 'electricity-comparision', component: ElectricityComparision,
+  {
+    path: 'electricity-comparision',
+    component: ElectricityComparision,
     children: [
-      {path: '', component: SelectProvider},
-      {path: 'login', component: LoginPage},
-      {path: 'delivery-address', component: DeliveryAddress},
-      {path: 'connection-data', component: ConnectionData},
-      {path: 'payment-method', component: PaymentMethod},
-      {path: 'account', component: Account},
-      {path: 'checkout', component: CheckoutPage},
-      {path: 'register', component: Register}
-    ]
-   },
+      { path: '', component: SelectProvider },
+      { path: 'login', component: LoginPage },
+      { path: 'delivery-address', component: DeliveryAddress },
+      { path: 'connection-data', component: ConnectionData },
+      { path: 'payment-method', component: PaymentMethod },
+      { path: 'account', component: Account },
+      { path: 'checkout', component: CheckoutPage },
+      { path: 'register', component: Register },
+    ],
+  },
+  { path: 'customer', component: Customer },
   { path: 'gas-comparision', component: GasComparision },
   { path: 'commercial-electricity', component: CommercialElectricity },
-
-
 ];

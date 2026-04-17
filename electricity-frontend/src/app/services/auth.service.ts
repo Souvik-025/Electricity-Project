@@ -1,4 +1,4 @@
-import { Injectable, inject, PLATFORM_ID } from '@angular/core';
+import { Injectable, inject, PLATFORM_ID, signal } from '@angular/core';
 import { BehaviorSubject, Observable } from 'rxjs';
 import { isPlatformBrowser } from '@angular/common';
 import { ActivatedRoute, Router } from '@angular/router';
@@ -123,7 +123,7 @@ export class AuthService {
   /* -------------------------------
      LOGIN / LOGOUT
   --------------------------------*/
-
+  currentUser = signal<AuthUser | null>(this.getUserFromStorage());
   /* Login method */
   login(userData: AuthUser): boolean {
     try {
@@ -139,7 +139,7 @@ export class AuthService {
 
       this.authState$.next(user);
       this.saveUserToStorage(user);
-
+      this.currentUser.set(user);
       return true;
     } catch (error) {
       console.error('Login failed:', error);
@@ -154,10 +154,23 @@ export class AuthService {
       this.clearStorage();
       this.clearAddress();
       this.clearSelectedProvider();
+      this.currentUser.set(null);
       this.router.navigate(['/'], { relativeTo: this.route });
     } catch (error) {
       console.error('Logout error:', error);
     }
+  }
+
+  private getUserFromStorage(): AuthUser | null {
+    try {
+      if (typeof window !== 'undefined') {
+        const data = localStorage.getItem(AUTH_STORAGE_KEY);
+        return data ? JSON.parse(data) : null;
+      }
+    } catch (e) {
+      console.error('Storage parse error', e);
+    }
+    return null;
   }
 
   /* Throw error if user not logged in */
@@ -306,6 +319,23 @@ export class AuthService {
     const user = this.getCurrentUser();
     return user?.delivery_id || null;
   }
+  /* Clear delivery ID after checkout completion */
+  clearDeliveryId(): void {
+    try {
+      const currentUser = this.getCurrentUser();
+      if (!currentUser) return;
+
+      const updatedUser: AuthUser = {
+        ...currentUser,
+      };
+
+      delete updatedUser.delivery_id;
+      this.authState$.next(updatedUser);
+      this.saveUserToStorage(updatedUser);
+    } catch (error) {
+      console.error('Error clearing deliveryId:', error);
+    }
+  }
 
   /// Address save local ///
 
@@ -382,5 +412,11 @@ export class AuthService {
     } catch (error) {
       console.error('Error clearing provider:', error);
     }
+  }
+
+  /* Clear multi-step form progress, keep address data */
+  clearCheckoutFlowData(): void {
+    this.clearDeliveryId();
+    this.clearSelectedProvider();
   }
 }

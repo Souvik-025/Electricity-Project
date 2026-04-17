@@ -77,10 +77,11 @@
                   (input)="onCityInput($event)"
                   (focus)="closeAllDropdowns(); showCityDropdown = true"
                   (click)="$event.stopPropagation()"
+                  [disabled]="addressForm.get('city')?.disabled"
                 />
 
                 <div class="dropdown" *ngIf="showCityDropdown">
-                  <div *ngIf="cityOptions.length === 0" class="dropdown-item disabled">
+                  <div *ngIf="filteredCityOptions.length === 0" class="dropdown-item disabled">
                     Keine Orte gefunden
                   </div>
 
@@ -105,6 +106,7 @@
                   (input)="onStreetInput($event)"
                   (focus)="closeAllDropdowns(); showDropdown = true"
                   (click)="$event.stopPropagation()"
+                  [disabled]="addressForm.get('street')?.disabled"
                 />
 
                 <div class="dropdown" *ngIf="showDropdown">

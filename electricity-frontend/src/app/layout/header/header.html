@@ -67,7 +67,12 @@
         <span class="login">
           <img src="assets/icons/Login.png" class="login-icon" alt="login" />
         </span>
-        <h3 class="text login-link"> {{ isLoggedIn ? 'Profil' : 'Login' }}</h3>
+
+        @if (isLoggedIn()) {
+          <h3 class="text login-link">Profil</h3>
+        } @else {
+          <h3 class="text login-link">Login</h3>
+        }
       </button>
     </div>
   </div>

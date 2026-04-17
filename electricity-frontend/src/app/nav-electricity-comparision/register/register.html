@@ -910,7 +910,19 @@
 
           <div class="login-text">
             Keinen Code erhalten? Bitte prüfen Sie auch Ihren Spam-Ordner.
-            <span style="color: #0085e0" (click)="resendOtp()">Code erneut senden</span>
+            <!-- <span style="color: #0085e0" (click)="resendOtp()">Code erneut senden</span> -->
+            <span
+              [style.color]="isResendDisabled ? '#999' : '#0085e0'"
+              [style.pointerEvents]="isResendDisabled ? 'none' : 'auto'"
+              (click)="resendOtpForgot()"
+            >
+              <span *ngIf="isResendDisabled">
+                Code erneut senden&nbsp;
+                <countdown #countdown [config]="config" (event)="handleEvent($event)"></countdown>
+              </span>
+
+              <span *ngIf="!isResendDisabled"> Code erneut senden </span>
+            </span>
           </div>
 
           <div style="display: flex; flex-direction: row; justify-content: space-between">
