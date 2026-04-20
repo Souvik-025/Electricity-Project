@@ -128,20 +128,10 @@ export class Electricity implements OnInit {
       // }
       this.addressService.getCitiesByZip(saved.zip).subscribe((cities) => {
         this.cityOptions = cities;
-        // this.addressForm.get('city')?.enable();
-        //  this.cityOptions = cities;
         this.filteredCityOptions = [...cities];
 
-        // if (cities.length > 0) {
-        //   this.addressForm.get('city')?.enable();
-
-        //   // const firstCity = cities[0].city_id;
-        //   // this.addressForm.get('city')?.setValue(firstCity);
-        //   if (cities.length === 1) {
-        //     this.addressForm.get('city')?.setValue(cities[0].city_id);
-        //   }
-        // }
         this.addressForm.get('city')?.enable();
+
         const matchedCity = cities.find((c) => c.city === saved.city);
 
         if (!matchedCity) {
@@ -181,6 +171,7 @@ export class Electricity implements OnInit {
             this.addressForm.get('street')?.setValue(matchedStreet.street, {
               emitEvent: false,
             });
+            this.isStreetLoading = false;
           }
 
           // this.addressForm.patchValue(
@@ -200,7 +191,6 @@ export class Electricity implements OnInit {
         this.showCityDropdown = false;
         this.showDropdown = false;
 
-        this.isStreetLoading = false;
         // this.isRestoring = false;
       });
     }
@@ -222,7 +212,11 @@ export class Electricity implements OnInit {
 
     this.showCityDropdown = true;
   }
-
+  onCityFocus(event: Event) {
+    event.stopPropagation();
+    this.closeAllDropdowns();
+    this.showCityDropdown = true;
+  }
   selectCity(city: any) {
     this.citySearch = city.city;
 
@@ -474,6 +468,7 @@ export class Electricity implements OnInit {
 
   goToComparison() {
     if (this.addressForm.invalid) {
+      console.log('invalid address');
       this.addressForm.markAllAsTouched();
       return;
     }
