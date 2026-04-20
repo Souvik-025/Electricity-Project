@@ -11,6 +11,8 @@ import { FreeServicesListComponent } from "./pages/free-services/free-services-l
 import { FreeServicesCreateComponent } from "./pages/free-services/free-services-create/free-services-create.component";
 import { AboutUsComponent } from "./pages/about-us/about-us.component";
 import { BannersComponent } from "./pages/banners/banners.component";
+import { CustomerListComponent } from "./pages/customers/customer-list/customer-list.component";
+import { BookingListComponent } from "./pages/bookings/booking-list/booking-list.component";
 
 export const routes: Routes = [
   {
@@ -64,6 +66,16 @@ export const routes: Routes = [
         path: "banners",
         component: BannersComponent,
         title: "Banners",
+      },
+      {
+        path: "customers",
+        component: CustomerListComponent,
+        title: "Customers",
+      },
+      {
+        path: "bookings",
+        component: BookingListComponent,
+        title: "Bookings",
       },
       {
         path: "menus/navigation/edit/:id",

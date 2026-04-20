@@ -78,6 +78,25 @@ export class AppSidebarComponent implements OnInit, OnDestroy {
     </svg>`,
       subItems: [{ name: "Banners", path: "/banners" }],
     },
+    {
+      name: "Customers",
+      icon: `<svg width="1em" height="1em" viewBox="0 0 24 24" fill="none">
+      <path d="M16 21V19C16 17.8954 15.1046 17 14 17H6C4.89543 17 4 17.8954 4 19V21" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+      <circle cx="10" cy="7" r="4" stroke="currentColor" stroke-width="2"/>
+      <path d="M20 21V19C20 18.067 19.3638 17.2519 18.5 17.0127" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+      <path d="M15.5 3.28906C16.3968 3.64352 17 4.52164 17 5.5C17 6.47836 16.3968 7.35648 15.5 7.71094" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+    </svg>`,
+      subItems: [{ name: "Customer List", path: "/customers" }],
+    },
+    {
+      name: "Bookings",
+      icon: `<svg width="1em" height="1em" viewBox="0 0 24 24" fill="none">
+      <rect x="3" y="4" width="18" height="18" rx="2" stroke="currentColor" stroke-width="2"/>
+      <path d="M8 2V6M16 2V6M3 10H21" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+      <path d="M8 14H12M8 18H10" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+    </svg>`,
+      subItems: [{ name: "Booking List", path: "/bookings" }],
+    },
   ];
 
   openSubmenu: string | null = null;

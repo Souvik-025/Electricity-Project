@@ -1,0 +1,63 @@
+<div class="p-6 bg-white dark:bg-gray-900 rounded-2xl shadow">
+  <div class="flex items-center justify-between mb-6">
+    <h2 class="text-xl font-semibold text-gray-800 dark:text-white">Buchungsliste</h2>
+    <button
+      (click)="fetchBookings()"
+      class="px-4 py-2 text-sm bg-brand-500 text-white rounded-lg hover:bg-brand-600 transition cursor-pointer"
+    >
+      Neu laden
+    </button>
+  </div>
+
+  @if (isLoading) {
+  <div class="flex items-center gap-2 text-gray-500 text-sm">
+    <div class="animate-spin rounded-full h-4 w-4 border-b-2 border-brand-500"></div>
+    <span>Buchungen werden geladen...</span>
+  </div>
+  }
+
+  @if (!isLoading && !errorMessage && bookings.length > 0) {
+  <div class="overflow-x-auto">
+    <table class="w-full text-sm text-left border-collapse">
+      <thead class="text-xs uppercase bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-300">
+        <tr>
+          <th class="px-4 py-3">Buchung ID</th>
+          <th class="px-4 py-3">Kunde</th>
+          <th class="px-4 py-3">E-Mail</th>
+          <th class="px-4 py-3">Tag</th>
+          <th class="px-4 py-3">Zeitfenster</th>
+          <th class="px-4 py-3">Notiz</th>
+          <th class="px-4 py-3">Erstellt am</th>
+        </tr>
+      </thead>
+      <tbody class="divide-y dark:divide-gray-700">
+        @for (booking of bookings; track booking.id) {
+        <tr class="hover:bg-gray-50 dark:hover:bg-gray-800 transition">
+          <td class="px-4 py-3 text-gray-700 dark:text-gray-200">{{ booking.id || '-' }}</td>
+          <td class="px-4 py-3 font-medium text-gray-800 dark:text-white">
+            {{ booking.customerName || 'Keine Angabe' }}
+          </td>
+          <td class="px-4 py-3 text-gray-700 dark:text-gray-200">{{ booking.customerEmail || 'Keine Angabe' }}</td>
+          <td class="px-4 py-3 text-gray-700 dark:text-gray-200">{{ booking.dayOfWeek || 'Keine Angabe' }}</td>
+          <td class="px-4 py-3 text-gray-700 dark:text-gray-200">{{ booking.timeSlot || 'Keine Angabe' }}</td>
+          <td class="px-4 py-3 text-gray-700 dark:text-gray-200">{{ booking.description || '—' }}</td>
+          <td class="px-4 py-3 text-gray-700 dark:text-gray-200">{{ formatDate(booking.createdOn) }}</td>
+        </tr>
+        }
+      </tbody>
+    </table>
+  </div>
+  }
+
+  @if (!isLoading && errorMessage) {
+  <div class="text-center py-12">
+    <p class="text-red-500 font-medium">{{ errorMessage }}</p>
+  </div>
+  }
+
+  @if (!isLoading && !errorMessage && bookings.length === 0) {
+  <div class="text-center py-12">
+    <p class="text-gray-500 font-medium">Keine Buchungen gefunden</p>
+  </div>
+  }
+</div>

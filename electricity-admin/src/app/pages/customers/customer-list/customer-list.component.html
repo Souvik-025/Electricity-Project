@@ -1,0 +1,127 @@
+<div class="p-6 bg-white dark:bg-gray-900 rounded-2xl shadow">
+  <div class="flex items-center justify-between mb-6">
+    <h2 class="text-xl font-semibold text-gray-800 dark:text-white">
+      Kundenliste
+    </h2>
+    <button
+      (click)="fetchCustomers()"
+      class="px-4 py-2 text-sm bg-brand-500 text-white rounded-lg hover:bg-brand-600 transition cursor-pointer">
+      Neu laden
+    </button>
+  </div>
+
+  @if (isLoading) {
+    <div class="flex items-center gap-2 text-gray-500 text-sm">
+      <div
+        class="animate-spin rounded-full h-4 w-4 border-b-2 border-brand-500"></div>
+      <span>Kunden werden geladen...</span>
+    </div>
+  }
+
+  @if (!isLoading && !errorMessage && customers.length > 0) {
+    <div class="overflow-x-auto">
+      <table class="w-full text-sm text-left border-collapse">
+        <thead
+          class="text-xs uppercase bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-300">
+          <tr>
+            <th class="px-4 py-3">ID</th>
+            <th class="px-4 py-3">Name</th>
+            <th class="px-4 py-3">E-Mail</th>
+            <th class="px-4 py-3">Telefon</th>
+            <th class="px-4 py-3">Erstellt am</th>
+          </tr>
+        </thead>
+        <tbody class="divide-y dark:divide-gray-700">
+          @for (customer of customers; track customer.id) {
+            <!-- MAIN ROW -->
+            <tr
+              class="hover:bg-gray-50 dark:hover:bg-gray-800 transition cursor-pointer"
+              (click)="toggleRow(customer.id)">
+              <td class="px-4 py-3">{{ customer.id || "-" }}</td>
+
+              <td class="px-4 py-3 font-medium">
+                {{ customer.title }} {{ fullName(customer) }}
+              </td>
+
+              <td class="px-4 py-3">{{ customer.email }}</td>
+
+              <td class="px-4 py-3">
+                {{ customer.mobile || customer.telephone || "Keine Angabe" }}
+              </td>
+
+              <td class="px-4 py-3">
+                <span
+                  class="px-2 py-1 text-xs rounded-lg"
+                  [class.bg-green-100]="customer.status"
+                  [class.bg-red-100]="!customer.status">
+                  {{ customer.status ? "Aktiv" : "Inaktiv" }}
+                </span>
+              </td>
+            </tr>
+
+            <!-- EXPANDED DETAILS -->
+            @if (expandedRow === customer.id) {
+              <tr class="bg-gray-50 dark:bg-gray-800">
+                <td
+                  colspan="5"
+                  class="px-6 py-4 text-sm text-gray-700 dark:text-gray-300">
+                  <div class="grid grid-cols-2 md:grid-cols-3 gap-4">
+                    <div><strong>Typ:</strong> {{ customer.userType }}</div>
+                    <div>
+                      <strong>Anrede:</strong> {{ customer.salutation }}
+                    </div>
+                    <div>
+                      <strong>Firma:</strong> {{ customer.companyName || "-" }}
+                    </div>
+
+                    <div>
+                      <strong>Verifiziert:</strong>
+                      {{ customer.isVerified ? "Ja" : "Nein" }}
+                    </div>
+
+                    <div>
+                      <strong>Bestätigt:</strong>
+                      {{ customer.isAcknowledged ? "Ja" : "Nein" }}
+                    </div>
+
+                    <div>
+                      <strong>Status:</strong>
+                      {{ customer.status ? "Aktiv" : "Inaktiv" }}
+                    </div>
+
+                    <div class="col-span-2 md:col-span-3">
+                      <strong>Adresse:</strong>
+                      {{
+                        customer.address
+                          ? customer.address.street +
+                            " " +
+                            customer.address.houseNumber +
+                            ", " +
+                            customer.address.zip +
+                            " " +
+                            customer.address.city
+                          : "Keine Angabe"
+                      }}
+                    </div>
+                  </div>
+                </td>
+              </tr>
+            }
+          }
+        </tbody>
+      </table>
+    </div>
+  }
+
+  @if (!isLoading && errorMessage) {
+    <div class="text-center py-12">
+      <p class="text-red-500 font-medium">{{ errorMessage }}</p>
+    </div>
+  }
+
+  @if (!isLoading && !errorMessage && customers.length === 0) {
+    <div class="text-center py-12">
+      <p class="text-gray-500 font-medium">Keine Kunden gefunden</p>
+    </div>
+  }
+</div>
