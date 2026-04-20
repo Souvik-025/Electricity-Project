@@ -3,125 +3,139 @@
     <h2 class="text-xl font-semibold text-gray-800 dark:text-white">
       Kundenliste
     </h2>
-    <button
-      (click)="fetchCustomers()"
-      class="px-4 py-2 text-sm bg-brand-500 text-white rounded-lg hover:bg-brand-600 transition cursor-pointer">
-      Neu laden
-    </button>
   </div>
 
   @if (isLoading) {
-    <div class="flex items-center gap-2 text-gray-500 text-sm">
-      <div
-        class="animate-spin rounded-full h-4 w-4 border-b-2 border-brand-500"></div>
-      <span>Kunden werden geladen...</span>
-    </div>
+  <div class="flex items-center gap-2 text-gray-500 text-sm">
+    <div class="animate-spin rounded-full h-4 w-4 border-b-2 border-brand-500"></div>
+    <span>Kunden werden geladen...</span>
+  </div>
   }
 
   @if (!isLoading && !errorMessage && customers.length > 0) {
-    <div class="overflow-x-auto">
-      <table class="w-full text-sm text-left border-collapse">
-        <thead
-          class="text-xs uppercase bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-300">
-          <tr>
-            <th class="px-4 py-3">ID</th>
-            <th class="px-4 py-3">Name</th>
-            <th class="px-4 py-3">E-Mail</th>
-            <th class="px-4 py-3">Telefon</th>
-            <th class="px-4 py-3">Erstellt am</th>
-          </tr>
-        </thead>
-        <tbody class="divide-y dark:divide-gray-700">
-          @for (customer of customers; track customer.id) {
-            <!-- MAIN ROW -->
-            <tr
-              class="hover:bg-gray-50 dark:hover:bg-gray-800 transition cursor-pointer"
-              (click)="toggleRow(customer.id)">
-              <td class="px-4 py-3">{{ customer.id || "-" }}</td>
+  <div class="overflow-x-auto">
+    <table class="w-full text-sm text-left border-separate border-spacing-0">
+      <thead class="text-xs uppercase bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-300">
+        <tr>
+          <th class="px-4 py-3 rounded-tl-lg">ID</th>
+          <th class="px-4 py-3">Name</th>
+          <th class="px-4 py-3">E-Mail</th>
+          <th class="px-4 py-3">Telefon</th>
+          <th class="px-4 py-3">Status</th>
+          <th class="px-4 py-3 text-right rounded-tr-lg">Aktion</th>
+        </tr>
+      </thead>
+      <tbody class="divide-y dark:divide-gray-700">
+        @for (customer of customers; track customer.id) {
+        <tr class="hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-colors cursor-pointer group"
+          (click)="toggleRow(customer.id!)">
 
-              <td class="px-4 py-3 font-medium">
-                {{ customer.title }} {{ fullName(customer) }}
-              </td>
+          <td class="px-4 py-4 text-gray-500">#{{ customer.uniqueCustomerId }}</td>
 
-              <td class="px-4 py-3">{{ customer.email }}</td>
+          <td class="px-4 py-4">
+            <div class="font-semibold text-gray-900 dark:text-white">
+              {{ customer.title }} {{ customer.firstName }} {{ customer.lastName }}
+            </div>
+            <!-- <div class="text-xs text-gray-400">{{ customer.uniqueCustomerId }}</div> -->
+          </td>
 
-              <td class="px-4 py-3">
-                {{ customer.mobile || customer.telephone || "Keine Angabe" }}
-              </td>
+          <td class="px-4 py-4 text-gray-600 dark:text-gray-400">{{ customer.email }}</td>
 
-              <td class="px-4 py-3">
-                <span
-                  class="px-2 py-1 text-xs rounded-lg"
-                  [class.bg-green-100]="customer.status"
-                  [class.bg-red-100]="!customer.status">
-                  {{ customer.status ? "Aktiv" : "Inaktiv" }}
-                </span>
-              </td>
-            </tr>
+          <td class="px-4 py-4 text-gray-600 dark:text-gray-400">
+            {{ customer.mobileNumber || "—" }}
+          </td>
 
-            <!-- EXPANDED DETAILS -->
-            @if (expandedRow === customer.id) {
-              <tr class="bg-gray-50 dark:bg-gray-800">
-                <td
-                  colspan="5"
-                  class="px-6 py-4 text-sm text-gray-700 dark:text-gray-300">
-                  <div class="grid grid-cols-2 md:grid-cols-3 gap-4">
-                    <div><strong>Typ:</strong> {{ customer.userType }}</div>
-                    <div>
-                      <strong>Anrede:</strong> {{ customer.salutation }}
-                    </div>
-                    <div>
-                      <strong>Firma:</strong> {{ customer.companyName || "-" }}
-                    </div>
+          <td class="px-4 py-4">
+            <span class="px-2.5 py-0.5 rounded-full text-xs font-medium" [class.bg-green-100]="customer.status"
+              [class.text-green-700]="customer.status" [class.bg-red-100]="!customer.status"
+              [class.text-red-700]="!customer.status">
+              {{ customer.status ? "Aktiv" : "Inaktiv" }}
+            </span>
+          </td>
 
-                    <div>
-                      <strong>Verifiziert:</strong>
-                      {{ customer.isVerified ? "Ja" : "Nein" }}
-                    </div>
+          <td class="px-4 py-4 text-right">
+            <div class="flex items-center justify-end gap-2 text-brand-500 font-medium">
+              <span class="text-xs">Details</span>
+              <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 transition-transform duration-200"
+                [class.rotate-180]="expandedRow === customer.id" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
+              </svg>
+            </div>
+          </td>
+        </tr>
 
-                    <div>
-                      <strong>Bestätigt:</strong>
-                      {{ customer.isAcknowledged ? "Ja" : "Nein" }}
-                    </div>
+        @if (expandedRow === customer.id) {
+        <tr class="bg-blue-50/30 dark:bg-gray-800/40">
+          <td colspan="6" class="px-8 py-6">
+            <div class="grid grid-cols-1 md:grid-cols-4 gap-6">
 
-                    <div>
-                      <strong>Status:</strong>
-                      {{ customer.status ? "Aktiv" : "Inaktiv" }}
-                    </div>
+              <div class="space-y-1">
+                <p class="text-xs text-gray-400 uppercase tracking-wider">Kundenprofil</p>
+                <p><strong>Typ:</strong> {{ customer.userType }}</p>
+                <p><strong>Anrede:</strong> {{ customer.salutation }}</p>
+                <p><strong>Firma:</strong> {{ customer.companyName || "Privatkunde" }}</p>
+              </div>
 
-                    <div class="col-span-2 md:col-span-3">
-                      <strong>Adresse:</strong>
-                      {{
-                        customer.address
-                          ? customer.address.street +
-                            " " +
-                            customer.address.houseNumber +
-                            ", " +
-                            customer.address.zip +
-                            " " +
-                            customer.address.city
-                          : "Keine Angabe"
-                      }}
-                    </div>
-                  </div>
-                </td>
-              </tr>
-            }
-          }
-        </tbody>
-      </table>
-    </div>
+              <div class="space-y-1">
+                <p class="text-xs text-gray-400 uppercase tracking-wider">Verifizierung</p>
+                <p><strong>E-Mail:</strong> {{ customer.isVerified ? " Verifiziert" : " Offen" }}</p>
+                <p><strong>AGB:</strong> {{ customer.isAcknowledged ? " Akzeptiert" : " Offen" }}</p>
+                <p><strong>Beigetreten:</strong> {{ (customer.joinedOn * 1000) | date:'dd.MM.yyyy' }}</p>
+              </div>
+
+              <div class="md:col-span-2 space-y-1">
+                <p class="text-xs text-gray-400 uppercase tracking-wider">Anschrift</p>
+                @if (customer.address) {
+                <p class="text-gray-700 dark:text-gray-300">
+                  {{ customer.address.street }} {{ customer.address.houseNumber }}<br>
+                  {{ customer.address.zip }} {{ customer.address.city }}
+                </p>
+                } @else {
+                <p class="text-gray-400 italic">Keine Adresse hinterlegt</p>
+                }
+              </div>
+
+            </div>
+          </td>
+        </tr>
+        }
+        }
+      </tbody>
+    </table>
+  </div>
   }
 
   @if (!isLoading && errorMessage) {
-    <div class="text-center py-12">
-      <p class="text-red-500 font-medium">{{ errorMessage }}</p>
-    </div>
+  <div class="text-center py-12">
+    <p class="text-red-500 font-medium">{{ errorMessage }}</p>
+  </div>
   }
 
   @if (!isLoading && !errorMessage && customers.length === 0) {
-    <div class="text-center py-12">
-      <p class="text-gray-500 font-medium">Keine Kunden gefunden</p>
+  <div class="text-center py-12">
+    <p class="text-gray-500 font-medium">Keine Kunden gefunden</p>
+  </div>
+  }
+
+  @if (!isLoading && !errorMessage && customers.length > 0) {
+  <div class="overflow-x-auto">
+  </div>
+
+  <div class="flex items-center justify-between px-4 py-4 border-t dark:border-gray-700 mt-4">
+    <div class="text-sm text-gray-500">
+      Seite <span class="font-medium text-gray-900 dark:text-white">{{ currentPage }}</span>
     </div>
+    <div class="flex gap-2">
+      <button (click)="prevPage()" [disabled]="currentPage === 1 || isLoading"
+        class="px-3 py-1.5 text-sm font-medium rounded-lg border border-gray-300 dark:border-gray-600 hover:bg-gray-50 dark:hover:bg-gray-800 disabled:opacity-50 disabled:cursor-not-allowed transition">
+        Zurück
+      </button>
+
+      <button (click)="nextPage()" [disabled]="!hasMoreData || isLoading"
+        class="px-3 py-1.5 text-sm font-medium rounded-lg border border-gray-300 dark:border-gray-600 hover:bg-gray-50 dark:hover:bg-gray-800 disabled:opacity-50 disabled:cursor-not-allowed transition">
+        Weiter
+      </button>
+    </div>
+  </div>
   }
 </div>

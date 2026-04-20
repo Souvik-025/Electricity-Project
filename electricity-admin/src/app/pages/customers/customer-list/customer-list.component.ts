@@ -3,29 +3,33 @@ import { CommonModule } from "@angular/common";
 import { ApiService } from "../../../shared/services/api.service";
 import { AuthService } from "../../../shared/services/auth.service";
 
+/**
+ * Updated Type to align with API response and template needs
+ */
 type AdminCustomer = {
-  id?: number | string | null;
-  email?: string | null;
-  firstName?: string | null;
-  lastName?: string | null;
-  mobile?: string | null;
+  id: number | string;
+  email: string | null;
+  firstName: string | null;
+  lastName: string | null;
+  mobileNumber: string | null; // Changed from mobile to mobileNumber
   telephone?: string | null;
-
-  userType?: string | null;
-  title?: string | null;
-  salutation?: string | null;
-  companyName?: string | null;
-  isVerified?: boolean;
-  isAcknowledged?: boolean;
-  status?: boolean;
-
-  address?: {
+  userType: string | null;
+  title: string | null;
+  salutation: string | null;
+  companyName: string | null;
+  isVerified: boolean;
+  isAcknowledged: boolean;
+  joinedOn: number; // Unix timestamp from API
+  uniqueCustomerId: string; // Added from API
+  status: boolean;
+  address: {
     zip?: string;
     city?: string;
     street?: string;
     houseNumber?: string;
   } | null;
 };
+
 @Component({
   selector: "app-customer-list",
   standalone: true,
@@ -37,42 +41,74 @@ export class CustomerListComponent implements OnInit {
   customers: AdminCustomer[] = [];
   isLoading = false;
   errorMessage = "";
-  expandedRow: number | null = null;
+  expandedRow: number | string | null = null;
+
+  hasMoreData = true;
+  private readonly PAGE_LIMIT = 5;
+  currentPage = 1;
 
   constructor(
     private api: ApiService,
     private authService: AuthService,
-  ) { }
+  ) {}
 
   ngOnInit(): void {
     this.fetchCustomers();
   }
 
-  toggleRow(id: number | string | null) {
+  /**
+   * Toggles the accordion view for a specific customer
+   */
+  toggleRow(id: number | string): void {
     this.expandedRow = this.expandedRow === id ? null : id;
   }
 
-  fetchCustomers(): void {
+  // Modified to accept a page number
+  fetchCustomers(page: number = 1): void {
+    this.currentPage = page;
     const payload = {
       adminId: this.authService.getUserId(),
+      page: this.currentPage, // Sending page to backend
     };
 
     this.isLoading = true;
     this.errorMessage = "";
+    this.expandedRow = null; // Close any open rows when switching pages
 
     this.api.post("admin/fetch-customer-details", payload).subscribe({
       next: (res: any) => {
         this.isLoading = false;
-        this.customers = this.extractList(res);
+        const newData = this.extractList(res);
+        this.customers = newData;
+
+        // Logic: If we received fewer items than the limit,
+        // it's the last page.
+        this.hasMoreData = newData.length === this.PAGE_LIMIT;
+
+        this.expandedRow = null;
       },
       error: (err) => {
         this.isLoading = false;
         this.errorMessage = "Fehler beim Laden der Kundenliste.";
-        console.error("Customer list fetch error:", err);
       },
     });
   }
 
+  nextPage() {
+    if (this.hasMoreData) {
+      this.fetchCustomers(this.currentPage + 1);
+    }
+  }
+
+  prevPage() {
+    if (this.currentPage > 1) {
+      this.fetchCustomers(this.currentPage - 1);
+    }
+  }
+
+  /**
+   * Helper to safely construct full name
+   */
   fullName(customer: AdminCustomer): string {
     const first = (customer.firstName || "").trim();
     const last = (customer.lastName || "").trim();
@@ -80,49 +116,29 @@ export class CustomerListComponent implements OnInit {
     return value || "Keine Angabe";
   }
 
-  formatDate(value?: number | string | null): string {
-    if (value === null || value === undefined || value === "") {
-      return "Keine Angabe";
-    }
-
-    const numericValue = typeof value === "number" ? value : Number(value);
-    if (Number.isNaN(numericValue)) {
-      return String(value);
-    }
-
-    const milliseconds = numericValue < 1000000000000 ? numericValue * 1000 : numericValue;
-    return new Intl.DateTimeFormat("de-DE", {
-      day: "2-digit",
-      month: "2-digit",
-      year: "numeric",
-    }).format(new Date(milliseconds));
-  }
-
+  /**
+   * Private mapper to ensure the UI data structure is consistent
+   */
   private extractList(response: any): AdminCustomer[] {
-    const list =
-      Array.isArray(response?.data)
-        ? response.data
-        : [];
+    const list = Array.isArray(response?.data) ? response.data : [];
 
     return list.map((item: any) => ({
       id: item.id,
-      email: item.email,
-      firstName: item.firstName,
-      lastName: item.lastName,
-
-      mobile: item.mobileNumber,
+      email: item.email ?? null,
+      firstName: item.firstName ?? null,
+      lastName: item.lastName ?? null,
+      mobileNumber: item.mobileNumber ?? null,
       telephone: item.telephone ?? null,
-
-      userType: item.userType,
-      title: item.title,
-      salutation: item.salutation,
-      companyName: item.companyName,
-
-      isVerified: item.isVerified,
-      isAcknowledged: item.isAcknowledged,
-      status: item.status,
-
-      address: item.address ?? null,
+      userType: item.userType ?? "PRIVATE",
+      title: item.title ?? "",
+      salutation: item.salutation ?? "",
+      companyName: item.companyName ?? null,
+      isVerified: !!item.isVerified,
+      isAcknowledged: !!item.isAcknowledged,
+      joinedOn: item.joinedOn ?? 0,
+      uniqueCustomerId: item.uniqueCustomerId ?? "-",
+      status: !!item.status,
+      address: item.address ? { ...item.address } : null,
     }));
   }
 }

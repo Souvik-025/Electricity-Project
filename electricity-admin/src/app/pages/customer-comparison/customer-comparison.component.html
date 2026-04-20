@@ -1,0 +1,495 @@
+<div class="relative flex overflow-hidden rounded-2xl bg-white shadow dark:bg-gray-900">
+
+  <!-- ───────────────────────── MAIN PANEL ───────────────────────── -->
+  <div class="flex-1 min-w-0 p-6 transition-all duration-300" [class.pr-4]="isSidebarOpen">
+
+    <!-- Header -->
+    <div class="flex items-center justify-between mb-6">
+      <h2 class="text-xl font-semibold text-gray-800 dark:text-white">Vergleichsliste</h2>
+      <button
+        (click)="fetchComparisons()"
+        class="px-4 py-2 text-sm bg-brand-500 text-white rounded-lg hover:bg-brand-600 transition cursor-pointer"
+      >
+        Neu laden
+      </button>
+    </div>
+
+    <!-- Loading -->
+    @if (isLoading) {
+    <div class="flex items-center gap-2 text-gray-500 text-sm">
+      <div class="animate-spin rounded-full h-4 w-4 border-b-2 border-brand-500"></div>
+      <span>Vergleiche werden geladen...</span>
+    </div>
+    }
+
+    <!-- Table -->
+    @if (!isLoading && !errorMessage && comparisons.length > 0) {
+    <div class="overflow-x-auto">
+      <table class="w-full text-sm text-left border-collapse">
+        <thead class="text-xs uppercase bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-300">
+          <tr>
+            <th class="px-4 py-3 rounded-tl-lg">ID</th>
+            <th class="px-4 py-3">Kunde</th>
+            <th class="px-4 py-3">Adresse</th>
+            <th class="px-4 py-3">Verbrauch</th>
+            <th class="px-4 py-3">Sparte</th>
+            <th class="px-4 py-3">Tarife</th>
+            <th class="px-4 py-3">Günstigster Preis</th>
+            <th class="px-4 py-3">Verglichen am</th>
+            <th class="px-4 py-3 rounded-tr-lg text-right">Details</th>
+          </tr>
+        </thead>
+        <tbody class="divide-y dark:divide-gray-700">
+          @for (entry of comparisons; track entry.id) {
+          <tr
+            class="hover:bg-gray-50 dark:hover:bg-gray-800 transition cursor-pointer"
+            [class.bg-blue-50]="isSelected(entry)"
+            [class.dark:bg-blue-900\/20]="isSelected(entry)"
+            (click)="openSidebar(entry)"
+          >
+            <!-- ID -->
+            <td class="px-4 py-4 text-gray-500 dark:text-gray-400 font-mono text-xs">
+              #{{ entry.id }}
+            </td>
+
+            <!-- Customer -->
+            <td class="px-4 py-4">
+              <div class="flex items-center gap-2">
+                <div
+                  class="h-7 w-7 rounded-full flex items-center justify-center text-xs font-semibold shrink-0"
+                  [class.bg-violet-100]="isLoggedIn(entry)"
+                  [class.text-violet-700]="isLoggedIn(entry)"
+                  [class.dark:bg-violet-900\/40]="isLoggedIn(entry)"
+                  [class.dark:text-violet-300]="isLoggedIn(entry)"
+                  [class.bg-gray-100]="!isLoggedIn(entry)"
+                  [class.text-gray-500]="!isLoggedIn(entry)"
+                  [class.dark:bg-gray-700]="!isLoggedIn(entry)"
+                  [class.dark:text-gray-400]="!isLoggedIn(entry)"
+                >
+                  {{ customerInitials(entry.customer) }}
+                </div>
+                <div class="min-w-0">
+                  <div class="font-medium text-gray-900 dark:text-white truncate text-xs">
+                    {{ customerFullName(entry.customer) }}
+                  </div>
+                  @if (isLoggedIn(entry)) {
+                  <div class="text-xs text-gray-400 truncate">{{ entry.customer?.email }}</div>
+                  } @else {
+                  <div class="text-xs text-gray-400">Nicht angemeldet</div>
+                  }
+                </div>
+              </div>
+            </td>
+
+            <!-- Address -->
+            <td class="px-4 py-4 text-xs text-gray-600 dark:text-gray-400">
+              <div>{{ entry.zip }} {{ entry.city }}</div>
+              <div class="text-gray-400">{{ entry.street }} {{ entry.houseNumber }}</div>
+            </td>
+
+            <!-- Consumption -->
+            <td class="px-4 py-4">
+              <span class="text-xs font-medium text-gray-800 dark:text-gray-200">
+                {{ entry.consumption || '—' }} kWh
+              </span>
+              <div class="text-xs text-gray-400 capitalize">{{ entry.consumerType || '—' }}</div>
+            </td>
+
+            <!-- Branch -->
+            <td class="px-4 py-4">
+              <span
+                class="px-2.5 py-0.5 rounded-full text-xs font-medium capitalize"
+                [class.bg-yellow-100]="entry.branch === 'electric'"
+                [class.text-yellow-700]="entry.branch === 'electric'"
+                [class.dark:bg-yellow-900\/30]="entry.branch === 'electric'"
+                [class.dark:text-yellow-400]="entry.branch === 'electric'"
+                [class.bg-blue-100]="entry.branch === 'gas'"
+                [class.text-blue-700]="entry.branch === 'gas'"
+                [class.dark:bg-blue-900\/30]="entry.branch === 'gas'"
+                [class.dark:text-blue-400]="entry.branch === 'gas'"
+                [class.bg-gray-100]="entry.branch !== 'electric' && entry.branch !== 'gas'"
+                [class.text-gray-600]="entry.branch !== 'electric' && entry.branch !== 'gas'"
+              >
+                {{ entry.branch === 'electric' ? 'Strom' : entry.branch === 'gas' ? 'Gas' : (entry.branch || '—') }}
+              </span>
+            </td>
+
+            <!-- Rate count -->
+            <td class="px-4 py-4">
+              <span class="text-xs font-semibold text-gray-800 dark:text-gray-200">
+                {{ rateCount(entry) }}
+              </span>
+              <span class="text-xs text-gray-400"> Tarife</span>
+            </td>
+
+            <!-- Best price -->
+            <td class="px-4 py-4">
+              @if (bestRate(entry)) {
+              <div class="text-xs font-semibold text-green-700 dark:text-green-400">
+                {{ (bestRate(entry)!.totalPrice ?? 0).toFixed(2) }} €/J.
+              </div>
+              <div class="text-xs text-gray-400">
+                {{ (bestRate(entry)!.totalPriceMonth ?? 0).toFixed(2) }} €/Mo.
+              </div>
+              } @else {
+              <span class="text-gray-400 text-xs">—</span>
+              }
+            </td>
+
+            <!-- Date -->
+            <td class="px-4 py-4 text-xs text-gray-600 dark:text-gray-400 whitespace-nowrap">
+              {{ formatDateTime(entry.comparedOn) }}
+            </td>
+
+            <!-- Chevron -->
+            <td class="px-4 py-4 text-right">
+              <div class="flex items-center justify-end gap-1 text-brand-500 font-medium">
+                <span class="text-xs">Details</span>
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  class="h-4 w-4 transition-transform duration-200"
+                  [class.rotate-90]="isSelected(entry)"
+                  fill="none" viewBox="0 0 24 24" stroke="currentColor"
+                >
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
+                </svg>
+              </div>
+            </td>
+          </tr>
+          }
+        </tbody>
+      </table>
+    </div>
+    }
+
+    <!-- Error -->
+    @if (!isLoading && errorMessage) {
+    <div class="text-center py-12">
+      <p class="text-red-500 font-medium">{{ errorMessage }}</p>
+    </div>
+    }
+
+    <!-- Empty -->
+    @if (!isLoading && !errorMessage && comparisons.length === 0) {
+    <div class="text-center py-12">
+      <p class="text-gray-500 font-medium">Keine Vergleiche gefunden</p>
+    </div>
+    }
+
+    <!-- Pagination -->
+    @if (!isLoading && !errorMessage && comparisons.length > 0) {
+    <div class="flex items-center justify-between px-4 py-4 border-t border-gray-200 dark:border-gray-700 mt-4">
+      <div class="text-sm text-gray-500 dark:text-gray-400">
+        Seite <span class="font-medium text-gray-900 dark:text-white">{{ currentPage }}</span>
+      </div>
+      <div class="flex gap-2">
+        <button
+          (click)="prevPage()"
+          [disabled]="currentPage === 1 || isLoading"
+          class="px-3 py-1.5 text-sm font-medium rounded-lg border border-gray-300 dark:border-gray-600 hover:bg-gray-50 dark:hover:bg-gray-800 disabled:opacity-50 disabled:cursor-not-allowed transition"
+        >
+          Zurück
+        </button>
+        <button
+          (click)="nextPage()"
+          [disabled]="!hasMoreData || isLoading"
+          class="px-3 py-1.5 text-sm font-medium rounded-lg border border-gray-300 dark:border-gray-600 hover:bg-gray-50 dark:hover:bg-gray-800 disabled:opacity-50 disabled:cursor-not-allowed transition"
+        >
+          Weiter
+        </button>
+      </div>
+    </div>
+    }
+
+  </div>
+  <!-- ───────────────────────── END MAIN PANEL ───────────────────────── -->
+
+
+  <!-- ───────────────────────── SIDEBAR ───────────────────────── -->
+  @if (isSidebarOpen && selectedEntry) {
+  <aside
+    class="w-80 shrink-0 border-l border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-900 flex flex-col overflow-hidden"
+    style="animation: slideIn 0.2s ease"
+  >
+
+    <!-- Sidebar header -->
+    <div class="flex items-center justify-between px-5 py-4 border-b border-gray-200 dark:border-gray-700">
+      <span class="text-sm font-semibold text-gray-800 dark:text-white">Vergleichsdetails</span>
+      <button
+        (click)="closeSidebar()"
+        class="p-1 rounded-md hover:bg-gray-100 dark:hover:bg-gray-800 transition text-gray-400 hover:text-gray-600 dark:hover:text-gray-300"
+        aria-label="Schließen"
+      >
+        <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+        </svg>
+      </button>
+    </div>
+
+    <!-- Sidebar body -->
+    <div class="flex-1 overflow-y-auto p-5 space-y-6">
+
+      <!-- ── Customer ── -->
+      <div>
+        @if (isLoggedIn(selectedEntry)) {
+        <!-- Logged in customer -->
+        <div class="flex items-center gap-3 mb-4">
+          <div class="h-10 w-10 rounded-full bg-violet-100 dark:bg-violet-900/40 flex items-center justify-center text-sm font-semibold text-violet-700 dark:text-violet-300 shrink-0">
+            {{ customerInitials(selectedEntry.customer) }}
+          </div>
+          <div class="min-w-0">
+            <div class="flex items-center gap-2">
+              <p class="font-semibold text-gray-900 dark:text-white truncate">
+                {{ customerFullName(selectedEntry.customer) }}
+              </p>
+              <span class="px-1.5 py-0.5 rounded text-xs font-medium bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400 shrink-0">
+                Angemeldet
+              </span>
+            </div>
+            <p class="text-xs text-gray-500 dark:text-gray-400 truncate">{{ selectedEntry.customer?.email || '—' }}</p>
+          </div>
+        </div>
+        <div class="rounded-xl bg-gray-50 dark:bg-gray-800 divide-y divide-gray-200 dark:divide-gray-700">
+          <div class="flex justify-between px-4 py-2.5">
+            <span class="text-xs text-gray-500 dark:text-gray-400">Kunden-ID</span>
+            <span class="text-xs font-mono font-medium text-gray-800 dark:text-gray-200">#{{ selectedEntry.customer?.id }}</span>
+          </div>
+          <div class="flex justify-between px-4 py-2.5">
+            <span class="text-xs text-gray-500 dark:text-gray-400">Anrede</span>
+            <span class="text-xs font-medium text-gray-800 dark:text-gray-200">{{ selectedEntry.customer?.salutation || '—' }}</span>
+          </div>
+          <div class="flex justify-between px-4 py-2.5">
+            <span class="text-xs text-gray-500 dark:text-gray-400">Kundentyp</span>
+            <span class="text-xs font-medium text-gray-800 dark:text-gray-200 capitalize">{{ selectedEntry.customer?.userType || '—' }}</span>
+          </div>
+        </div>
+        } @else {
+        <!-- Guest -->
+        <div class="flex items-center gap-3 mb-2">
+          <div class="h-10 w-10 rounded-full bg-gray-100 dark:bg-gray-700 flex items-center justify-center text-sm font-semibold text-gray-500 dark:text-gray-400 shrink-0">
+            G
+          </div>
+          <div>
+            <p class="font-semibold text-gray-700 dark:text-gray-300">Gast</p>
+            <span class="text-xs text-gray-400">Nicht angemeldet</span>
+          </div>
+        </div>
+        }
+      </div>
+
+      <!-- ── Anfrage ── -->
+      <div>
+        <p class="text-xs font-medium uppercase tracking-wider text-gray-400 dark:text-gray-500 mb-3">Anfrage</p>
+        <div class="rounded-xl bg-gray-50 dark:bg-gray-800 divide-y divide-gray-200 dark:divide-gray-700">
+          <div class="flex justify-between px-4 py-2.5">
+            <span class="text-xs text-gray-500 dark:text-gray-400">Vergleichs-ID</span>
+            <span class="text-xs font-mono font-medium text-gray-800 dark:text-gray-200">#{{ selectedEntry.id }}</span>
+          </div>
+          <div class="flex justify-between px-4 py-2.5">
+            <span class="text-xs text-gray-500 dark:text-gray-400">Verglichen am</span>
+            <span class="text-xs font-medium text-gray-800 dark:text-gray-200">{{ formatDateTime(selectedEntry.comparedOn) }}</span>
+          </div>
+          <div class="flex justify-between px-4 py-2.5">
+            <span class="text-xs text-gray-500 dark:text-gray-400">Verbrauch</span>
+            <span class="text-xs font-medium text-gray-800 dark:text-gray-200">{{ selectedEntry.consumption || '—' }} kWh</span>
+          </div>
+          <div class="flex justify-between px-4 py-2.5">
+            <span class="text-xs text-gray-500 dark:text-gray-400">Kundentyp</span>
+            <span class="text-xs font-medium text-gray-800 dark:text-gray-200 capitalize">{{ selectedEntry.consumerType || '—' }}</span>
+          </div>
+          <div class="flex justify-between px-4 py-2.5">
+            <span class="text-xs text-gray-500 dark:text-gray-400">Sparte</span>
+            <span class="text-xs font-medium text-gray-800 dark:text-gray-200 capitalize">
+              {{ selectedEntry.branch === 'electric' ? 'Strom' : selectedEntry.branch === 'gas' ? 'Gas' : (selectedEntry.branch || '—') }}
+            </span>
+          </div>
+          <div class="flex flex-col px-4 py-2.5 gap-0.5">
+            <span class="text-xs text-gray-500 dark:text-gray-400">Adresse</span>
+            <span class="text-xs font-medium text-gray-800 dark:text-gray-200 text-right">
+              {{ selectedEntry.street }} {{ selectedEntry.houseNumber }}, {{ selectedEntry.zip }} {{ selectedEntry.city }}
+            </span>
+          </div>
+          <div class="flex justify-between px-4 py-2.5">
+            <span class="text-xs text-gray-500 dark:text-gray-400">IP-Adresse</span>
+            <span class="text-xs font-mono font-medium text-gray-800 dark:text-gray-200">{{ selectedEntry.requestIp || '—' }}</span>
+          </div>
+          <div class="flex flex-col px-4 py-2.5 gap-0.5">
+            <span class="text-xs text-gray-500 dark:text-gray-400">Gerät</span>
+            <span class="text-xs font-medium text-gray-800 dark:text-gray-200 text-right">{{ parseDevice(selectedEntry.requestDeviceDetails) }}</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- ── Tarif-Tabs ── -->
+      <div>
+        <p class="text-xs font-medium uppercase tracking-wider text-gray-400 dark:text-gray-500 mb-3">Tarife</p>
+
+        <!-- Tab switcher -->
+        <div class="flex rounded-lg overflow-hidden border border-gray-200 dark:border-gray-700 mb-4 text-xs font-medium">
+          <button
+            (click)="setTab('results')"
+            class="flex-1 py-2 transition"
+            [class.bg-brand-500]="activeRateTab === 'results'"
+            [class.text-white]="activeRateTab === 'results'"
+            [class.bg-gray-50]="activeRateTab !== 'results'"
+            [class.dark:bg-gray-800]="activeRateTab !== 'results'"
+            [class.text-gray-600]="activeRateTab !== 'results'"
+            [class.dark:text-gray-400]="activeRateTab !== 'results'"
+          >
+            Vergleichstarife ({{ rateCount(selectedEntry) }})
+          </button>
+          <button
+            (click)="setTab('base')"
+            class="flex-1 py-2 transition border-l border-gray-200 dark:border-gray-700"
+            [class.bg-brand-500]="activeRateTab === 'base'"
+            [class.text-white]="activeRateTab === 'base'"
+            [class.bg-gray-50]="activeRateTab !== 'base'"
+            [class.dark:bg-gray-800]="activeRateTab !== 'base'"
+            [class.text-gray-600]="activeRateTab !== 'base'"
+            [class.dark:text-gray-400]="activeRateTab !== 'base'"
+          >
+            Aktueller Anbieter
+          </button>
+        </div>
+
+        <!-- Comparison results -->
+        @if (activeRateTab === 'results') {
+          @if (energyRates(selectedEntry).length > 0) {
+          <div class="space-y-3">
+            @for (rate of energyRates(selectedEntry); track rate.rateId) {
+            <div class="rounded-xl border border-gray-200 dark:border-gray-700 overflow-hidden">
+              <!-- Rate header with logo -->
+              <div class="flex items-center gap-3 px-4 py-3 bg-gray-50 dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700">
+                @if (rate.providerSVGPath) {
+                <img
+                  [src]="rate.providerSVGPath"
+                  [alt]="rate.providerName || ''"
+                  class="h-6 w-auto object-contain"
+                  onerror="this.style.display='none'"
+                />
+                }
+                <div class="flex-1 min-w-0">
+                  <p class="text-xs font-semibold text-gray-900 dark:text-white truncate">{{ rate.providerName }}</p>
+                  <p class="text-xs text-gray-400 truncate">{{ rate.rateName }}</p>
+                </div>
+                <div class="flex flex-col items-end gap-1 shrink-0">
+                  @if (rate.optEco) {
+                  <span class="px-1.5 py-0.5 rounded text-xs font-medium bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400">Öko</span>
+                  }
+                  @if (rate.recommended) {
+                  <span class="px-1.5 py-0.5 rounded text-xs font-medium bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-400">Empfohlen</span>
+                  }
+                </div>
+              </div>
+              <!-- Rate details -->
+              <div class="divide-y divide-gray-100 dark:divide-gray-700/60">
+                <div class="flex justify-between px-4 py-2">
+                  <span class="text-xs text-gray-500 dark:text-gray-400">Gesamtpreis/Jahr</span>
+                  <span class="text-xs font-semibold text-gray-900 dark:text-white">{{ (rate.totalPrice ?? 0).toFixed(2) }} €</span>
+                </div>
+                <div class="flex justify-between px-4 py-2">
+                  <span class="text-xs text-gray-500 dark:text-gray-400">Monatlich</span>
+                  <span class="text-xs font-medium text-gray-800 dark:text-gray-200">{{ (rate.totalPriceMonth ?? 0).toFixed(2) }} €</span>
+                </div>
+                <div class="flex justify-between px-4 py-2">
+                  <span class="text-xs text-gray-500 dark:text-gray-400">Arbeitspreis</span>
+                  <span class="text-xs font-medium text-gray-800 dark:text-gray-200">{{ (rate.workPrice ?? 0).toFixed(2) }} ct/kWh</span>
+                </div>
+                <div class="flex justify-between px-4 py-2">
+                  <span class="text-xs text-gray-500 dark:text-gray-400">Grundpreis/Mo.</span>
+                  <span class="text-xs font-medium text-gray-800 dark:text-gray-200">{{ (rate.basePriceMonth ?? 0).toFixed(2) }} €</span>
+                </div>
+                @if ((rate.optBonus ?? 0) > 0) {
+                <div class="flex justify-between px-4 py-2">
+                  <span class="text-xs text-gray-500 dark:text-gray-400">Bonus</span>
+                  <span class="text-xs font-medium text-green-600 dark:text-green-400">{{ (rate.optBonus ?? 0).toFixed(2) }} €</span>
+                </div>
+                }
+                @if (rate.optGuarantee) {
+                <div class="flex justify-between px-4 py-2">
+                  <span class="text-xs text-gray-500 dark:text-gray-400">Preisgarantie</span>
+                  <span class="text-xs font-medium text-gray-800 dark:text-gray-200">{{ rate.optGuarantee }} Mon. ({{ rate.optGuaranteeType }})</span>
+                </div>
+                }
+                @if (rate.optTerm) {
+                <div class="flex justify-between px-4 py-2">
+                  <span class="text-xs text-gray-500 dark:text-gray-400">Laufzeit</span>
+                  <span class="text-xs font-medium text-gray-800 dark:text-gray-200">{{ rate.optTerm }}</span>
+                </div>
+                }
+                @if (rate.termBeforeNewMaxDate) {
+                <div class="flex justify-between px-4 py-2">
+                  <span class="text-xs text-gray-500 dark:text-gray-400">Wechsel bis</span>
+                  <span class="text-xs font-medium text-gray-800 dark:text-gray-200">{{ rate.termBeforeNewMaxDate }}</span>
+                </div>
+                }
+                @if (rate.rateChangeType?.length) {
+                <div class="flex justify-between px-4 py-2">
+                  <span class="text-xs text-gray-500 dark:text-gray-400">Tarifwechsel</span>
+                  <span class="text-xs font-medium text-gray-800 dark:text-gray-200">{{ rateChangeTypeLabel(rate.rateChangeType) }}</span>
+                </div>
+                }
+                <div class="flex justify-between px-4 py-2">
+                  <span class="text-xs text-gray-500 dark:text-gray-400">Selbstzahler</span>
+                  <span class="text-xs font-medium text-gray-800 dark:text-gray-200">{{ rate.selfPayment ? 'Ja' : 'Nein' }}</span>
+                </div>
+              </div>
+            </div>
+            }
+          </div>
+          } @else {
+          <p class="text-xs text-gray-400 italic px-1">Keine Vergleichstarife vorhanden</p>
+          }
+        }
+
+        <!-- Base provider tab -->
+        @if (activeRateTab === 'base') {
+          @if (baseProviders(selectedEntry).length > 0) {
+          <div class="space-y-3">
+            @for (provider of baseProviders(selectedEntry); track provider.providerId) {
+            <div class="rounded-xl border border-gray-200 dark:border-gray-700 overflow-hidden">
+              <div class="px-4 py-3 bg-gray-50 dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700">
+                <p class="text-xs font-semibold text-gray-900 dark:text-white">{{ provider.providerName }}</p>
+                <p class="text-xs text-gray-400">ID: {{ provider.providerId }}</p>
+              </div>
+              @for (rate of provider.rates ?? []; track rate.rateId) {
+              <div class="divide-y divide-gray-100 dark:divide-gray-700/60">
+                <div class="px-4 py-2">
+                  <p class="text-xs font-medium text-gray-800 dark:text-gray-200">{{ rate.rateName }}</p>
+                </div>
+                <div class="flex justify-between px-4 py-2">
+                  <span class="text-xs text-gray-500 dark:text-gray-400">Arbeitspreis</span>
+                  <span class="text-xs font-medium text-gray-800 dark:text-gray-200">{{ (rate.workPrice ?? 0).toFixed(2) }} ct/kWh</span>
+                </div>
+                <div class="flex justify-between px-4 py-2">
+                  <span class="text-xs text-gray-500 dark:text-gray-400">Grundpreis/Jahr</span>
+                  <span class="text-xs font-medium text-gray-800 dark:text-gray-200">{{ (rate.basePriceYear ?? 0).toFixed(2) }} €</span>
+                </div>
+                <div class="flex justify-between px-4 py-2">
+                  <span class="text-xs text-gray-500 dark:text-gray-400">Grundpreis/Mo.</span>
+                  <span class="text-xs font-medium text-gray-800 dark:text-gray-200">{{ (rate.basePriceMonth ?? 0).toFixed(2) }} €</span>
+                </div>
+              </div>
+              }
+            </div>
+            }
+          </div>
+          } @else {
+          <p class="text-xs text-gray-400 italic px-1">Kein aktueller Anbieter hinterlegt</p>
+          }
+        }
+      </div>
+
+    </div>
+  </aside>
+  }
+  <!-- ───────────────────────── END SIDEBAR ───────────────────────── -->
+
+</div>
+
+<style>
+  @keyframes slideIn {
+    from { opacity: 0; transform: translateX(1rem); }
+    to   { opacity: 1; transform: translateX(0); }
+  }
+</style>

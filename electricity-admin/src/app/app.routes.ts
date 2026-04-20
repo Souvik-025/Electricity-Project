@@ -13,6 +13,7 @@ import { AboutUsComponent } from "./pages/about-us/about-us.component";
 import { BannersComponent } from "./pages/banners/banners.component";
 import { CustomerListComponent } from "./pages/customers/customer-list/customer-list.component";
 import { BookingListComponent } from "./pages/bookings/booking-list/booking-list.component";
+import { ComparisonListComponent } from "./pages/customer-comparison/customer-comparison.component";
 
 export const routes: Routes = [
   {
@@ -92,6 +93,11 @@ export const routes: Routes = [
         component: FreeServicesCreateComponent,
         title: "Edit Service",
       },
+      {
+        path: "comparisons",
+        component: ComparisonListComponent,
+        title: "Customer Comparisons",
+      }
     ],
   },
   {
