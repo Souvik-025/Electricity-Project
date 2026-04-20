@@ -75,6 +75,9 @@ public class Customer {
 	@Column(name = "is_verified")
 	private Boolean isVerified;
 	
+	@Column(name = "verified_on")
+	private BigInteger verifiedOn;
+	
 	@Column(name = "is_acknowledged")
 	private Boolean isAcknowledged;
 	

@@ -10,8 +10,10 @@ import org.springframework.stereotype.Service;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.tarifvergleich.electricity.exception.InternalServerException;
+import com.tarifvergleich.electricity.model.AdminUser;
 import com.tarifvergleich.electricity.model.Customer;
 import com.tarifvergleich.electricity.model.CustomerComparingEnergy;
+import com.tarifvergleich.electricity.repository.AdminUserRepository;
 import com.tarifvergleich.electricity.repository.CustomerComparingEnergyRepository;
 import com.tarifvergleich.electricity.repository.CustomerRepository;
 import com.tarifvergleich.electricity.util.Helper;
@@ -30,11 +32,20 @@ public class ElectricityComparisonService {
 	private final CustomerRepository customerRepo;
 	private final Helper helper;
 	private final ObjectMapper objectMapper;
+	private final AdminUserRepository adminUserRepo;
 
 	@Transactional
 	public Map<String, Object> getElectricityComparison(Map<String, Object> filters, String userAgentString,
 			HttpServletRequest request) {
 		try {
+			
+			Integer adminId = (Integer) filters.get("adminId");
+			
+			if(adminId == null || adminId <= 0)
+				throw new InternalServerException("Admin Id missing", HttpStatus.OK);
+			
+			AdminUser adminUser = adminUserRepo.findById(adminId).orElseThrow(() -> new InternalServerException("Admin not found", HttpStatus.OK));
+			filters.remove("adminId");
 
 			CustomerComparingEnergy customerCompare = null;
 			Integer customerId = 0;
@@ -45,6 +56,8 @@ public class ElectricityComparisonService {
 				customerCompare = CustomerComparingEnergy.builder().zip(filters.get("zip").toString())
 						.city(filters.get("city").toString()).requestIp(helper.getIp(request))
 						.requestDeviceDetails(helper.getDeviceInfo(userAgentString).toString()).build();
+				
+				customerCompare.setRecordAdmin(adminUser);
 
 				if (filters.get("houseNumber") != null)
 					customerCompare.setHouseNumber(filters.get("houseNumber").toString());

@@ -53,6 +53,8 @@ public class EnergyRateDto {
     private String type;
     
     public static EnergyRateDto getProviderResponse(CustomerSelectedProvider provider) {
+    	if(provider == null)
+    		return null;
     	return EnergyRateDto.builder()
     			.branch(provider.getBranch())
     			.netzProviderId(provider.getNetzProviderId())
