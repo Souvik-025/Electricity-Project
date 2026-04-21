@@ -82,7 +82,11 @@ export class Register {
     salutation: '',
     title: '',
     companyName: '',
-    mobileNumberLocal: '', // digits only, prefix +49 added on submit
+    mobileNumberLocal: '',
+    postalCode: '',
+    city: '',
+    street: '',
+    houseNumber: '',
   };
 
   /* ── Field-level validation errors ─────────────────────────────── */
@@ -272,6 +276,10 @@ AUTH MODE
     this.formData.lastName = data.lastName ?? this.formData.lastName;
     this.formData.title = data.title ?? this.formData.title;
     this.formData.companyName = data.companyName ?? this.formData.companyName;
+    this.formData.postalCode = data.postalCode ?? this.formData.postalCode;
+    this.formData.city = data.city ?? this.formData.city;
+    this.formData.street = data.street ?? this.formData.street;
+    this.formData.houseNumber = data.houseNumber ?? this.formData.houseNumber;
 
     const salutation = (data.salutation ?? this.formData.salutation ?? '').toString().toLowerCase();
     if (salutation.includes('herr')) {
@@ -500,6 +508,26 @@ AUTH MODE
       valid = false;
     }
 
+    if (!this.formData.postalCode.trim()) {
+      this.fieldErrors['postalCode'] = 'Postleitzahl ist erforderlich.';
+      valid = false;
+    }
+
+    if (!this.formData.city.trim()) {
+      this.fieldErrors['city'] = 'Stadt ist erforderlich.';
+      valid = false;
+    }
+
+    if (!this.formData.street.trim()) {
+      this.fieldErrors['street'] = 'Straße ist erforderlich.';
+      valid = false;
+    }
+
+    if (!this.formData.houseNumber.trim()) {
+      this.fieldErrors['houseNumber'] = 'Hausnummer ist erforderlich.';
+      valid = false;
+    }
+
     if (this.customerType === 'business' && !this.formData.companyName.trim()) {
       this.fieldErrors['companyName'] = 'Unternehmensname ist erforderlich.';
       valid = false;
@@ -533,6 +561,10 @@ AUTH MODE
       salutation: this.formData.salutation,
       companyName: this.formData.companyName.trim(),
       mobileNumber: '+49' + this.formData.mobileNumberLocal.replace(/\s/g, ''),
+      postalCode: this.formData.postalCode.trim(),
+      city: this.formData.city.trim(),
+      street: this.formData.street.trim(),
+      houseNumber: this.formData.houseNumber.trim(),
     };
 
     this.isLoading = true;

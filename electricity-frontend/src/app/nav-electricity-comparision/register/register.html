@@ -62,31 +62,14 @@
         </div>
 
         <div class="container-checkbox">
-          <div
-            class="field-wrap-checkbox"
-            [class.active]="authMode === 'register'"
-            (click)="setAuthMode('register')"
-          >
-            <input
-              type="radio"
-              name="authMode"
-              [checked]="authMode === 'register'"
-              (change)="setAuthMode('register')"
-            />
+          <div class="field-wrap-checkbox" [class.active]="authMode === 'register'" (click)="setAuthMode('register')">
+            <input type="radio" name="authMode" [checked]="authMode === 'register'"
+              (change)="setAuthMode('register')" />
             Weiter zur Registrierung
           </div>
 
-          <div
-            class="field-wrap-checkbox"
-            [class.active]="authMode === 'login'"
-            (click)="setAuthMode('login')"
-          >
-            <input
-              type="radio"
-              name="authMode"
-              [checked]="authMode === 'login'"
-              (change)="setAuthMode('login')"
-            />
+          <div class="field-wrap-checkbox" [class.active]="authMode === 'login'" (click)="setAuthMode('login')">
+            <input type="radio" name="authMode" [checked]="authMode === 'login'" (change)="setAuthMode('login')" />
             Weiter zum Login-Bereich
           </div>
         </div>
@@ -169,15 +152,10 @@
             <div class="field-wrap">
               <div>
                 <span class="field-label">E-Mail-Adresse</span>
-                <input
-                  #emailField
-                  type="email"
-                  [value]="formData.email"
-                  (input)="
+                <input #emailField type="email" [value]="formData.email" (input)="
                     formData.email = $any($event.target).value;
                     validatePassword(pwField.value, $any($event.target).value, repField.value)
-                  "
-                />
+                  " />
               </div>
             </div>
             <div class="field-error-msg" *ngIf="fieldErrors['email']">
@@ -191,21 +169,15 @@
             <div class="field-wrap">
               <div>
                 <span class="field-label">Passwort</span>
-                <input
-                  #pwField
-                  name="password"
-                  [type]="showPw ? 'text' : 'password'"
-                  [value]="formData.password"
-                  [style.background-color]="passwordMismatch ? '#fff0f0' : 'white'"
-                  (input)="
+                <input #pwField name="password" [type]="showPw ? 'text' : 'password'" [value]="formData.password"
+                  [style.background-color]="passwordMismatch ? '#fff0f0' : 'white'" (input)="
                     formData.password = $any($event.target).value;
                     validatePassword($any($event.target).value, emailField.value, repField.value)
-                  "
-                />
+                  " />
               </div>
               <span class="material-symbols-outlined pw-toggle" (click)="showPw = !showPw">{{
                 showPw ? 'visibility' : 'visibility_off'
-              }}</span>
+                }}</span>
             </div>
           </div>
 
@@ -213,19 +185,14 @@
             <div class="field-wrap">
               <div>
                 <span class="field-label">Passwort wiederholen</span>
-                <input
-                  #repField
-                  name="passwordRepeat"
-                  [type]="showRepPw ? 'text' : 'password'"
-                  [style.background-color]="passwordMismatch ? '#fff0f0' : 'white'"
-                  (input)="
+                <input #repField name="passwordRepeat" [type]="showRepPw ? 'text' : 'password'"
+                  [style.background-color]="passwordMismatch ? '#fff0f0' : 'white'" (input)="
                     validatePassword(pwField.value, emailField.value, $any($event.target).value)
-                  "
-                />
+                  " />
               </div>
               <span class="material-symbols-outlined pw-toggle" (click)="showRepPw = !showRepPw">{{
                 showRepPw ? 'visibility' : 'visibility_off'
-              }}</span>
+                }}</span>
             </div>
           </div>
 
@@ -235,55 +202,35 @@
             </div>
 
             <div class="guideline-row">
-              <span
-                class="guideline-icon"
-                [class.valid]="pw_length"
-                [class.invalid]="!pw_length"
-              ></span>
+              <span class="guideline-icon" [class.valid]="pw_length" [class.invalid]="!pw_length"></span>
               <span class="login-text" [style.color]="pw_length ? 'green' : '#666'">
                 Mindestens 8 und maximal 50 Zeichen
               </span>
             </div>
 
             <div class="guideline-row">
-              <span
-                class="guideline-icon"
-                [class.valid]="pw_case"
-                [class.invalid]="!pw_case"
-              ></span>
+              <span class="guideline-icon" [class.valid]="pw_case" [class.invalid]="!pw_case"></span>
               <span class="login-text" [style.color]="pw_case ? 'green' : '#666'">
                 Ein Groß- und ein Kleinbuchstabe
               </span>
             </div>
 
             <div class="guideline-row">
-              <span
-                class="guideline-icon"
-                [class.valid]="pw_special"
-                [class.invalid]="!pw_special"
-              ></span>
+              <span class="guideline-icon" [class.valid]="pw_special" [class.invalid]="!pw_special"></span>
               <span class="login-text" [style.color]="pw_special ? 'green' : '#666'">
                 Mindestens ein Sonderzeichen (!, @, $, %, ^, &, *, +, #)
               </span>
             </div>
 
             <div class="guideline-row">
-              <span
-                class="guideline-icon"
-                [class.valid]="pw_number"
-                [class.invalid]="!pw_number"
-              ></span>
+              <span class="guideline-icon" [class.valid]="pw_number" [class.invalid]="!pw_number"></span>
               <span class="login-text" [style.color]="pw_number ? 'green' : '#666'">
                 Mindestens eine Zahl
               </span>
             </div>
 
             <div class="guideline-row">
-              <span
-                class="guideline-icon"
-                [class.valid]="pw_noEmail"
-                [class.invalid]="!pw_noEmail"
-              ></span>
+              <span class="guideline-icon" [class.valid]="pw_noEmail" [class.invalid]="!pw_noEmail"></span>
               <span class="login-text" [style.color]="pw_noEmail ? 'green' : '#666'">
                 Darf E-Mail-Adresse nicht ähneln
               </span>
@@ -292,19 +239,13 @@
 
           <!-- Customer type toggle -->
           <div class="container-checkbox">
-            <div
-              class="field-wrap-checkbox"
-              [class.active]="customerType === 'private'"
-              (click)="setCustomerType('private')"
-            >
+            <div class="field-wrap-checkbox" [class.active]="customerType === 'private'"
+              (click)="setCustomerType('private')">
               <input type="radio" name="custType" [checked]="customerType === 'private'" />
               Privatkunde
             </div>
-            <div
-              class="field-wrap-checkbox"
-              [class.active]="customerType === 'business'"
-              (click)="setCustomerType('business')"
-            >
+            <div class="field-wrap-checkbox" [class.active]="customerType === 'business'"
+              (click)="setCustomerType('business')">
               <input type="radio" name="custType" [checked]="customerType === 'business'" />
               Geschäftskunde
             </div>
@@ -315,11 +256,8 @@
             <div class="field-wrap">
               <div>
                 <span class="field-label">Firma</span>
-                <input
-                  type="text"
-                  [value]="formData.companyName"
-                  (input)="formData.companyName = $any($event.target).value"
-                />
+                <input type="text" [value]="formData.companyName"
+                  (input)="formData.companyName = $any($event.target).value" />
               </div>
             </div>
             <div class="field-error-msg" *ngIf="fieldErrors['companyName']">
@@ -330,22 +268,13 @@
           <!-- Salutation / Title -->
           <div style="display: flex; gap: 15px">
             <div class="form-group" style="flex: 1">
-              <div
-                class="input-field select-wrap"
-                [class.field-error]="fieldErrors['salutation']"
-                style="display: inline-block"
-              >
+              <div class="input-field select-wrap" [class.field-error]="fieldErrors['salutation']"
+                style="display: inline-block">
                 <div>
-                  <span
-                    class="field-label"
-                    style="margin-left: 10px; font-size: 12px; font-weight: 500; display: block"
-                    >Anrede/Titel</span
-                  >
-                  <select
-                    class="styled-select"
-                    [value]="formData.salutation"
-                    (change)="formData.salutation = $any($event.target).value"
-                  >
+                  <span class="field-label"
+                    style="margin-left: 10px; font-size: 12px; font-weight: 500; display: block">Anrede/Titel</span>
+                  <select class="styled-select" [value]="formData.salutation"
+                    (change)="formData.salutation = $any($event.target).value">
                     <option value="">Bitte wählen...</option>
                     <option value="Herr">Herr</option>
                     <option value="Frau">Frau</option>
@@ -362,16 +291,10 @@
             <div class="form-group" style="flex: 1">
               <div class="input-field select-wrap" style="display: inline-block">
                 <div>
-                  <span
-                    class="field-label"
-                    style="margin-left: 10px; font-size: 12px; font-weight: 500; display: block"
-                    >Titel</span
-                  >
-                  <select
-                    class="styled-select"
-                    [value]="formData.title"
-                    (change)="formData.title = $any($event.target).value"
-                  >
+                  <span class="field-label"
+                    style="margin-left: 10px; font-size: 12px; font-weight: 500; display: block">Titel</span>
+                  <select class="styled-select" [value]="formData.title"
+                    (change)="formData.title = $any($event.target).value">
                     <option value="">Kein Titel</option>
                     <option value="Dr.">Dr.</option>
                     <option value="Prof.">Prof.</option>
@@ -384,15 +307,11 @@
           </div>
 
           <!-- First name / Last name -->
-
           <div class="form-group">
             <div class="field-wrap">
               <span class="field-label">Vorname</span>
-              <input
-                type="text"
-                [value]="formData.firstName"
-                (input)="formData.firstName = $any($event.target).value"
-              />
+              <input type="text" [value]="formData.firstName"
+                (input)="formData.firstName = $any($event.target).value" />
             </div>
             <div class="field-error-msg" *ngIf="fieldErrors['firstName']">
               {{ fieldErrors['firstName'] }}
@@ -402,16 +321,13 @@
           <div class="form-group">
             <div class="field-wrap">
               <span class="field-label">Nachname</span>
-              <input
-                type="text"
-                [value]="formData.lastName"
-                (input)="formData.lastName = $any($event.target).value"
-              />
+              <input type="text" [value]="formData.lastName" (input)="formData.lastName = $any($event.target).value" />
             </div>
             <div class="field-error-msg" *ngIf="fieldErrors['lastName']">
               {{ fieldErrors['lastName'] }}
             </div>
           </div>
+
 
           <!-- Protect account section -->
           <div class="login-berich" style="margin: 0 -18px">Account schützen</div>
@@ -426,21 +342,46 @@
             <div class="input-field prefix-input">
               <input type="text" value="+49" readonly />
             </div>
-            <div
-              class="input-field"
-              style="width: 30%"
-              [class.field-error]="fieldErrors['mobileNumber']"
-            >
-              <input
-                type="number"
-                placeholder="z.B. 175 654897"
-                [value]="formData.mobileNumberLocal"
-                (input)="formData.mobileNumberLocal = $any($event.target).value"
-              />
+            <div class="input-field" style="width: 30%" [class.field-error]="fieldErrors['mobileNumber']">
+              <input type="number" placeholder="z.B. 175 654897" [value]="formData.mobileNumberLocal"
+                (input)="formData.mobileNumberLocal = $any($event.target).value" />
             </div>
           </div>
           <div class="field-error-msg" *ngIf="fieldErrors['mobileNumber']">
             {{ fieldErrors['mobileNumber'] }}
+          </div>
+
+          <div class="login-berich" style="margin: 20px -18px 0 -18px">Anschrift</div>
+
+          <div class="login-text">
+            Geben Sie Ihre Adresse an, um Ihr Profil zu vervollständigen.
+          </div>
+
+          <div class="email-field" style="gap: 10px;">
+            <div class="input-field" style="flex: 1;" [class.field-error]="fieldErrors['street']">
+              <input type="text" placeholder="Straße" [value]="formData.street"
+                (input)="formData.street = $any($event.target).value" />
+            </div>
+            <div class="input-field" style="width: 30%" [class.field-error]="fieldErrors['houseNumber']">
+              <input type="text" placeholder="Nr." [value]="formData.houseNumber"
+                (input)="formData.houseNumber = $any($event.target).value" />
+            </div>
+          </div>
+
+          <div class="email-field" style="gap: 10px; margin-top: 10px;">
+            <div class="input-field" style="width: 30%" [class.field-error]="fieldErrors['postalCode']">
+              <input type="number" placeholder="PLZ" [value]="formData.postalCode"
+                (input)="formData.postalCode = $any($event.target).value" />
+            </div>
+            <div class="input-field" style="flex: 1;" [class.field-error]="fieldErrors['city']">
+              <input type="text" placeholder="Stadt" [value]="formData.city"
+                (input)="formData.city = $any($event.target).value" />
+            </div>
+          </div>
+
+          <div class="field-error-msg" *ngIf="fieldErrors['street'] || fieldErrors['postalCode'] || fieldErrors['city'] ||
+            fieldErrors['houseNumber']">
+            Bitte überprüfen Sie Ihre Adresseingabe.
           </div>
 
           <!-- API error -->
@@ -449,21 +390,15 @@
           <div class="error-msg" *ngIf="signupError">{{ signupError }}</div>
 
           <!-- Back / Next -->
-          <div
-            style="
+          <div style="
               display: flex;
               flex-direction: row;
               justify-content: space-between;
               margin-top: 10px;
-            "
-          >
+            ">
             <button class="btn-back">&lt; Zurück</button>
             <div class="form-actions">
-              <button
-                class="btn-primary"
-                [disabled]="isLoading"
-                (click)="submitRegistration(repField.value)"
-              >
+              <button class="btn-primary" [disabled]="isLoading" (click)="submitRegistration(repField.value)">
                 <span *ngIf="isLoading" class="spinner"></span>
                 {{ isLoading ? 'Bitte warten...' : 'Weiter' }}
               </button>
@@ -473,11 +408,8 @@
           <!-- Already have account -->
           <div class="login-text">
             Haben Sie bereits einen Account?
-            <a
-              (click)="setAuthMode('login')"
-              style="color: #0085e0; text-decoration: none; cursor: pointer"
-              >Jetzt anmelden</a
-            >
+            <a (click)="setAuthMode('login')" style="color: #0085e0; text-decoration: none; cursor: pointer">Jetzt
+              anmelden</a>
           </div>
         </div>
       </div>
@@ -498,18 +430,11 @@
           <div class="email-field">
             <div class="input-field" style="flex: 1; background-color: #afadad; border: none">
               <span class="material-symbols-outlined" style="color: black">account_circle</span>
-              <input
-                name="email"
-                type="email"
-                [value]="formData.email"
-                style="background-color: #afadad"
-                readonly
-              />
+              <input name="email" type="email" [value]="formData.email" style="background-color: #afadad" readonly />
             </div>
             <span style="display: flex; align-items: center; padding-left: 20px">
-              <span style="display: flex; align-items: center; padding-left: 20px"
-                ><img src="assets/icons/Schloss.png" class="icon-schloss" alt="check"
-              /></span>
+              <span style="display: flex; align-items: center; padding-left: 20px"><img src="assets/icons/Schloss.png"
+                  class="icon-schloss" alt="check" /></span>
             </span>
           </div>
 
@@ -520,44 +445,28 @@
 
           <div class="login-text">Code aus E-Mail eingeben</div>
           <div class="code-inputs" [class.code-error]="otpError">
-            <input
-              *ngFor="let i of [0, 1, 2, 3, 4, 5]"
-              type="text"
-              maxlength="1"
-              [id]="'otp-' + i"
-              (input)="onOtpInput($event, i)"
-              (keydown)="onOtpKeydown($event, i)"
-              (paste)="onOtpPaste($event)"
-            />
+            <input *ngFor="let i of [0, 1, 2, 3, 4, 5]" type="text" maxlength="1" [id]="'otp-' + i"
+              (input)="onOtpInput($event, i)" (keydown)="onOtpKeydown($event, i)" (paste)="onOtpPaste($event)" />
           </div>
 
           <div class="error-msg" *ngIf="otpError">{{ otpError }}</div>
 
           <div class="login-text">
             Keinen Code erhalten? Bitte prüfen Sie auch Ihren Spam-Ordner.
-            <span style="color: black; cursor: pointer" (click)="resendOtp()"
-              >Code erneut senden
+            <span style="color: black; cursor: pointer" (click)="resendOtp()">Code erneut senden
             </span>
-            <span *ngIf="resendSuccess" style="color: green; margin-left: 8px"
-              >✓ Code gesendet</span
-            >
+            <span *ngIf="resendSuccess" style="color: green; margin-left: 8px">✓ Code gesendet</span>
           </div>
 
-          <div
-            style="
+          <div style="
               display: flex;
               flex-direction: row;
               justify-content: space-between;
               margin-top: 10px;
-            "
-          >
+            ">
             <button class="btn-back" (click)="goToStep(1)">&lt; Zurück</button>
             <div class="form-actions">
-              <button
-                class="btn-primary"
-                [disabled]="isLoading || otpValue.length < 6"
-                (click)="verifyOtp()"
-              >
+              <button class="btn-primary" [disabled]="isLoading || otpValue.length < 6" (click)="verifyOtp()">
                 <span *ngIf="isLoading" class="spinner"></span>
                 {{ isLoading ? 'Prüfen...' : 'Code überprüfen' }}
               </button>
@@ -589,20 +498,18 @@
 
           <div class="error-msg" *ngIf="apiError">{{ apiError }}</div>
 
-          <div
-            style="
+          <div style="
               display: flex;
               flex-direction: row;
               justify-content: space-between;
               margin-top: 10px;
-            "
-          >
+            ">
             <button class="btn-back" (click)="goToStep(2)">&lt; Zurück</button>
             <div class="form-actions">
               <button class="btn-primary" [disabled]="isLoading" (click)="completRegistration()">
                 <span *ngIf="isLoading" class="spinner"></span>
                 {{
-                  isLoading ? 'Bitte warten...' : 'Registrierung abschließen & weiter zum Wechsel'
+                isLoading ? 'Bitte warten...' : 'Registrierung abschließen & weiter zum Wechsel'
                 }}
               </button>
             </div>
@@ -620,13 +527,7 @@
           <div class="email-field">
             <div class="input-field" style="flex: 1; background-color: #afadad; border: none">
               <span class="material-symbols-outlined" style="color: black">account_circle</span>
-              <input
-                name="email"
-                type="email"
-                [value]="formData.email"
-                style="background-color: #afadad"
-                readonly
-              />
+              <input name="email" type="email" [value]="formData.email" style="background-color: #afadad" readonly />
             </div>
             <span style="display: flex; align-items: center; padding-left: 20px">
               <span class="material-symbols-outlined" style="color: black">lock</span>
@@ -636,14 +537,12 @@
             <input type="checkbox" id="stayLogin" />
             <label for="stayLogin" class="login-text"> bleiben Sie angemeldet </label>
           </div>
-          <div
-            style="
+          <div style="
               display: flex;
               flex-direction: row;
               justify-content: space-between;
               margin-top: 10px;
-            "
-          >
+            ">
             <button class="btn-back" (click)="goToStep(3)">&lt; Zurück</button>
             <div class="form-actions">
               <button class="btn-primary" [disabled]="isLoading" (click)="redirectToAccount()">
@@ -662,24 +561,15 @@
         <div class="login-row">
           <div class="login-text">Melden Sie sich mit Ihrer E-Mail-Adresse an.</div>
           <div class="email-field">
-            <div
-              class="input-field"
-              style="flex: 1; position: relative; display: inline-block; padding: 0px 12px 4px 12px"
-            >
-              <span class="field-label" style="font-size: 12px; font-weight: 500"
-                >E-Mail-Adresse</span
-              >
+            <div class="input-field"
+              style="flex: 1; position: relative; display: inline-block; padding: 0px 12px 4px 12px">
+              <span class="field-label" style="font-size: 12px; font-weight: 500">E-Mail-Adresse</span>
               <input #emailField name="email" type="email" [value]="email" [(ngModel)]="email" />
             </div>
             <button class="btn-next" style="margin-left: 10px">
               ändern
-              <span
-                ><img
-                  src="assets/icons/Bearbeiten_schwarz.png"
-                  class="icon-check"
-                  alt="check"
-                  style="margin-left: 8px"
-              /></span>
+              <span><img src="assets/icons/Bearbeiten_schwarz.png" class="icon-check" alt="check"
+                  style="margin-left: 8px" /></span>
             </button>
           </div>
 
@@ -689,16 +579,9 @@
             <div class="field-wrap">
               <span class="field-label">Passwort</span>
 
-              <input
-                #loginPwField
-                [type]="showLoginPw ? 'text' : 'password'"
-                [(ngModel)]="password"
-              />
-              <span
-                class="material-symbols-outlined pw-toggle"
-                (click)="showLoginPw = !showLoginPw"
-                >{{ showLoginPw ? 'visibility' : 'visibility_off' }}</span
-              >
+              <input #loginPwField [type]="showLoginPw ? 'text' : 'password'" [(ngModel)]="password" />
+              <span class="material-symbols-outlined pw-toggle" (click)="showLoginPw = !showLoginPw">{{ showLoginPw ?
+                'visibility' : 'visibility_off' }}</span>
             </div>
           </div>
 
@@ -732,17 +615,10 @@
           <div class="email-field">
             <div class="input-field" style="flex: 1; background-color: #afadad; border: none">
               <span class="material-symbols-outlined" style="color: black">account_circle</span>
-              <input
-                name="email"
-                type="email"
-                [value]="existingEmail"
-                style="background-color: #afadad"
-                readonly
-              />
+              <input name="email" type="email" [value]="existingEmail" style="background-color: #afadad" readonly />
             </div>
-            <span style="display: flex; align-items: center; padding-left: 20px"
-              ><img src="assets/icons/Schloss.png" class="icon-schloss" alt="check"
-            /></span>
+            <span style="display: flex; align-items: center; padding-left: 20px"><img src="assets/icons/Schloss.png"
+                class="icon-schloss" alt="check" /></span>
           </div>
           <div>
             <div class="login-text" style="margin-bottom: 10px">
@@ -772,20 +648,14 @@
             </div>
           </div> -->
           <div class="container-checkbox">
-            <div
-              class="field-wrap-checkbox"
-              [class.active]="selectedOption === 'same'"
-              (click)="selectedOption = 'same'"
-            >
+            <div class="field-wrap-checkbox" [class.active]="selectedOption === 'same'"
+              (click)="selectedOption = 'same'">
               <input type="radio" name="accountOption" [checked]="selectedOption === 'same'" />
               Mit diesem Account fortfahren
             </div>
 
-            <div
-              class="field-wrap-checkbox"
-              [class.active]="selectedOption === 'different'"
-              (click)="selectedOption = 'different'"
-            >
+            <div class="field-wrap-checkbox" [class.active]="selectedOption === 'different'"
+              (click)="selectedOption = 'different'">
               <input type="radio" name="accountOption" [checked]="selectedOption === 'different'" />
               Mit einem anderen Account fortfahren
             </div>
@@ -805,30 +675,15 @@
         <div class="login-row">
           <div class="login-text">Ihre E-Mail-Adresse:</div>
           <div class="email-field">
-            <div
-              class="input-field"
-              style="flex: 1; position: relative; display: inline-block; padding: 0px 12px 4px 12px"
-            >
-              <span class="field-label" style="font-size: 12px; font-weight: 500"
-                >E-Mail-Adresse</span
-              >
-              <input
-                #emailField
-                name="forgotEmail"
-                type="email"
-                [value]="email"
-                [(ngModel)]="email"
-              />
+            <div class="input-field"
+              style="flex: 1; position: relative; display: inline-block; padding: 0px 12px 4px 12px">
+              <span class="field-label" style="font-size: 12px; font-weight: 500">E-Mail-Adresse</span>
+              <input #emailField name="forgotEmail" type="email" [value]="email" [(ngModel)]="email" />
             </div>
             <button class="btn-next" style="margin-left: 10px">
               ändern
-              <span
-                ><img
-                  src="assets/icons/Bearbeiten_schwarz.png"
-                  class="icon-check"
-                  alt="check"
-                  style="margin-left: 8px"
-              /></span>
+              <span><img src="assets/icons/Bearbeiten_schwarz.png" class="icon-check" alt="check"
+                  style="margin-left: 8px" /></span>
             </button>
           </div>
           <div class="error-text" *ngIf="apiError">
@@ -839,12 +694,7 @@
               &lt; Zurück
             </button>
             <div class="form-actions">
-              <button
-                type="button"
-                class="btn-primary"
-                [disabled]="isLoadingForgot"
-                (click)="sendForgotPasswordOtp()"
-              >
+              <button type="button" class="btn-primary" [disabled]="isLoadingForgot" (click)="sendForgotPasswordOtp()">
                 <span *ngIf="isLoadingForgot; else normal">
                   <span class="spinner"></span> Senden...
                 </span>
@@ -877,17 +727,10 @@
           <div class="email-field">
             <div class="input-field" style="flex: 1; background-color: #afadad; border: none">
               <span class="material-symbols-outlined" style="color: black">account_circle</span>
-              <input
-                name="email"
-                type="email"
-                [value]="formData.email"
-                style="background-color: #afadad"
-                readonly
-              />
+              <input name="email" type="email" [value]="formData.email" style="background-color: #afadad" readonly />
             </div>
-            <span style="display: flex; align-items: center; padding-left: 20px"
-              ><img src="assets/icons/Schloss.png" class="icon-schloss" alt="check"
-            /></span>
+            <span style="display: flex; align-items: center; padding-left: 20px"><img src="assets/icons/Schloss.png"
+                class="icon-schloss" alt="check" /></span>
           </div>
           <div class="login-text">
             Bitte geben Sie den Code erneut ein, den wir an Bitte geben Sie den Code ein, den wir an
@@ -895,15 +738,8 @@
           </div>
           <div class="login-text">Code aus E-Mail eingeben</div>
           <div class="code-inputs" [class.code-error]="otpError">
-            <input
-              *ngFor="let i of [0, 1, 2, 3, 4, 5]"
-              type="text"
-              maxlength="1"
-              [id]="'otp-' + i"
-              (input)="onOtpInput($event, i)"
-              (keydown)="onOtpKeydown($event, i)"
-              (paste)="onOtpPaste($event)"
-            />
+            <input *ngFor="let i of [0, 1, 2, 3, 4, 5]" type="text" maxlength="1" [id]="'otp-' + i"
+              (input)="onOtpInput($event, i)" (keydown)="onOtpKeydown($event, i)" (paste)="onOtpPaste($event)" />
           </div>
 
           <div class="error-msg" *ngIf="otpError">{{ otpError }}</div>
@@ -911,11 +747,8 @@
           <div class="login-text">
             Keinen Code erhalten? Bitte prüfen Sie auch Ihren Spam-Ordner.
             <!-- <span style="color: #0085e0" (click)="resendOtp()">Code erneut senden</span> -->
-            <span
-              [style.color]="isResendDisabled ? '#999' : '#0085e0'"
-              [style.pointerEvents]="isResendDisabled ? 'none' : 'auto'"
-              (click)="resendOtpForgot()"
-            >
+            <span [style.color]="isResendDisabled ? '#999' : '#0085e0'"
+              [style.pointerEvents]="isResendDisabled ? 'none' : 'auto'" (click)="resendOtpForgot()">
               <span *ngIf="isResendDisabled">
                 Code erneut senden&nbsp;
                 <countdown #countdown [config]="config" (event)="handleEvent($event)"></countdown>
@@ -930,11 +763,7 @@
               &lt; Zurück
             </button>
             <div class="form-actions">
-              <button
-                class="btn-primary"
-                [disabled]="isLoading || otpValue.length < 6"
-                (click)="verifyOtpForgot()"
-              >
+              <button class="btn-primary" [disabled]="isLoading || otpValue.length < 6" (click)="verifyOtpForgot()">
                 <span *ngIf="isLoading" class="spinner"></span>
                 {{ isLoading ? 'Prüfen...' : 'Code prüfen' }}
               </button>
@@ -948,9 +777,7 @@
         <div class="login-berich">Bitte überprüfen Sie den Code</div>
         <div class="login-row">
           <div class="login-text">
-            <strong
-              >Der eingegebene Code stimmt leider nicht mit dem gesendeten Code überein.</strong
-            >
+            <strong>Der eingegebene Code stimmt leider nicht mit dem gesendeten Code überein.</strong>
           </div>
           <div class="login-text">
             Wir haben bereits einen neuen Code an Ihre E-Mail-Adresse gesendet.
@@ -958,17 +785,10 @@
           <div class="email-field">
             <div class="input-field" style="flex: 1; background-color: #afadad; border: none">
               <span class="material-symbols-outlined" style="color: black">account_circle</span>
-              <input
-                name="email"
-                type="email"
-                [value]="formData.email"
-                style="background-color: #afadad"
-                readonly
-              />
+              <input name="email" type="email" [value]="formData.email" style="background-color: #afadad" readonly />
             </div>
-            <span style="display: flex; align-items: center; padding-left: 20px"
-              ><img src="assets/icons/Schloss.png" class="icon-schloss" alt="check"
-            /></span>
+            <span style="display: flex; align-items: center; padding-left: 20px"><img src="assets/icons/Schloss.png"
+                class="icon-schloss" alt="check" /></span>
           </div>
           <div class="login-text">
             Bitte geben Sie den Code erneut ein, den wir an
@@ -977,15 +797,8 @@
           <div class="login-text">Code aus E-Mail eingeben</div>
           <!-- <div class="container-code"> -->
           <div class="code-inputs" [class.code-error]="otpError">
-            <input
-              *ngFor="let i of [0, 1, 2, 3, 4, 5]"
-              type="text"
-              maxlength="1"
-              [id]="'otp-' + i"
-              (input)="onOtpInput($event, i)"
-              (keydown)="onOtpKeydown($event, i)"
-              (paste)="onOtpPaste($event)"
-            />
+            <input *ngFor="let i of [0, 1, 2, 3, 4, 5]" type="text" maxlength="1" [id]="'otp-' + i"
+              (input)="onOtpInput($event, i)" (keydown)="onOtpKeydown($event, i)" (paste)="onOtpPaste($event)" />
           </div>
 
           <div class="error-msg" *ngIf="otpError">{{ otpError }}</div>
@@ -1002,11 +815,7 @@
               &lt; Zurück
             </button>
             <div class="form-actions">
-              <button
-                class="btn-primary"
-                [disabled]="isLoading || otpValue.length < 6"
-                (click)="verifyOtpForgot()"
-              >
+              <button class="btn-primary" [disabled]="isLoading || otpValue.length < 6" (click)="verifyOtpForgot()">
                 <span *ngIf="isLoading" class="spinner"></span>
                 {{ isLoading ? 'Prüfen...' : 'Code prüfen' }}
               </button>
@@ -1038,16 +847,10 @@
             <div class="field-wrap">
               <span class="field-label">Passwort</span>
 
-              <input
-                [type]="showLoginPw ? 'text' : 'password'"
-                [(ngModel)]="password"
-                (input)="validateForgotPassword(password, repeatPassword, email)"
-              />
-              <span
-                class="material-symbols-outlined pw-toggle"
-                (click)="showLoginPw = !showLoginPw"
-                >{{ showLoginPw ? 'visibility' : 'visibility_off' }}</span
-              >
+              <input [type]="showLoginPw ? 'text' : 'password'" [(ngModel)]="password"
+                (input)="validateForgotPassword(password, repeatPassword, email)" />
+              <span class="material-symbols-outlined pw-toggle" (click)="showLoginPw = !showLoginPw">{{ showLoginPw ?
+                'visibility' : 'visibility_off' }}</span>
             </div>
             <div class="field-error-msg" *ngIf="fieldErrors['password']">
               {{ fieldErrors['password'] }}
@@ -1055,30 +858,17 @@
           </div>
 
           <div class="login-text">Passwort wiederholen:</div>
-          <!-- <div class="form-group">
-            <div class="field-wrap">
-              <div>
-                <span class="field-label">Passwort</span>
-                <input name="password" type="password" value="manuel.markovic@gmx.net" />
-              </div>
-              <span class="material-symbols-outlined"> visibility_off </span>
-            </div>
-          </div> -->
           <div class="form-group">
             <div class="field-wrap">
               <div>
                 <span class="field-label">Passwort</span>
-                <input
-                  name="passwordRepeat"
-                  [type]="showRepPw ? 'text' : 'password'"
-                  [(ngModel)]="repeatPassword"
+                <input name="passwordRepeat" [type]="showRepPw ? 'text' : 'password'" [(ngModel)]="repeatPassword"
                   [style.background-color]="passwordMismatch ? '#fff0f0' : 'white'"
-                  (input)="validateForgotPassword(password, repeatPassword, email)"
-                />
+                  (input)="validateForgotPassword(password, repeatPassword, email)" />
               </div>
               <span class="material-symbols-outlined pw-toggle" (click)="showRepPw = !showRepPw">{{
                 showRepPw ? 'visibility' : 'visibility_off'
-              }}</span>
+                }}</span>
             </div>
           </div>
           <!-- Password mismatch error -->
@@ -1092,12 +882,7 @@
               &lt; Zurück
             </button>
             <div class="form-actions">
-              <button
-                type="button"
-                class="btn-primary"
-                [disabled]="isLoadingReset"
-                (click)="resetPassword()"
-              >
+              <button type="button" class="btn-primary" [disabled]="isLoadingReset" (click)="resetPassword()">
                 <span *ngIf="isLoadingReset" class="spinner"></span>
                 {{ isLoadingReset ? 'Prüfen...' : 'Neues Passwort absenden' }}
               </button>
