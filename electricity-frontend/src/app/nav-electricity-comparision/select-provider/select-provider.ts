@@ -218,7 +218,8 @@ export class SelectProvider implements OnInit {
       this.consum = data.consumption;
 
       this.hasAddress = true;
-
+      // this.isOpen = true;
+      this.isOpen = false;
       this.toggleDiv();
     } else {
       this.hasAddress = false;
@@ -609,7 +610,8 @@ export class SelectProvider implements OnInit {
       consum: this.consum,
       type: this.type,
       branch: this.branch,
-      customerId: Number(customerId) ,
+      customerId: Number(customerId),
+      adminId: 1,
     };
 
     this.http.post<RatesResponse>('http://192.168.0.155:8080/api/get-rates', body).subscribe({
@@ -702,6 +704,7 @@ export class SelectProvider implements OnInit {
   }
 
   toggleDiv(): void {
+    console.log('isopen value', this.isOpen);
     if (!this.isOpen) {
       this.fetchRates();
     }

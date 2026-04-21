@@ -1,4 +1,4 @@
-package com.tarifvergleich.electricity.controller;
+package com.tarifvergleich.electricity.controller.customer;
 
 import java.util.Map;
 

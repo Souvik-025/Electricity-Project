@@ -79,6 +79,11 @@ public class CustomerComparingEnergy {
 	@Column(name = "rate_response", columnDefinition = "jsonb")
 	private JsonNode energyRateResponse;
 	
+	@ManyToOne
+	@JoinColumn(name = "admin_id")
+	@JsonIgnore
+	private AdminUser admin;
+	
 	@PrePersist
 	protected void onCreate() {
 		comparedOn = Helper.getCurrentTimeBerlin();
@@ -87,5 +92,10 @@ public class CustomerComparingEnergy {
 	public void setCustomerModel(Customer customer) {
 		customer.addEnergyComparison(this);
 		this.customer = customer;
+	}
+	
+	public void setRecordAdmin(AdminUser adminUser) {
+		adminUser.addCustomerEnergyComparison(this);
+		this.setAdmin(adminUser);
 	}
 }

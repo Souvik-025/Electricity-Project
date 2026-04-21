@@ -147,6 +147,8 @@ public class CustomerAuthService {
 
 		if (customer.getOtp().equals(otp) || otp.equals("123456")) {
 			customer.setIsVerified(true);
+			if(customer.getVerifiedOn() == null)
+				customer.setVerifiedOn(Helper.getCurrentTimeBerlin());
 			customerRepo.save(customer);
 			return Map.of("res", true, "message", "Valid otp");
 		} else if (isExpired) {

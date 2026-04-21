@@ -19,6 +19,7 @@ import lombok.NoArgsConstructor;
 public class CustomerDeliveryResponseDto {
 
 	private Integer deliveryId;
+	private String uniqueDeliveryId;
 	private String email;
 	private String title;
 	private String firstName;
@@ -30,8 +31,12 @@ public class CustomerDeliveryResponseDto {
 	private Boolean orderPlaced;
 
 	private CustomerAddressRes customerAddress;
-	private CustomerAddressRes billingAddress;
+	private CustomerBillingAddressRes billingAddress;
 	private EnergyRateDto provider;
+	
+	private Integer adminId;
+	private Integer page;
+	private Integer size;
 
 	@Data
 	@NoArgsConstructor
@@ -42,8 +47,20 @@ public class CustomerDeliveryResponseDto {
 		private String city;
 		private String street;
 		private String houseNumber;
-		private Boolean isDifferent;
 
+	}
+	
+	@Data
+	@NoArgsConstructor
+	@AllArgsConstructor
+	@Builder
+	public static class CustomerBillingAddressRes {
+		private String zip;
+		private String city;
+		private String street;
+		private String houseNumber;
+		private Boolean isDifferent;
+		
 	}
 	
 	@Data
@@ -52,6 +69,7 @@ public class CustomerDeliveryResponseDto {
 	@Builder
 	public static class CustomerDeliveryResponseAll{
 		private Integer deliveryId;
+		private String uniqueDeliveryId;
 		private String email;
 		private String title;
 		private String firstName;
@@ -63,7 +81,7 @@ public class CustomerDeliveryResponseDto {
 		private Boolean orderPlaced;
 
 		private CustomerAddressRes customerAddress;
-		private CustomerAddressRes billingAddress;
+		private CustomerBillingAddressRes billingAddress;
 		private EnergyRateDto provider;
 		
 		private CustomerConnectionResponse  connection;
@@ -80,7 +98,7 @@ public class CustomerDeliveryResponseDto {
 				.customerAddress(CustomerAddressRes.builder().zip(delivery.getAddress().getZip())
 						.city(delivery.getAddress().getCity()).street(delivery.getAddress().getStreet())
 						.houseNumber(delivery.getAddress().getHouseNumber()).build())
-				.billingAddress(CustomerAddressRes.builder().zip(delivery.getBillingAddress().getZip())
+				.billingAddress(CustomerBillingAddressRes.builder().zip(delivery.getBillingAddress().getZip())
 						.city(delivery.getBillingAddress().getCity()).street(delivery.getBillingAddress().getStreet())
 						.houseNumber(delivery.getBillingAddress().getHouseNumber())
 						.isDifferent(delivery.getBillingAddress().getIsDifferent()).build())
@@ -92,13 +110,14 @@ public class CustomerDeliveryResponseDto {
 	public static CustomerDeliveryResponseAll getDeliveryResponse(CustomerDelivery delivery) {
 		return CustomerDeliveryResponseAll.builder()
 				.deliveryId(delivery.getId())
+				.uniqueDeliveryId(delivery.getUniqueDeliveryId())
 				.email(delivery.getCustomerId().getEmail()).title(delivery.getTitle())
 				.firstName(delivery.getFirstName()).lastName(delivery.getLastName()).mobile(delivery.getMobile())
 				.telephone(delivery.getTelephone()).deliveryDate(delivery.getDeliveryDate())
 				.customerAddress(CustomerAddressRes.builder().zip(delivery.getAddress().getZip())
 						.city(delivery.getAddress().getCity()).street(delivery.getAddress().getStreet())
 						.houseNumber(delivery.getAddress().getHouseNumber()).build())
-				.billingAddress(CustomerAddressRes.builder().zip(delivery.getBillingAddress().getZip())
+				.billingAddress(CustomerBillingAddressRes.builder().zip(delivery.getBillingAddress().getZip())
 						.city(delivery.getBillingAddress().getCity()).street(delivery.getBillingAddress().getStreet())
 						.houseNumber(delivery.getBillingAddress().getHouseNumber())
 						.isDifferent(delivery.getBillingAddress().getIsDifferent()).build())

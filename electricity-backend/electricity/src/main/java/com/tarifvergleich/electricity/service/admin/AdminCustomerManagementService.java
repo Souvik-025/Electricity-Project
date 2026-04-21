@@ -10,13 +10,19 @@ import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 
+import com.tarifvergleich.electricity.dto.CustomerComparingEnergyDto;
+import com.tarifvergleich.electricity.dto.CustomerDeliveryDto;
+import com.tarifvergleich.electricity.dto.CustomerDeliveryResponseDto;
+import com.tarifvergleich.electricity.dto.CustomerDeliveryResponseDto.CustomerDeliveryResponseAll;
 import com.tarifvergleich.electricity.dto.CustomerDto;
 import com.tarifvergleich.electricity.dto.CustomerDto.AdminCustomerResponse;
 import com.tarifvergleich.electricity.dto.CustomerDto.SingleCustomerResponseDelivery;
 import com.tarifvergleich.electricity.exception.InternalServerException;
-import com.tarifvergleich.electricity.model.AdminUser;
 import com.tarifvergleich.electricity.model.Customer;
-import com.tarifvergleich.electricity.repository.AdminUserRepository;
+import com.tarifvergleich.electricity.model.CustomerComparingEnergy;
+import com.tarifvergleich.electricity.model.CustomerDelivery;
+import com.tarifvergleich.electricity.repository.CustomerComparingEnergyRepository;
+import com.tarifvergleich.electricity.repository.CustomerDeliveryRepository;
 import com.tarifvergleich.electricity.repository.CustomerRepository;
 
 import lombok.RequiredArgsConstructor;
@@ -26,25 +32,15 @@ import lombok.RequiredArgsConstructor;
 public class AdminCustomerManagementService {
 
 	private final CustomerRepository customerRepo;
-	private final AdminUserRepository adminRepo;
+	private final CustomerDeliveryRepository customerDeliveryRepo;
+	private final CustomerComparingEnergyRepository customerComparingEnergyRepo;
 
 	public Map<String, Object> getCustomers(CustomerDto customerReq) {
 
 		if (customerReq.getAdminId() == null || customerReq.getAdminId() <= 0)
 			throw new InternalServerException("Admin id missing", HttpStatus.OK);
-
-		if (customerReq.getPage() != null && customerReq.getSize() != null) {
-
-			Pageable pageable = PageRequest.of(customerReq.getPage(), customerReq.getSize(),
-					Sort.by("joinedOn").descending());
-
-			Page<Customer> customers = customerRepo.findAllByAdminAdminId(customerReq.getAdminId(), pageable);
-
-			Page<AdminCustomerResponse> customerRes = customers.map(CustomerDto::getCustomerDtoResponseForAdmin);
-
-			return Map.of("res", true, "data", customerRes);
-
-		} else if (customerReq.getId() != null && customerReq.getId() > 0) {
+		
+		if (customerReq.getId() != null && customerReq.getId() > 0) {
 			Customer customer = customerRepo.findById(customerReq.getId()).orElseThrow(
 					() -> new InternalServerException("Customer not found with this credential", HttpStatus.OK));
 
@@ -54,7 +50,19 @@ public class AdminCustomerManagementService {
 			SingleCustomerResponseDelivery customerRes = CustomerDto.getCustomerResponseDto(customer);
 
 			return Map.of("res", true, "data", customerRes);
-		}
+			
+		} else if (customerReq.getPage() != null) {
+
+			Pageable pageable = PageRequest.of(customerReq.getPage() - 1, 5,
+					Sort.by("joinedOn").descending());
+
+			Page<Customer> customers = customerRepo.findAllByAdminAdminId(customerReq.getAdminId(), pageable);
+
+			Page<AdminCustomerResponse> customerRes = customers.map(CustomerDto::getCustomerDtoResponseForAdmin);
+
+			return Map.of("res", true, "data", customerRes.getContent(), "page", customerRes.getPageable().getPageNumber() + 1, "totalPage", customerRes.getTotalPages());
+
+		} 
 
 		List<Customer> customers = customerRepo.findAllByAdminAdminIdOrderByJoinedOnDesc(customerReq.getAdminId());
 
@@ -65,17 +73,49 @@ public class AdminCustomerManagementService {
 
 	}
 	
-	public Map<String, Object> getAllDeliveries(Integer adminId){
+	public Map<String, Object> getAllDeliveries(CustomerDeliveryDto deliveryReq){
+		
+		if(deliveryReq.getAdminId() == null || deliveryReq.getAdminId() <= 0)
+			throw new InternalServerException("Admin id missing", HttpStatus.OK);		
+		
+		if (deliveryReq.getPage() != null) {
+			
+			Pageable pageable = PageRequest.of(deliveryReq.getPage() - 1, 5, Sort.by("orderPlacedOn").descending());
+			
+			Page<CustomerDelivery> customerDeliveries = customerDeliveryRepo.findAll(pageable);
+			
+			Page<CustomerDeliveryResponseAll> customerDeliveryResponse = customerDeliveries.map(CustomerDeliveryResponseDto::getDeliveryResponse);
+			
+			return Map.of("res", true, "data", customerDeliveryResponse.getContent(), "page", customerDeliveryResponse.getPageable().getPageNumber() + 1, "totalPage", customerDeliveryResponse.getTotalPages());
+			
+		}
+		
+		List<CustomerDelivery> customerDeliveries = customerDeliveryRepo.findAllByAdminAdminIdOrderByOrderPlacedOnDesc(deliveryReq.getAdminId());
+		List<CustomerDeliveryResponseAll> customerDeliveryResponse = customerDeliveries.stream().map(CustomerDeliveryResponseDto::getDeliveryResponse).toList();
+		
+		return Map.of("res", true, "data", customerDeliveryResponse);
+	}
+	
+	public Map<String, Object> getAllComparison(Integer adminId, Integer page){
 		
 		if(adminId == null || adminId <= 0)
 			throw new InternalServerException("Admin id missing", HttpStatus.OK);
+				
+		if(page != null && page > 0) {
+			
+			Pageable pageable = PageRequest.of(page - 1, 5, Sort.by("comparedOn").descending());
+			
+			Page<CustomerComparingEnergy> energyComparisons = customerComparingEnergyRepo.findAll(pageable);
+			
+			Page<CustomerComparingEnergyDto> energyComparisonResp = energyComparisons.map(CustomerComparingEnergyDto::customerComparisonResponse);
+			
+			return Map.of("res", true, "data", energyComparisonResp.getContent(), "page", energyComparisonResp.getPageable().getPageNumber() + 1, "totalPage", energyComparisonResp.getTotalPages());
+		}
 		
-		AdminUser admin = adminRepo.findById(adminId).orElseThrow(() -> new InternalServerException("Admin not found with this credential", HttpStatus.OK));
+		List<CustomerComparingEnergy> energyComparisons = customerComparingEnergyRepo.findAllByAdminAdminIdOrderByIdDesc(adminId);
+		List<CustomerComparingEnergyDto> energyComparisonResp = energyComparisons.stream().map(CustomerComparingEnergyDto::customerComparisonResponse).toList();
 		
-//		List<CustomerDelivery>
-		
-		return Map.of();
+		return Map.of("res", true, "data", energyComparisonResp);
 	}
-	
 	
 }
