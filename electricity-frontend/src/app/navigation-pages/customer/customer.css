@@ -633,7 +633,7 @@
 }
 
 .textarea {
-  width: 100%;
+  /* width: 100%; */
   min-height: 200px;
   resize: vertical;
   padding: 12px;
@@ -916,12 +916,13 @@
   align-items: center;
 }
 .list-row:nth-child(odd) {
-  background: #afadad;
+  background: #ffffff;
 }
 
 .list-row:nth-child(even) {
-  background: #ffffff;
+  background: #afadad;
 }
+
 /* Status */
 .status {
   color: black;
@@ -959,6 +960,24 @@
 .chat-history {
   margin-top: 10px;
   font-size: 13px;
+  /* display: flex;
+  flex-direction: column;
+  height: 1000px; */
+}
+
+.message-container {
+  flex: 1;
+  overflow-y: auto;
+  padding-right: 5px;
+}
+
+/* Optional smooth scroll look */
+.message-container::-webkit-scrollbar {
+  width: 6px;
+}
+.message-container::-webkit-scrollbar-thumb {
+  background: #ccc;
+  border-radius: 10px;
 }
 
 /* Top orange bar */
@@ -1015,6 +1034,7 @@
   margin-top: 8px;
   line-height: 1.5;
   color: black;
+  white-space: pre-line;
 }
 
 /* Button */
@@ -1030,8 +1050,16 @@
 
 .new-message-section {
   margin-top: 20px;
-  padding: 12px;
+  /* padding: 12px; */
+  /* padding: 12px 0 12px 0; */
   background: #fff;
+}
+
+.empty-state {
+  padding: 15px;
+  text-align: center;
+  color: #888;
+  font-size: 14px;
 }
 
 /* Heading outside */
@@ -1071,6 +1099,7 @@
 .dropdown-wrap {
   position: relative;
   cursor: pointer;
+  padding: 4px 12px 4px 12px;
 }
 
 .dropdown-wrap input {

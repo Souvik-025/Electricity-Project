@@ -153,13 +153,16 @@ AUTH MODE
 
     if (this.isLoggedIn && this.authMode == 'login') {
       this.currentStep = 5;
+      this.selectedOption = 'same'
     } else {
       this.currentStep = 1;
     }
+    this.cdr.detectChanges();
   }
   clearField() {
     this.password = '';
     this.loginError = '';
+    this.email = '';
   }
   setLoginMode(mode: 'register' | 'login') {
     this.authMode = mode;
@@ -332,7 +335,6 @@ AUTH MODE
           this.isLoading = false;
 
           if (res.res && res.data) {
-            /* 🔥 Store user WITHOUT token */
             this.authService.login({
               user_id: res.data.id.toString(),
               email: res.data.email,
