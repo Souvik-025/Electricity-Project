@@ -59,6 +59,9 @@ public class CustomerServiceRequest {
 	@Column(name = "is_request_closed")
 	private Boolean isClosed;
 	
+	@Column(name = "request_moved_to_progress_on")
+	private BigInteger requestMovedToProgressOn;
+	
 	@Column(name = "request_reopened_on")
 	private BigInteger requestReopenedOn;
 	

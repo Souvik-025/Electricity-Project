@@ -301,7 +301,7 @@ public class CustomerAuthService {
 					Map.of("id", customer.getCustomerId(), "firstName", customer.getFirstName(), "lastName",
 							customer.getLastName(), "email", customer.getEmail()));
 		} else if (!customer.getIsVerified())
-			return Map.of("res", false, "message", "New password is not verified");
+			return Map.of("res", false, "message", "Account is not verified");
 		else if (customer.getPassword().equals(password))
 			return Map.of("res", false, "message", "Incomplete profile");
 		else
@@ -335,6 +335,9 @@ public class CustomerAuthService {
 
 		Customer customer = customerRepo.findByEmail(email)
 				.orElseThrow(() -> new InternalServerException("Customer not found", HttpStatus.OK));
+
+		if (!customer.getIsVerified())
+			throw new InternalServerException("Account is not verified", HttpStatus.OK);
 
 		String otp = helper.generateOtp();
 		customer.setOtp(otp);
@@ -409,7 +412,6 @@ public class CustomerAuthService {
 				.codeSendOn(Helper.getCurrentTimeBerlin()).admin(customer.getAdmin()).build();
 
 		customer.addCustomerChangePasswordHistory(history);
-		
 
 		customerRepo.save(customer);
 

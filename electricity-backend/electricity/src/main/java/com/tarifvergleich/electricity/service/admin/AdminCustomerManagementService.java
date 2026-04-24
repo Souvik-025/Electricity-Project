@@ -3,6 +3,7 @@ package com.tarifvergleich.electricity.service.admin;
 import java.util.List;
 import java.util.Map;
 
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -17,14 +18,23 @@ import com.tarifvergleich.electricity.dto.CustomerDeliveryResponseDto.CustomerDe
 import com.tarifvergleich.electricity.dto.CustomerDto;
 import com.tarifvergleich.electricity.dto.CustomerDto.AdminCustomerResponse;
 import com.tarifvergleich.electricity.dto.CustomerDto.SingleCustomerResponseDelivery;
+import com.tarifvergleich.electricity.dto.CustomerServiceRequestDto;
+import com.tarifvergleich.electricity.dto.ServiceRequestEmailEvent.ServiceResponseEmailEvent;
 import com.tarifvergleich.electricity.exception.InternalServerException;
+import com.tarifvergleich.electricity.model.AdminUser;
 import com.tarifvergleich.electricity.model.Customer;
 import com.tarifvergleich.electricity.model.CustomerComparingEnergy;
 import com.tarifvergleich.electricity.model.CustomerDelivery;
+import com.tarifvergleich.electricity.model.CustomerServiceRequest;
+import com.tarifvergleich.electricity.model.CustomerServiceRequestMessages;
 import com.tarifvergleich.electricity.repository.CustomerComparingEnergyRepository;
 import com.tarifvergleich.electricity.repository.CustomerDeliveryRepository;
 import com.tarifvergleich.electricity.repository.CustomerRepository;
+import com.tarifvergleich.electricity.repository.CustomerServiceRequestRepository;
+import com.tarifvergleich.electricity.util.EmailTemplate;
+import com.tarifvergleich.electricity.util.Helper;
 
+import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 
 @Service
@@ -34,6 +44,9 @@ public class AdminCustomerManagementService {
 	private final CustomerRepository customerRepo;
 	private final CustomerDeliveryRepository customerDeliveryRepo;
 	private final CustomerComparingEnergyRepository customerComparingEnergyRepo;
+	private final CustomerServiceRequestRepository customerServiceRequestRepo;
+	private final ApplicationEventPublisher eventPublisher;
+	private final EmailTemplate emailTemplate;
 
 	public Map<String, Object> getCustomers(CustomerDto customerReq) {
 
@@ -52,11 +65,12 @@ public class AdminCustomerManagementService {
 			return Map.of("res", true, "data", customerRes);
 
 		} else if (customerReq.getPage() != null) {
-			
-			if(customerReq.getSize() == null)
+
+			if (customerReq.getSize() == null)
 				customerReq.setSize(20);
-			
-			Pageable pageable = PageRequest.of(customerReq.getPage() - 1, customerReq.getSize(), Sort.by("joinedOn").descending());
+
+			Pageable pageable = PageRequest.of(customerReq.getPage() - 1, customerReq.getSize(),
+					Sort.by("joinedOn").descending());
 
 			Page<Customer> customers = null;
 
@@ -100,11 +114,12 @@ public class AdminCustomerManagementService {
 			throw new InternalServerException("Admin id missing", HttpStatus.OK);
 
 		if (deliveryReq.getPage() != null) {
-			
-			if(deliveryReq.getSize() == null)
+
+			if (deliveryReq.getSize() == null)
 				deliveryReq.setSize(20);
 
-			Pageable pageable = PageRequest.of(deliveryReq.getPage() - 1, deliveryReq.getSize(), Sort.by("orderPlacedOn").descending());
+			Pageable pageable = PageRequest.of(deliveryReq.getPage() - 1, deliveryReq.getSize(),
+					Sort.by("orderPlacedOn").descending());
 
 			Page<CustomerDelivery> customerDeliveries = customerDeliveryRepo.findAll(pageable);
 
@@ -131,9 +146,10 @@ public class AdminCustomerManagementService {
 			throw new InternalServerException("Admin id missing", HttpStatus.OK);
 
 		if (page != null && page > 0) {
-			
-			if(size == null)
-				size = 20;;
+
+			if (size == null)
+				size = 20;
+			;
 
 			Pageable pageable = PageRequest.of(page - 1, size, Sort.by("comparedOn").descending());
 
@@ -153,6 +169,55 @@ public class AdminCustomerManagementService {
 				.map(CustomerComparingEnergyDto::customerComparisonResponse).toList();
 
 		return Map.of("res", true, "data", energyComparisonResp);
+	}
+
+	@Transactional
+	public Map<String, Object> addResponseToCustomerServiceRequest(CustomerServiceRequestDto serviceRequestDto) {
+
+		if (serviceRequestDto.getMessage() == null || serviceRequestDto.getMessage().isEmpty())
+			throw new InternalServerException("Service message missing", HttpStatus.OK);
+
+		if (serviceRequestDto.getAdminId() == null || serviceRequestDto.getAdminId() <= 0)
+			throw new InternalServerException("Admin id missing", HttpStatus.OK);
+
+		if (serviceRequestDto.getServiceRequestId() == null || serviceRequestDto.getServiceRequestId() <= 0)
+			throw new InternalServerException("Service request id missing", HttpStatus.OK);
+
+		CustomerServiceRequest serviceRequest = customerServiceRequestRepo
+				.findByIdAndAdminAdminId(serviceRequestDto.getServiceRequestId(), serviceRequestDto.getAdminId())
+				.orElseThrow(() -> new InternalServerException(
+						"Customer service request not found with this creddential", HttpStatus.OK));
+
+		Customer customer = serviceRequest.getCustomer();
+
+		AdminUser admin = customer.getAdmin();
+
+		CustomerServiceRequestMessages message = CustomerServiceRequestMessages.builder().chatUser("ADMIN")
+				.message(serviceRequestDto.getMessage()).build();
+
+		serviceRequest.addCustomerServiceRequestMessage(message);
+		serviceRequest.setIsOpen(false);
+		serviceRequest.setInProgress(true);
+
+		customerServiceRequestRepo.save(serviceRequest);
+
+		Map<String, Object> dateTimeMap = Helper.getLocalDateTimeFromBigInteger(serviceRequest.getCreatedOn());
+
+		String formattedDateTime = dateTimeMap.get("monthName").toString() + " " + dateTimeMap.get("date").toString()
+				+ " " + dateTimeMap.get("year").toString() + ", at " + dateTimeMap.get("hour").toString() + ":"
+				+ dateTimeMap.get("minute").toString() + " " + dateTimeMap.get("amPm").toString();
+
+		String subject = "Received  a  response  from  the  consultant on ticket-No. "
+				+ serviceRequest.getTicketNumber();
+		String body = emailTemplate.createServiceRequestResponseEmailBody(customer.getSalutation(),
+				customer.getLastName(), customer.getFirstName(), serviceRequest.getTicketNumber(), formattedDateTime,
+				customer.getEmail(), serviceRequestDto.getMessage(), admin.getName());
+
+		ServiceResponseEmailEvent serviceEventData = new ServiceResponseEmailEvent(customer.getEmail(), subject, body);
+		eventPublisher.publishEvent(serviceEventData);
+
+		return Map.of("res", true, "ticketNo", serviceRequest.getTicketNumber(), "message",
+				"Message sended successfully");
 	}
 
 }

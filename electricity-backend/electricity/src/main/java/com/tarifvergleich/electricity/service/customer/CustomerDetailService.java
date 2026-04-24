@@ -1,10 +1,13 @@
 package com.tarifvergleich.electricity.service.customer;
 
+import java.math.BigInteger;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
@@ -15,8 +18,11 @@ import com.tarifvergleich.electricity.dto.CustomerDeliveryResponseDto.CustomerDe
 import com.tarifvergleich.electricity.dto.CustomerDto;
 import com.tarifvergleich.electricity.dto.CustomerDto.CustomerShortDetail;
 import com.tarifvergleich.electricity.dto.CustomerServiceRequestDto;
+import com.tarifvergleich.electricity.dto.CustomerServiceRequestDto.CustomerServiceRequestResDtoForListing;
+import com.tarifvergleich.electricity.dto.CustomerServiceRequestDto.CustomerServiceRequestResDtoForMessages;
 import com.tarifvergleich.electricity.dto.CustomerServicesDto;
 import com.tarifvergleich.electricity.dto.CustomerServicesDto.CustomerListOfServiceResDto;
+import com.tarifvergleich.electricity.dto.ServiceRequestEmailEvent;
 import com.tarifvergleich.electricity.exception.InternalServerException;
 import com.tarifvergleich.electricity.model.AdminUser;
 import com.tarifvergleich.electricity.model.Customer;
@@ -31,7 +37,7 @@ import com.tarifvergleich.electricity.repository.CustomerDeliveryRepository;
 import com.tarifvergleich.electricity.repository.CustomerRepository;
 import com.tarifvergleich.electricity.repository.CustomerServiceRequestRepository;
 import com.tarifvergleich.electricity.repository.CustomerServicesRepository;
-import com.tarifvergleich.electricity.service.MailService;
+import com.tarifvergleich.electricity.util.EmailTemplate;
 import com.tarifvergleich.electricity.util.FileServiceCustomer;
 import com.tarifvergleich.electricity.util.Helper;
 
@@ -49,7 +55,8 @@ public class CustomerDetailService {
 	private final CustomerServicesRepository customerServicesRepo;
 	private final CustomerDeliveryRepository customerDeliveryRepo;
 	private final CustomerServiceRequestRepository customerServiceRequestRepo;
-	private final MailService mailService;
+	private final EmailTemplate emailTemplate;
+	private final ApplicationEventPublisher eventPublisher;
 
 	public Map<String, Object> getCustomerDetails(Integer customerId) {
 
@@ -208,15 +215,13 @@ public class CustomerDetailService {
 			throw new InternalServerException("Service message missing", HttpStatus.OK);
 		if (serviceRequestDto.getCustomerId() == null || serviceRequestDto.getCustomerId() <= 0)
 			throw new InternalServerException("Customer id missing", HttpStatus.OK);
-		if (serviceRequestDto.getServiceId() == null || serviceRequestDto.getServiceId() <= 0)
-			throw new InternalServerException("Service id missing", HttpStatus.OK);
-		
+
 		boolean isReopened = false;
 		boolean isNewMessage = false;
-		
+
 		Customer customer = customerRepo.findById(serviceRequestDto.getCustomerId())
 				.orElseThrow(() -> new InternalServerException("Customer not found", HttpStatus.OK));
-		
+
 		String customerMailId = customer.getEmail();
 		String adminMailId = customer.getAdmin().getEmail();
 
@@ -226,6 +231,9 @@ public class CustomerDetailService {
 
 			if (serviceRequestDto.getTitle() == null || serviceRequestDto.getTitle().isEmpty())
 				throw new InternalServerException("Title missing", HttpStatus.OK);
+
+			if (serviceRequestDto.getServiceId() == null || serviceRequestDto.getServiceId() <= 0)
+				throw new InternalServerException("Service id missing", HttpStatus.OK);
 
 			if (serviceRequestDto.getServiceRequestType() == null
 					|| (!serviceRequestDto.getServiceRequestType().equalsIgnoreCase("DELIVERY")
@@ -259,12 +267,19 @@ public class CustomerDetailService {
 							() -> new InternalServerException("Customer service request not found", HttpStatus.OK));
 
 			if (customerServiceRequest.getIsClosed()) {
+
+				BigInteger oneMonth = BigInteger.valueOf(30).multiply(BigInteger.valueOf(24))
+						.multiply(BigInteger.valueOf(60)).multiply(BigInteger.valueOf(60));
+
+				if (Helper.getCurrentTimeBerlin().subtract(customerServiceRequest.getRequestClosedOn())
+						.compareTo(oneMonth) > 0)
+					throw new InternalServerException("Ticket validity over", HttpStatus.OK);
+
 				isReopened = true;
 				customerServiceRequest.setRequestReopenedOn(Helper.getCurrentTimeBerlin());
 				customerServiceRequest.setIsClosed(false);
 				customerServiceRequest.setIsOpen(true);
-			}
-			else {
+			} else {
 				isNewMessage = true;
 			}
 		}
@@ -275,20 +290,112 @@ public class CustomerDetailService {
 		customerServiceRequest.addCustomerServiceRequestMessage(message);
 
 		customerServiceRequest = customerServiceRequestRepo.save(customerServiceRequest);
-		
-		if(isReopened) {
-			// Add the mail logic based on reopened both for customer and admin.
-			
-		}
-		else if(isNewMessage) {
-			
-			
-			
+		AdminUser admin = customer.getAdmin();
+
+		String customerBody = "";
+		String adminBody = "";
+		String customerSubject = "";
+		String adminSubject = "";
+		Map<String, Object> dateTimeMap = Helper.getLocalDateTimeFromBigInteger(customerServiceRequest.getCreatedOn());
+
+		String formattedDateTime = dateTimeMap.get("monthName").toString() + " " + dateTimeMap.get("date").toString()
+				+ " " + dateTimeMap.get("year").toString() + ", at " + dateTimeMap.get("hour").toString() + ":"
+				+ dateTimeMap.get("minute").toString() + " " + dateTimeMap.get("amPm").toString();
+
+		if (isReopened) {
+			customerSubject = "Ticket " + customerServiceRequest.getTicketNumber() + " Reopened";
+			customerBody = emailTemplate.createServiceRequestReopenedEmailBody(customer.getSalutation(),
+					customer.getLastName(), customer.getFirstName(), customerServiceRequest.getTicketNumber(),
+					formattedDateTime, customerServiceRequest.getService().getServiceName(), customer.getEmail(),
+					serviceRequestDto.getMessage());
+
+			adminSubject = "REOPENED: Ticket " + customerServiceRequest.getTicketNumber();
+			adminBody = emailTemplate.createAdminServiceRequestReopenedEmailBody(admin.getName(),
+					customer.getFirstName() + " " + customer.getLastName(), customerServiceRequest.getTicketNumber(),
+					serviceRequestDto.getMessage());
+
+		} else if (isNewMessage) {
+			customerSubject = "Ticket " + customerServiceRequest.getTicketNumber() + " Added New Message";
+			customerBody = emailTemplate.createNewMessageNotificationToCustomerBody(customer.getSalutation(),
+					customer.getLastName(), customer.getFirstName(), customerServiceRequest.getTicketNumber(),
+					customerServiceRequest.getService().getServiceName(), formattedDateTime,
+					serviceRequestDto.getMessage());
+
+			adminSubject = "New Message: Ticket " + customerServiceRequest.getTicketNumber();
+			adminBody = emailTemplate.createAdminNewMessageNotificationBody(admin.getName(),
+					customer.getFirstName() + " " + customer.getLastName(), customerServiceRequest.getTicketNumber(),
+					serviceRequestDto.getMessage());
+
 		} else {
-			
+			customerSubject = "New Ticket " + customerServiceRequest.getTicketNumber() + " Opened";
+			customerBody = emailTemplate.createServiceRequestOpenedEmailBody(customer.getSalutation(),
+					customer.getLastName(), customer.getFirstName(), customerServiceRequest.getTicketNumber(),
+					customerServiceRequest.getService().getServiceName(), customerMailId, formattedDateTime,
+					serviceRequestDto.getMessage());
+
+			adminSubject = "ACTION REQUIRED: New Ticket " + customerServiceRequest.getTicketNumber();
+			adminBody = emailTemplate.createAdminServiceRequestOpenedEmailBody(admin.getName(),
+					customer.getFirstName() + " " + customer.getLastName(), customerServiceRequest.getTicketNumber(),
+					customerServiceRequest.getService().getServiceName(), serviceRequestDto.getMessage());
 		}
 
-		return Map.of("res", true, "message", "Service request message delivered successfully");
+		ServiceRequestEmailEvent emailEvent = new ServiceRequestEmailEvent(customerMailId, customerSubject,
+				customerBody, adminMailId, adminSubject, adminBody);
+
+		eventPublisher.publishEvent(emailEvent);
+
+		return Map.of("res", true, "message", "Service request message delivered successfully", "TicketNumber",
+				customerServiceRequest.getTicketNumber(), "serviceRequestId", customerServiceRequest.getId(),
+				"messageBody", serviceRequestDto.getMessage(), "sendOn", Helper.getCurrentTimeBerlin());
+	}
+
+	public Map<String, Object> getAllMessages(Integer customerServiceRequestId) {
+
+		if (customerServiceRequestId == null || customerServiceRequestId <= 0)
+			throw new InternalServerException("Customer service request id missing", HttpStatus.OK);
+
+		CustomerServiceRequest customerServiceRequest = customerServiceRequestRepo.findById(customerServiceRequestId)
+				.orElseThrow(() -> new InternalServerException("CustomerServiceRequest not found with this credential",
+						HttpStatus.OK));
+
+		CustomerServiceRequestResDtoForMessages messagesRes = CustomerServiceRequestDto
+				.getAllMessagesRes(customerServiceRequest);
+
+		return Map.of("res", true, "data", messagesRes);
+	}
+
+	public Map<String, Object> getCountOfRequestInDifferentTabs(Integer customerId) {
+
+		if (customerId == null || customerId <= 0)
+			throw new InternalServerException("Customer id missing", HttpStatus.OK);
+
+		Long getTotalOpen = customerServiceRequestRepo.countByIsOpenAndCustomerCustomerId(true, customerId);
+		Long getTotalInProgress = customerServiceRequestRepo.countByInProgressAndCustomerCustomerId(true, customerId);
+		Long getTotalClosed = customerServiceRequestRepo.countByIsClosedAndCustomerCustomerId(true, customerId);
+
+		return Map.of("res", true, "open", getTotalOpen, "progress", getTotalInProgress, "closed", getTotalClosed);
+	}
+
+	public Map<String, Object> fetchAllCustomerServiceRequest(Integer customerId) {
+
+		if (customerId == null || customerId <= 0)
+			throw new InternalServerException("Customer id missing", HttpStatus.OK);
+
+		List<CustomerServiceRequest> serviceRequests = customerServiceRequestRepo
+				.findAllByCustomerCustomerIdOrderByCreatedOnDesc(customerId);
+
+		Map<String, List<CustomerServiceRequestResDtoForListing>> grouped = serviceRequests.stream()
+				.map(CustomerServiceRequestDto::getAllListings).collect(Collectors.groupingBy(dto -> {
+					if (dto.getIsOpen())
+						return "open";
+					if (dto.getInProgress())
+						return "progress";
+					return "closed";
+				}));
+
+		return Map.of("res", true, "openRequests", grouped.getOrDefault("open", List.of()), "inProgressRequets",
+				grouped.getOrDefault("progress", List.of()), "closedRequests",
+				grouped.getOrDefault("closed", List.of()));
 	}
 
 }

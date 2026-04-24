@@ -17,6 +17,7 @@ import com.tarifvergleich.electricity.dto.CustomerContactScheduleRequestDto;
 import com.tarifvergleich.electricity.dto.CustomerDeliveryRequestWrapper;
 import com.tarifvergleich.electricity.dto.CustomerDto;
 import com.tarifvergleich.electricity.dto.CustomerPaymentRequestDto;
+import com.tarifvergleich.electricity.dto.CustomerServiceRequestDto;
 import com.tarifvergleich.electricity.dto.CustomerServicesDto;
 import com.tarifvergleich.electricity.service.customer.CustomerBookingService;
 import com.tarifvergleich.electricity.service.customer.CustomerDetailService;
@@ -39,8 +40,9 @@ public class CustomerController {
 
 	@PostMapping("/add-delivery")
 	public ResponseEntity<?> addDelivery(@RequestBody CustomerDeliveryRequestWrapper deliveryWrapper) {
-		return ResponseEntity.ok(customerBookingService.saveDelivery(deliveryWrapper.getCustomerId(), deliveryWrapper.getDeliveryId(),
-				deliveryWrapper.getDeliveryAddress(), deliveryWrapper.getBillingAddress(), deliveryWrapper.getProvider()));
+		return ResponseEntity.ok(customerBookingService.saveDelivery(deliveryWrapper.getCustomerId(),
+				deliveryWrapper.getDeliveryId(), deliveryWrapper.getDeliveryAddress(),
+				deliveryWrapper.getBillingAddress(), deliveryWrapper.getProvider()));
 	}
 
 	@PostMapping("/add-connection")
@@ -63,33 +65,55 @@ public class CustomerController {
 
 		return ResponseEntity.ok(customerBookingService.fetchByStep(customerId, deliveryId, step));
 	}
-	
+
 	@PostMapping("/submit-declaration")
-	public ResponseEntity<?> submitDeclaration(@RequestBody Map<String, Object> payload){
+	public ResponseEntity<?> submitDeclaration(@RequestBody Map<String, Object> payload) {
 		Integer customerId = payload.get("customerId") != null ? (Integer) payload.get("customerId") : 0;
 		Integer deliveryId = payload.get("deliveryId") != null ? (Integer) payload.get("deliveryId") : 0;
-		
+
 		return ResponseEntity.ok(customerBookingService.submit(customerId, deliveryId));
 	}
-	
+
 	@PostMapping("/add-schedule")
-	public ResponseEntity<?> addCustomerSchedule(@RequestBody CustomerContactScheduleRequestDto schedule){
+	public ResponseEntity<?> addCustomerSchedule(@RequestBody CustomerContactScheduleRequestDto schedule) {
 		return ResponseEntity.ok(customerBookingService.submitCustomerSchedule(schedule));
 	}
-	
+
 	@PostMapping("/add-attorny")
-	public ResponseEntity<?> addCustomerAttorny(@RequestPart(value = "data") CustomerAttornyDto attornyDto, @RequestPart(value = "file") MultipartFile file){
+	public ResponseEntity<?> addCustomerAttorny(@RequestPart(value = "data") CustomerAttornyDto attornyDto,
+			@RequestPart(value = "file") MultipartFile file) {
 		return ResponseEntity.ok(customerDetailService.submitCustomerAttorny(attornyDto, file));
 	}
-	
+
 	@PostMapping("/fetch-placed-deliveries")
-	public ResponseEntity<?> fetchCustomerWithPlacedDelivery(@RequestBody CustomerDto customerDto){
+	public ResponseEntity<?> fetchCustomerWithPlacedDelivery(@RequestBody CustomerDto customerDto) {
 		return ResponseEntity.ok(customerDetailService.fetchAllCustomerDeliveries(customerDto.getId()));
 	}
-	
+
 	@PostMapping("/fetch-cutomer-service")
-	public ResponseEntity<?> fetchCustomerServices(@RequestBody CustomerServicesDto serviceDto){
-		return ResponseEntity.ok(customerDetailService.fetchCustomerServices(serviceDto.getAdminId(), serviceDto.getServiceType()));
+	public ResponseEntity<?> fetchCustomerServices(@RequestBody CustomerServicesDto serviceDto) {
+		return ResponseEntity
+				.ok(customerDetailService.fetchCustomerServices(serviceDto.getAdminId(), serviceDto.getServiceType()));
+	}
+
+	@PostMapping("/add-service-request")
+	public ResponseEntity<?> addServiceRequestAndMessage(@RequestBody CustomerServiceRequestDto serviceRequestDto) {
+		return ResponseEntity.ok(customerDetailService.addRequestAndMessage(serviceRequestDto));
+	}
+
+	@PostMapping("/fetch-request-messages")
+	public ResponseEntity<?> fetchServiceMessages(@RequestBody CustomerServiceRequestDto serviceRequestDto) {
+		return ResponseEntity.ok(customerDetailService.getAllMessages(serviceRequestDto.getServiceRequestId()));
 	}
 	
+	@PostMapping("/fetch-service-count")
+	public ResponseEntity<?> fetchRequestCount(@RequestBody CustomerDto customerDto){
+		return ResponseEntity.ok(customerDetailService.getCountOfRequestInDifferentTabs(customerDto.getId()));
+	}
+	
+	@PostMapping("/fetch-all-requests")
+	public ResponseEntity<?> fetchAllCustomerRequests(@RequestBody CustomerDto customerDto){
+		return ResponseEntity.ok(customerDetailService.fetchAllCustomerServiceRequest(customerDto.getId()));
+	}
+
 }

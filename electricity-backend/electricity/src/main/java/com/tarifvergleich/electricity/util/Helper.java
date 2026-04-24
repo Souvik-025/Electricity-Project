@@ -7,6 +7,8 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
+import java.time.format.DateTimeFormatter;
+import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.ThreadLocalRandom;
 
@@ -102,6 +104,28 @@ public class Helper {
 		return LocalDateTime.ofInstant(instant, ZoneId.of("Europe/Berlin"));
 	}
 
+	public static Map<String, Object> getLocalDateTimeFromBigInteger(BigInteger epochTime) {
+		if (epochTime == null)
+			return null;
+
+		LocalDateTime ldt = LocalDateTime.ofInstant(Instant.ofEpochSecond(epochTime.longValue()),
+				ZoneId.of("Europe/Berlin"));
+
+		Map<String, Object> timeMap = new HashMap<>();
+		timeMap.put("year", ldt.getYear());
+		timeMap.put("month", ldt.getMonthValue());
+		timeMap.put("monthName", ldt.getMonth().name());
+		timeMap.put("date", ldt.getDayOfMonth());
+		timeMap.put("hour", ldt.getHour() % 12 + ldt.getHour() / 12);
+		timeMap.put("minute", Integer.valueOf(ldt.getMinute()) < 10 ? "0" + ldt.getMinute() : ldt.getMinute());
+		String amPm = ldt.format(DateTimeFormatter.ofPattern("a", java.util.Locale.ENGLISH));
+	    timeMap.put("amPm", amPm);
+		timeMap.put("second", ldt.getSecond());
+		timeMap.put("dayOfWeek", ldt.getDayOfWeek().name());
+
+		return timeMap;
+	}
+
 	public Map<String, Object> getDeviceInfo(String userAgentString) {
 		Parser uaParser = new Parser();
 		Client client = uaParser.parse(userAgentString);
@@ -119,12 +143,13 @@ public class Helper {
 		return String.valueOf(ThreadLocalRandom.current().nextInt(10, 99))
 				+ currentMilli.substring(currentMilli.length() - 8);
 	}
-	
+
 	public static final String getUniqueTicketNumber() {
 		String currentMilli = String.valueOf(System.currentTimeMillis());
 		String ticketNumber = String.valueOf(ThreadLocalRandom.current().nextInt(1000, 9999))
 				+ currentMilli.substring(currentMilli.length() - 10);
-		return ticketNumber.substring(0, 4) + "-" + ticketNumber.substring(4, 8) + "-" + ticketNumber.substring(8, 12) + "-" +ticketNumber.substring(12);
+		return ticketNumber.substring(0, 4) + "-" + ticketNumber.substring(4, 8) + "-" + ticketNumber.substring(8, 12)
+				+ "-" + ticketNumber.substring(12);
 	}
 
 }

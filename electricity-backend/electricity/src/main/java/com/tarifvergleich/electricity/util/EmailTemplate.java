@@ -51,4 +51,196 @@ public class EmailTemplate {
 	           "<p>Best Regards,<br><strong>Tarifvergleich Security Team</strong></p>" +
 	           "</div>";
 	}
+	
+	public String createServiceRequestOpenedEmailBody(
+	        String salutation, 
+	        String lastName, 
+	        String firstName, 
+	        String ticketNumber, 
+	        String serviceType, 
+	        String email, 
+	        String dateTime, 
+	        String content) {
+	        
+	    return "<div style='font-family: Arial, sans-serif; line-height: 1.6; color: #333; max-width: 600px; border: 1px solid #eee; padding: 20px;'>" +
+	           "<h2 style='color: #2e7d32;'>You have opened a service request!</h2>" +
+	           "<p style='font-size: 1.1em; font-weight: bold; margin-bottom: 20px;'>Ticket-Nr. " + ticketNumber + "</p>" +
+	           
+	           "<p>Dear " + salutation + " " + lastName + ",</p>" +
+	           "<p>" + firstName + " " + lastName + "</p>" +
+	           
+	           "<p>On " + dateTime + ", you opened a service request regarding <strong>" + serviceType + "</strong> " +
+	           "via the email address <strong>" + email + "</strong> with the following content:</p>" +
+	           
+	           "<div style='background-color: #f9f9f9; border-left: 4px solid #2e7d32; padding: 15px; margin: 20px 0; font-style: italic;'>" +
+	           content +
+	           "</div>" +
+	           
+	           "<p>This request will be processed promptly by our consultant.</p>" +
+	           
+	           "<p>If you would like to reply to this message or add something, please log in to your customer account and " +
+	           "send us the information under the <strong>\"Service Requests\"</strong> section.</p>" +
+	           
+	           "<p>If you sent this service request, you don't need to do anything else.</p>" +
+	           
+	           "<div style='margin-top: 25px; padding: 15px; background-color: #fff3e0; border-left: 4px solid #ff9800;'>" +
+	           "<p style='margin: 0; font-weight: bold;'>You did not carry out this action yourself?</p>" +
+	           "<p style='margin: 10px 0 0 0;'>Please check all the information in your customer account and, if necessary, reset your password.</p>" +
+	           "</div>" +
+	           
+	           "<br>" +
+	           "<p>Best Regards,<br><strong>Tarifvergleich Team</strong></p>" +
+	           "</div>";
+	}
+	
+	public String createServiceRequestReopenedEmailBody(
+	        String salutation, 
+	        String lastName, 
+	        String firstName, 
+	        String ticketNumber, 
+	        String originalDate, 
+	        String serviceType, 
+	        String email, 
+	        String newContent) {
+	        
+	    return "<div style='font-family: Arial, sans-serif; line-height: 1.6; color: #333; max-width: 600px; border: 1px solid #eee; padding: 20px;'>" +
+	           "<h2 style='color: #2e7d32;'>You have reopened your closed service request!</h2>" +
+	           "<p style='font-size: 1.1em; font-weight: bold; margin-bottom: 20px;'>Ticket-Nr. " + ticketNumber + "</p>" +
+	           
+	           "<p>Dear " + salutation + " " + lastName + ",</p>" +
+	           "<p>" + firstName + " " + lastName + "</p>" +
+	           
+	           "<p>The service request you originally submitted on " + originalDate + " via the email address <strong>" + email + "</strong> " +
+	           "regarding <strong>" + serviceType + "</strong> has been reopened with the following content:</p>" +
+	           
+	           "<div style='background-color: #f9f9f9; border-left: 4px solid #ff9800; padding: 15px; margin: 20px 0; font-style: italic;'>" +
+	           newContent +
+	           "</div>" +
+	           
+	           "<p>This request will be processed promptly by our consultant.</p>" +
+	           
+	           "<p>If you would like to reply to this message or add something, please log in to your customer account and " +
+	           "send us the information under the <strong>\"Service Requests\"</strong> section.</p>" +
+	           
+	           "<p>If you sent this service request, you don't need to do anything else.</p>" +
+	           
+	           "<div style='margin-top: 25px; padding: 15px; background-color: #fff3e0; border-left: 4px solid #ff9800;'>" +
+	           "<p style='margin: 0; font-weight: bold;'>You did not carry out this action yourself?</p>" +
+	           "<p style='margin: 10px 0 0 0;'>Please check all the information in your customer account and, if necessary, reset your password.</p>" +
+	           "</div>" +
+	           
+	           "<br>" +
+	           "<p>Best Regards,<br><strong>Tarifvergleich Team</strong></p>" +
+	           "</div>";
+	}
+	
+	public String createServiceRequestResponseEmailBody(
+	        String salutation, 
+	        String lastName, 
+	        String firstName, 
+	        String ticketNumber, 
+	        String requestDate, 
+	        String email, 
+	        String responseMessage, 
+	        String consultantName) {
+	        
+	    return "<div style='font-family: Arial, sans-serif; line-height: 1.6; color: #333; max-width: 600px; border: 1px solid #eee; padding: 20px;'>" +
+	           "<h2 style='color: #2e7d32;'>Response to your service request</h2>" +
+	           "<p style='font-size: 1.1em; font-weight: bold; margin-bottom: 20px;'>Ticket-Nr. " + ticketNumber + "</p>" +
+	           
+	           "<p>Dear " + salutation + " " + lastName + ",</p>" +
+	           "<p>" + firstName + " " + lastName + "</p>" +
+	           
+	           "<p>Thank you for your service request of " + requestDate + " via the email address <strong>" + email + "</strong>.</p>" +
+	           
+	           "<div style='margin: 20px 0; padding: 15px; background-color: #f1f8e9; border-left: 4px solid #2e7d32;'>" +
+	           "<p style='margin: 0;'>" + responseMessage + "</p>" +
+	           "</div>" +
+	           
+	           "<p>If you would like to reply to this message or add something, please log in to your customer account and " +
+	           "send us the information under the <strong>\"Service Requests\"</strong> section.</p>" +
+	           
+	           "<br>" +
+	           "<p>Best regards,<br>" +
+	           "<strong>" + consultantName + "</strong><br>" +
+	           "Customer advisor</p>" +
+	           
+	           "<hr style='border: 0; border-top: 1px solid #eee; margin-top: 30px;'>" +
+	           "<p style='font-size: 0.85em; color: #777;'>Tarifvergleich.Bayern - Your energy experts</p>" +
+	           "</div>";
+	}
+	
+	public String createNewMessageNotificationToCustomerBody(
+	        String salutation, 
+	        String lastName, 
+	        String firstName, 
+	        String ticketNumber, 
+	        String serviceType, 
+	        String messageDate, 
+	        String messageContent) {
+	        
+	    String brandColor = "#fff3e0"; 
+
+	    return "<div style='font-family: Arial, sans-serif; line-height: 1.6; color: #333; max-width: 600px; border: 1px solid #eee; padding: 20px;'>" +
+	           "<h2 style='color: " + brandColor + ";'>New message from your consultant</h2>" +
+	           "<p style='font-size: 1.1em; font-weight: bold; margin-bottom: 20px;'>Ticket-Nr. " + ticketNumber + "</p>" +
+	           
+	           "<p>Dear " + salutation + " " + lastName + ",</p>" +
+	           "<p>" + firstName + " " + lastName + "</p>" +
+	           
+	           "<p>A consultant has added a new message to your service request regarding <strong>" + serviceType + "</strong> on " + messageDate + ":</p>" +
+	           
+	           "<div style='background-color: #f5f5f5; border-left: 4px solid " + brandColor + "; padding: 15px; margin: 20px 0;'>" +
+	           "<p style='margin: 0; font-style: italic;'>" + messageContent + "</p>" +
+	           "</div>" +
+	           
+	           "<p>To reply or view the full conversation history, please log in to your customer account under the <strong>\"Service Requests\"</strong> section.</p>" +
+	           
+	           "<div style='margin-top: 25px; padding: 15px; background-color: #e8f5e9; border: 1px solid " + brandColor + ";'>" +
+	           "<p style='margin: 0; color: #2e7d32;'><strong>Information:</strong> Our team is working to resolve your request as quickly as possible.</p>" +
+	           "</div>" +
+	           
+	           "<br>" +
+	           "<p>Best Regards,<br><strong>Tarifvergleich Team</strong></p>" +
+	           "</div>";
+	}
+	
+	public String createAdminServiceRequestOpenedEmailBody(String adminName, String customerName, String ticketNumber, String serviceType, String content) {
+	    return "<div style='font-family: Arial, sans-serif; line-height: 1.6; color: #333; max-width: 600px; border: 1px solid #eee; padding: 20px;'>" +
+	           "<h2 style='color: #1976d2;'>Action Required: New Service Request</h2>" +
+	           "<p>Hello " + adminName + ",</p>" +
+	           "<p>A new ticket has been opened by <strong>" + customerName + "</strong>.</p>" +
+	           "<div style='background-color: #f5f5f5; padding: 15px; border-left: 4px solid #1976d2; margin: 15px 0;'>" +
+	           "<strong>Ticket:</strong> " + ticketNumber + "<br>" +
+	           "<strong>Service:</strong> " + serviceType + "<br><br>" +
+	           "<strong>Initial Message:</strong><br><em>" + content + "</em>" +
+	           "</div>" +
+	           "<p>Please log in to the admin panel to assign this ticket or respond.</p>" +
+	           "<br><p>Best Regards,<br><strong>Tarifvergleich System</strong></p></div>";
+	}
+
+	public String createAdminServiceRequestReopenedEmailBody(String adminName, String customerName, String ticketNumber, String content) {
+	    return "<div style='font-family: Arial, sans-serif; line-height: 1.6; color: #333; max-width: 600px; border: 1px solid #ff9800; padding: 20px;'>" +
+	           "<h2 style='color: #e65100;'>Urgent: Ticket Reopened</h2>" +
+	           "<p>Hello " + adminName + ",</p>" +
+	           "<p>The following ticket has been <strong>reopened</strong> by " + customerName + ":</p>" +
+	           "<div style='background-color: #fff3e0; padding: 15px; border-left: 4px solid #ff9800; margin: 15px 0;'>" +
+	           "<strong>Ticket-Nr:</strong> " + ticketNumber + "<br><br>" +
+	           "<strong>Customer Reason:</strong><br><em>" + content + "</em>" +
+	           "</div>" +
+	           "<p>This requires immediate attention as the customer is following up on a closed matter.</p>" +
+	           "</div>";
+	}
+
+	public String createAdminNewMessageNotificationBody(String adminName, String customerName, String ticketNumber, String content) {
+	    return "<div style='font-family: Arial, sans-serif; line-height: 1.6; color: #333; max-width: 600px; border: 1px solid #eee; padding: 20px;'>" +
+	           "<h2 style='color: #455a64;'>New Message Received</h2>" +
+	           "<p>Hello " + adminName + ",</p>" +
+	           "<p>You have a new message from <strong>" + customerName + "</strong> regarding Ticket <strong>" + ticketNumber + "</strong>.</p>" +
+	           "<div style='background-color: #fcfcfc; border: 1px solid #eee; padding: 15px; margin: 15px 0; font-style: italic;'>" +
+	           content +
+	           "</div>" +
+	           "<p>Log in to your advisor dashboard to view the full thread.</p>" +
+	           "</div>";
+	}
 }
