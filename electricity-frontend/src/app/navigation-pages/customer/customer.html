@@ -152,7 +152,7 @@
               [class.active]="serviceTab === 2"
               (click)="toggleService(2)"
             >
-              Offene Anfragen (1)
+              Offene Anfragen ({{ openCount }})
             </button>
 
             <button
@@ -160,7 +160,7 @@
               [class.active]="serviceTab === 3"
               (click)="toggleService(3)"
             >
-              In Bearbeitung (0)
+              In Bearbeitung ({{ progressCount }})
             </button>
 
             <button
@@ -168,7 +168,7 @@
               [class.active]="serviceTab === 4"
               (click)="toggleService(4)"
             >
-              Geschlossene Anfragen (1)
+              Geschlossene Anfragen ({{ closedCount }})
             </button>
           </div>
           <!--══════════ New request Section ══════════-->
@@ -217,7 +217,7 @@
                 <div
                   class="service-card contract-service-card"
                   *ngFor="let card of cards; let i = index"
-                  (click)="selectCard(i)"
+                  (click)="selectCard(i, card.deliveryId)"
                   [class.active]="selectedIndex === i"
                 >
                   <!-- Logo -->
@@ -278,7 +278,10 @@
               <div class="form-group" style="width: 50%">
                 <div class="field-wrap" style="padding: 4px 12px 4px 12px">
                   <!-- <span class="field-label">Titel</span> -->
-                  <input matInput placeholder="Bitte Betreff eingeben" />
+                  <input matInput [(ngModel)]="title" placeholder="Bitte Betreff eingeben" />
+                </div>
+                <div class="field-error-msg" *ngIf="fieldErrors['title']">
+                  {{ fieldErrors['title'] }}
                 </div>
               </div>
 
@@ -286,12 +289,12 @@
                 <div class="tab-heading">Kategorie</div>
               </div>
 
-              <div class="form-group" style="width: 50%">
+              <div #dropdownContainer class="form-group" style="width: 50%">
                 <div class="field-wrap dropdown-wrap" (click)="toggleDropdown($event)">
                   <!-- Selected value -->
                   <input
                     type="text"
-                    [value]="selectedCategory"
+                    [value]="selectedCategory?.serviceName || ''"
                     placeholder="Bitte wählen..."
                     readonly
                   />
@@ -306,9 +309,12 @@
                       *ngFor="let item of categories"
                       (click)="selectCategory(item, $event)"
                     >
-                      {{ item }}
+                      {{ item.serviceName }}
                     </div>
                   </div>
+                </div>
+                <div class="field-error-msg" *ngIf="fieldErrors['category']">
+                  {{ fieldErrors['category'] }}
                 </div>
               </div>
 
@@ -318,8 +324,12 @@
               <textarea
                 class="textarea"
                 rows="5"
+                [(ngModel)]="inquiryText"
                 placeholder="Wie können wir Ihnen weiterhelfen?"
               ></textarea>
+              <div class="field-error-msg" *ngIf="fieldErrors['inquiryText']">
+                {{ fieldErrors['inquiryText'] }}
+              </div>
 
               <div
                 style="
@@ -329,9 +339,24 @@
                   margin-top: 10px;
                 "
               >
-                <button class="btn-primary" (click)="toggleService(2)">
+                <!-- <button class="btn-primary" (click)="submitRequest()">
                   <span class="spinner"></span>
                   Anfrage abschicken
+                </button> -->
+
+                <button
+                  type="button"
+                  class="btn-primary"
+                  [disabled]="isLoadingNewReq"
+                  (click)="submitRequest()"
+                >
+                  <span *ngIf="isLoadingNewReq; else normal">
+                    <span class="spinner"></span> Einreichen...
+                  </span>
+
+                  <ng-template #normal>
+                    <span> Anfrage abschicken</span>
+                  </ng-template>
                 </button>
               </div>
             </div>
@@ -357,109 +382,183 @@
                   <div>Details</div>
                 </div>
 
-                <!-- Data Row -->
-                <div class="list-row">
-                  <div class="status">Warten auf Antwort vom Berater</div>
-                  <div>28.03.2026 - 18:13 Uhr</div>
-                  <div>Gewerbestrom Allgemein</div>
-                  <div>Letzte Rechnung vom 28.03.2026</div>
+                <div *ngIf="(openRequests?.length || 0) > 0; else noOpenReq">
+                  <!-- Dynamic Rows -->
+                  <div class="list-row" *ngFor="let req of openRequests">
+                    <div class="status">Warten auf Antwort vom Berater</div>
 
-                  <div class="details">
-                    <span class="link" (click)="openDetails()">anzeigen</span>
-                    <span class="material-symbols-outlined edit-icon"> edit_square </span>
-                  </div>
-                </div>
-              </div>
-            </div>
+                    <div>{{ formatDate(req.createdOn) }}</div>
 
-            <!--══════ Details Section ══════-->
-            <div *ngIf="showDetails" class="details-page">
-              <div class="chat-history">
-                <!-- Meta Info -->
-                <div class="form-group">
-                  <div class="tab-header">Hilfe zu Ihren Offenen Anfragen</div>
-                  <div class="tab-text">
-                    Hier finden Sie eine offene Anfrage, die Sie ergänzen können.
-                  </div>
-                </div>
+                    <div>{{ req.category }}</div>
 
-                <!-- Message -->
-                <div class="message-card right">
-                  <div class="message-title">
-                    Ihre Nachricht an den Berater vom 29.03.2026 - 07:58 Uhr
-                  </div>
-                  <div class="message-body">
-                    Hallo liebes Tarifvergleich.Bayern-Team,<br /><br />
-                    ich habe noch eine Bitte bezüglich der letzten Rechnung Nr. 1234567 vom
-                    28.03.2026. Inhaltlich ist diese korrekt, aber wäre es möglich, BLINDTEXT
-                    BLINDTEXT BLINDTEXT.........
-                    <br /><br />
-                    Viele Grüße<br />
-                    Marie Mustermann
+                    <div>{{ req.title }}</div>
+
+                    <div class="details">
+                      <span class="link" (click)="openDetails(req.serviceRequestId)">
+                        anzeigen
+                      </span>
+
+                      <span
+                        class="material-symbols-outlined edit-icon"
+                        (click)="openDetails(req.serviceRequestId)"
+                      >
+                        edit_square
+                      </span>
+                    </div>
                   </div>
                 </div>
 
-                <!-- Add new message -->
-                <div class="new-message-section">
-                  <!-- Heading -->
-                  <div class="new-message-title">Neue Nachricht hinzufügen</div>
-
-                  <!-- Input Field -->
-                  <textarea
-                    class="new-message-input"
-                    placeholder="Ihre Nachricht eingeben..."
-                  ></textarea>
-                </div>
-                <!-- Action Button -->
-                <div
-                  style="
-                    display: flex;
-                    flex-direction: row;
-                    justify-content: flex-end;
-                    margin-top: 10px;
-                  "
-                >
-                  <button class="btn-primary">
-                    <span class="spinner"></span>
-                    Nachricht abschicken
-                  </button>
-                </div>
+                <!-- Empty state -->
+                <ng-template #noOpenReq>
+                  <div class="empty-state">Keine offenen Anfragen vorhanden</div>
+                </ng-template>
               </div>
             </div>
           </div>
 
           <!--══════════ In Progress Section ══════════-->
           <div style="width: 100%" *ngIf="activeTab === 4 && currentStep === 1 && serviceTab === 3">
-            <div class="form-group">
-              <div class="tab-header">
-                In der Übersicht können Sie Ihre Anfragen einsehen und verwalten.
-              </div>
-              <div class="tab-text">
-                Klicken Sie einfach die Anfrage an, die Sie einsehen möchten
-              </div>
-            </div>
-            <div class="request-list no-padding-child">
-              <!-- Header Row -->
-              <div class="list-header">
-                <div>Status</div>
-                <div>erstellt am</div>
-                <div>Kategorie</div>
-                <div>Betreff</div>
-                <div>Details</div>
-              </div>
-
-              <!-- Data Row -->
-              <div class="list-row">
-                <div class="status">Wird vom Berater bearbeitet</div>
-                <div>28.03.2026 - 18:13 Uhr</div>
-                <div>Gewerbestrom Allgemein</div>
-                <div>Letzte Rechnung vom 28.03.2026</div>
-
-                <div class="details">
-                  <span class="link">anzeigen</span>
-                  <span class="material-symbols-outlined edit-icon"> edit_square </span>
+            <div *ngIf="showList">
+              <div class="form-group">
+                <div class="tab-header">
+                  In der Übersicht können Sie Ihre Anfragen einsehen und verwalten.
+                </div>
+                <div class="tab-text">
+                  Klicken Sie einfach die Anfrage an, die Sie einsehen möchten
                 </div>
               </div>
+              <div class="request-list no-padding-child">
+                <!-- Header Row -->
+                <div class="list-header">
+                  <div>Status</div>
+                  <div>erstellt am</div>
+                  <div>Kategorie</div>
+                  <div>Betreff</div>
+                  <div>Details</div>
+                </div>
+
+                <div *ngIf="(inProgressRequests?.length || 0) > 0; else noProgress">
+                  <!-- Data Row -->
+                  <div class="list-row" *ngFor="let req of inProgressRequests">
+                    <div class="status">Wird vom Berater bearbeitet</div>
+
+                    <div>{{ formatDate(req.createdOn) }}</div>
+
+                    <div>{{ req.category }}</div>
+
+                    <div>{{ req.title }}</div>
+
+                    <div class="details">
+                      <span class="link" (click)="openDetails(req.serviceRequestId)">
+                        anzeigen
+                      </span>
+
+                      <span
+                        class="material-symbols-outlined edit-icon"
+                        (click)="openDetails(req.serviceRequestId)"
+                      >
+                        edit_square
+                      </span>
+                    </div>
+                  </div>
+                </div>
+                <!-- Empty state -->
+                <ng-template #noProgress>
+                  <div class="empty-state">Keine Anfragen in Bearbeitung vorhanden</div>
+                </ng-template>
+              </div>
+            </div>
+          </div>
+
+          <!--══════════  Chat message Section ══════════ -->
+
+          <div *ngIf="showDetails" class="details-page">
+            <!-- 🔹 Header (Open / Closed) -->
+            <ng-container *ngIf="!isClosed; else closedHeader">
+              <div class="form-group">
+                <div class="tab-header">Hilfe zu Ihren Offenen Anfragen</div>
+                <div class="tab-text">
+                  Hier finden Sie eine offene Anfrage, die Sie ergänzen können.
+                </div>
+              </div>
+            </ng-container>
+
+            <ng-template #closedHeader>
+              <div class="form-group">
+                <div class="tab-header">
+                  In der Übersicht können Sie Ihre Anfragen einsehen und verwalten.
+                </div>
+                <div class="tab-text">
+                  Sie können diese Nachrichten durch Anklicken auf „Anfrage wieder eröffnen“
+                  bearbeiten.
+                </div>
+              </div>
+
+              <br />
+
+              <div class="attorney-berich no-padding-child">
+                Ihr Nachrichtenverlauf im Überblick:
+              </div>
+            </ng-template>
+
+            <div class="chat-history">
+              <div class="chat-meta" *ngIf="isClosed">
+                <div>
+                  <strong>Datum:</strong>
+                  {{ createdOn ? formatDateOnly(createdOn) : '' }}
+                  -
+                  {{ requestClosedOn ? formatDateOnly(requestClosedOn) : '' }}
+                </div>
+                <div><strong>Kategorie:</strong> {{ chatCategory }}</div>
+                <div><strong>Titel:</strong> {{ chatTitle }}</div>
+              </div>
+
+              <!-- Messages (COMMON) -->
+              <div class="message-container">
+                <div
+                  class="message-card"
+                  *ngFor="let msg of messages"
+                  [ngClass]="msg.type === 'customer' ? 'right' : 'left'"
+                >
+                  <div class="message-title">
+                    {{ msg.title }}
+                  </div>
+                  <div class="message-body" [innerHTML]="msg.message"></div>
+                </div>
+              </div>
+
+              <!-- Open state: input -->
+              <ng-container *ngIf="!isClosed">
+                <div class="new-message-section">
+                  <div class="new-message-title">Neue Nachricht hinzufügen</div>
+
+                  <textarea
+                    class="new-message-input"
+                    [(ngModel)]="newMessage"
+                    placeholder="Ihre Nachricht eingeben..."
+                  ></textarea>
+                </div>
+
+                <div class="action-row">
+                  <button
+                    class="btn-primary"
+                    (click)="sendMessage(currentServiceRequestId)"
+                    [disabled]="isLoadingNewMsg"
+                  >
+                    <span *ngIf="isLoadingNewMsg" class="spinner"></span>
+                    Nachricht abschicken
+                  </button>
+                </div>
+              </ng-container>
+
+              <!-- Closed state: reopen button -->
+              <ng-container *ngIf="isClosed">
+                <div class="action-row">
+                  <button class="btn-primary" (click)="confirmation(currentServiceRequestId)">
+                    Anfrage wieder eröffnen
+                  </button>
+                </div>
+              </ng-container>
             </div>
           </div>
 
@@ -486,133 +585,38 @@
                   <div>Details</div>
                 </div>
 
-                <!-- Data Row -->
-                <div class="list-row">
-                  <div class="status">Abgeschlossen</div>
-                  <div>28.03.2026 - 18:13 Uhr</div>
-                  <div>Gewerbestrom Allgemein</div>
-                  <div>Letzte Rechnung vom 28.03.2026</div>
+                <div *ngIf="(closedRequests?.length || 0) > 0; else noClosed">
+                  <!-- Data Row -->
+                  <div class="list-row" *ngFor="let req of closedRequests">
+                    <div class="status">Abgeschlossen</div>
 
-                  <div class="details">
-                    <span class="link" (click)="openDetails()">anzeigen</span>
-                    <span class="material-symbols-outlined edit-icon"> edit_square </span>
+                    <div>{{ formatDate(req.createdOn) }}</div>
+
+                    <div>{{ req.category }}</div>
+
+                    <div>{{ req.title }}</div>
+
+                    <div class="details">
+                      <span class="link" (click)="openDetails(req.serviceRequestId)">
+                        anzeigen
+                      </span>
+
+                      <span
+                        class="material-symbols-outlined edit-icon"
+                        (click)="openDetails(req.serviceRequestId)"
+                      >
+                        edit_square
+                      </span>
+                    </div>
                   </div>
                 </div>
-                <div class="list-row">
-                  <div class="status">Abgeschlossen</div>
-                  <div>28.03.2026 - 19:12 Uhr</div>
-                  <div>Gewerbestrom Allgemein</div>
-                  <div>Re: Letzte Rechnung vom 28.03.2026</div>
-
-                  <div class="details">
-                    <span class="link" (click)="openDetails()">anzeigen</span>
-                    <span class="material-symbols-outlined edit-icon"> edit_square </span>
-                  </div>
-                </div>
-                <div class="list-row">
-                  <div class="status">Abgeschlossen</div>
-                  <div>29.03.2026 - 07:58 Uhr</div>
-                  <div>Gewerbestrom Allgemein</div>
-                  <div>Re: Re: Letzte Rechnung vom 28.03.2026</div>
-
-                  <div class="details">
-                    <span class="link" (click)="openDetails()">anzeigen</span>
-                    <span class="material-symbols-outlined edit-icon"> edit_square </span>
-                  </div>
-                </div>
+                <!-- Empty state -->
+                <ng-template #noClosed>
+                  <div class="empty-state">Es sind keine abgeschlossenen Anfragen vorhanden</div>
+                </ng-template>
               </div>
             </div>
-            <!--══════ Details Section ══════-->
-            <div *ngIf="showDetails" class="details-page">
-              <div class="form-group">
-                <div class="tab-header">
-                  In der Übersicht können Sie Ihre Anfragen einsehen und verwalten.
-                </div>
-                <div class="tab-text">
-                  Sie können diese Nachrichten durch anklicken auf „Anfrage wieder eröffnen“
-                  bearbeiten.
-                </div>
-              </div>
-              <br />
-              <div class="attorney-berich no-padding-child">
-                Ihr Nachrichtenverlauf im Überblick:
-              </div>
 
-              <div class="chat-history">
-                <!-- Meta Info -->
-                <div class="chat-meta">
-                  <div><strong>Datum:</strong> 28.03.2026 - 29.03.2026</div>
-                  <div><strong>Kategorie:</strong> Gewerbestrom Allgemein</div>
-                  <div><strong>Titel:</strong> Letzte Rechnung vom 28.03.2026</div>
-                </div>
-
-                <!-- Message 1 -->
-                <div class="message-card right">
-                  <div class="message-title">
-                    Ihre Nachricht an den Berater vom 29.03.2026 - 07:58 Uhr
-                  </div>
-                  <div class="message-body">
-                    Hallo liebes Tarifvergleich.Bayern-Team,<br /><br />
-                    ich habe noch eine Bitte bezüglich der letzten Rechnung Nr. 1234567 vom
-                    28.03.2026. Inhaltlich ist diese korrekt, aber wäre es möglich, BLINDTEXT
-                    BLINDTEXT BLINDTEXT.........
-                    <br /><br />
-                    Viele Grüße<br />
-                    Marie Mustermann
-                  </div>
-                </div>
-
-                <!-- Message 2 -->
-                <div class="message-card left">
-                  <div class="message-title">
-                    Nachricht von Ihrem Berater vom 28.03.2026 - 19:12 Uhr
-                  </div>
-                  <div class="message-body">
-                    Sehr geehrte Frau Mustermann,<br /><br />
-                    vielen Dank für ihre Anfrage vom 28.03.2026 - 18:13 Uhr bezüglich der letzten
-                    Rechnung Nr. 1234567. Wir haben diese geprüft und die von Ihnen gewünschte
-                    Änderung vorgenommen. Die geänderte Rechnung wurde an Ihre E-Mail-Adresse
-                    gesendet.
-                    <br /><br />
-                    Für weitere Rückfragen stehe ich Ihnen gern zur Verfügung.<br />
-                    Mit vielen Grüßen<br /><br />
-                    Manuel Markovic<br />
-                    Kundenberater
-                  </div>
-                </div>
-
-                <!-- Message 3 -->
-                <div class="message-card right">
-                  <div class="message-title">
-                    Ihre Nachricht an den Berater vom 28.03.2026 - 18:13 Uhr
-                  </div>
-                  <div class="message-body">
-                    Hallo,<br /><br />
-                    bei der geänderten Rechnung 123456 vom 28.03.2026 ist mir aufgefallen, dass ich
-                    folgende Angabe vergessen hatte, können Sie diesen noch einfügen und mir die
-                    Rechnung erneut zukommen lassen? Sorry für die Umstände.
-                    <br /><br />
-                    Viele Grüße<br />
-                    Maria Mustermann
-                  </div>
-                </div>
-
-                <!-- Action Button -->
-                <div
-                  style="
-                    display: flex;
-                    flex-direction: row;
-                    justify-content: flex-end;
-                    margin-top: 10px;
-                  "
-                >
-                  <button class="btn-primary" (click)="confirmation()">
-                    <span class="spinner"></span>
-                    Anfrage wieder eröffnen
-                  </button>
-                </div>
-              </div>
-            </div>
             <!--══════ Confirmation Section ══════-->
             <div *ngIf="confirmationList" class="details-page">
               <div class="form-group">
@@ -631,9 +635,14 @@
               <div class="chat-history">
                 <!-- Meta Info -->
                 <div style="padding: 10px 0px">
-                  <div><strong>Datum:</strong> 28.03.2026 - 29.03.2026</div>
-                  <div><strong>Kategorie:</strong> Gewerbestrom Allgemein</div>
-                  <div><strong>Titel:</strong> Letzte Rechnung vom 28.03.2026</div>
+                  <div>
+                    <strong>Datum:</strong>
+                    {{ createdOn ? formatDateOnly(createdOn) : '' }}
+                    -
+                    {{ requestClosedOn ? formatDateOnly(requestClosedOn) : '' }}
+                  </div>
+                  <div><strong>Kategorie:</strong> {{ chatCategory }}</div>
+                  <div><strong>Titel:</strong> {{ chatTitle }}</div>
                 </div>
                 <div class="history-confirmation">
                   <strong> Wollen Sie die Serviceanfrage wirklich wieder eröffnen? </strong>
@@ -661,7 +670,10 @@
                       <span class="field-label">
                         Bitte Grund angeben, z.B. neue Informationen zufügen
                       </span>
-                      <input type="text" />
+                      <input type="text" [(ngModel)]="reopenReason" />
+                    </div>
+                    <div class="field-error-msg" *ngIf="fieldErrors['reopenReason']">
+                      {{ fieldErrors['reopenReason'] }}
                     </div>
                   </div>
                 </div>
@@ -676,12 +688,22 @@
                   gap: 20px;
                 "
               >
-                <button class="btn-primary">
-                  <span class="spinner"></span>
-                  Nachricht abschicken und Serviceanfrage wieder eröffnen
+                <button
+                  type="button"
+                  class="btn-primary"
+                  [disabled]="isLoadingReopen"
+                  (click)="reOpenservice(currentServiceRequestId)"
+                >
+                  <span *ngIf="isLoadingReopen; else normal">
+                    <span class="spinner"></span> Einreichen...
+                  </span>
+
+                  <ng-template #normal>
+                    <span> Nachricht abschicken und Serviceanfrage wieder eröffnen</span>
+                  </ng-template>
                 </button>
 
-                <button class="btn-primary" style="margin-left: inherit">
+                <button class="btn-primary" style="margin-left: inherit" (click)="toggleService(1)">
                   <span class="spinner"></span>
                   Neue Anfrage stellen
                 </button>
@@ -1281,7 +1303,7 @@
               <div class="document-item" *ngFor="let doc of miscellaneousDocuments">
                 <!-- BOX (border only here) -->
                 <div class="document-card">
-                  <div class="document-top" style="justify-content: normal;">
+                  <div class="document-top" style="justify-content: normal">
                     <!-- LEFT SIDE -->
                     <div class="document-left">
                       <div class="document-title">{{ doc.title }}</div>
@@ -1329,6 +1351,8 @@
           </div>
         </div>
       </div>
+
+      <!--══════════ Document archive Section End ══════════-->
 
       <!-- ══════════ Reset Password Start (Tab - 7) ══════════-->
 
@@ -1572,31 +1596,15 @@
 
               <span *ngIf="!isResendDisabled"> Code erneut senden </span>
             </span>
-            <span *ngIf="resendSuccess" style="color: green; margin-left: 8px"
+            <!-- <span *ngIf="resendSuccess" style="color: green; margin-left: 8px"
               >✓ Code gesendet</span
-            >
+            > -->
           </div>
 
           <div style="display: flex; flex-direction: row; justify-content: space-between">
             <button class="btn-back" (click)="nextStep(1)" style="cursor: pointer">
               &lt; Zurück
             </button>
-            <!-- <div class="form-actions">
-              <button
-                class="btn-primary"
-                [disabled]="isLoading || otpValue.length < 6"
-                (click)="verifyOtp()"
-              >
-                <span *ngIf="isLoading" class="spinner"></span>
-                {{
-                  isLoading
-                    ? 'Prüfen...'
-                    : otpInvalid || newOtp
-                      ? 'Code erneut prüfen'
-                      : 'Code prüfen'
-                }}
-              </button>
-            </div> -->
             <div class="form-actions">
               <button
                 type="button"

@@ -18,6 +18,18 @@ import { MatIconModule } from '@angular/material/icon';
 import { FormsModule } from '@angular/forms';
 
 const API_BASE = 'http://192.168.0.155:8080';
+interface Card {
+  logo: string;
+  title: string;
+  deliveryId: number;
+  date: string;
+  data: {
+    label: string;
+    value: string;
+    icon: string;
+  }[];
+}
+
 @Component({
   selector: 'app-customer',
   imports: [
@@ -52,13 +64,15 @@ export class Customer {
   ];
 
   /* ── Tab control ──────────────────────────────────────────────── */
-  activeTab: number = 6;
+  activeTab: number = 4;
   serviceTab: number = 1;
   documentTab: number = 0;
   /* ── Step control ──────────────────────────────────────────────── */
   currentStep: number = 1;
   /* ── Customer Type (Personal/Business) ──────────────────────────────────────────────── */
   customerType: number = 1;
+
+  fieldErrors: Record<string, string> = {};
 
   customerData: any = {
     id: null,
@@ -80,12 +94,22 @@ export class Customer {
     deliveryDetails: [],
   };
   isLoading = true;
+  isLoadingNewReq: boolean = false;
+  isLoadingNewMsg: boolean = false;
+  isLoadingReopen: boolean = false;
 
   setActiveTab(index: number) {
     this.activeTab = index;
     this.currentStep = 1;
     this.serviceTab = 1;
     this.documentTab = 0;
+    this.selectedIndex = -1;
+    this.resetForm();
+
+    if (this.activeTab == 4) {
+      this.fetchServiceCount();
+    }
+    this.cdr.detectChanges();
   }
 
   nextStep(step: number) {
@@ -128,6 +152,8 @@ export class Customer {
   }
 
   ngOnInit(): void {
+    this.fetchAllRequests();
+    this.fetchServiceCount();
     this.fetchCustomer();
     this.fetchCards();
     this.fetchCategories('general');
@@ -142,52 +168,48 @@ export class Customer {
       id: Number(customerId),
     };
 
-    this.isLoading = true;
+    this.http.post<any>(`${API_BASE}/customer/fetch-customer-detail`, body).subscribe({
+      next: (res) => {
+        if (!res?.res || !res?.data) {
+          console.error('Invalid response');
+          // this.isLoading = false;
+          return;
+        }
 
-    this.http
-      .post<any>('http://192.168.0.155:8080/customer/fetch-customer-detail', body)
-      .subscribe({
-        next: (res) => {
-          if (!res?.res || !res?.data) {
-            console.error('Invalid response');
-            this.isLoading = false;
-            return;
-          }
+        const data = res.data;
 
-          const data = res.data;
+        this.customerData = {
+          id: data.id,
+          name: `${data?.firstName || ''} ${data?.lastName || ''}`.trim(),
+          email: data.email || '',
+          phone: data.mobileNumber || '',
+          salutation: data.salutation || '',
+          title: data.title || '',
+          userType: data.userType || '',
+          companyName: data.companyName || '',
+          isVerified: data.isVerified || false,
+          joinedOn: data.joinedOn || null,
 
-          this.customerData = {
-            id: data.id,
-            name: `${data?.firstName || ''} ${data?.lastName || ''}`.trim(),
-            email: data.email || '',
-            phone: data.mobileNumber || '',
-            salutation: data.salutation || '',
-            title: data.title || '',
-            userType: data.userType || '',
-            companyName: data.companyName || '',
-            isVerified: data.isVerified || false,
-            joinedOn: data.joinedOn || null,
+          address: {
+            zip: data?.address?.zip || '',
+            city: data?.address?.city || '',
+            street: data?.address?.street || '',
+            houseNumber: data?.address?.houseNumber || '',
+          },
 
-            address: {
-              zip: data?.address?.zip || '',
-              city: data?.address?.city || '',
-              street: data?.address?.street || '',
-              houseNumber: data?.address?.houseNumber || '',
-            },
+          deliveryDetails: data.deliveryDetails || [],
+        };
 
-            deliveryDetails: data.deliveryDetails || [],
-          };
+        console.log('customerData:', this.customerData);
 
-          console.log('customerData:', this.customerData);
-
-          this.cdr.detectChanges();
-          this.isLoading = false;
-        },
-        error: (err) => {
-          console.error('API Error:', err);
-          this.isLoading = false;
-        },
-      });
+        this.cdr.detectChanges();
+        // this.isLoading = false;
+      },
+      error: (err) => {
+        console.error('API Error:', err);
+        // this.isLoading = false;
+      },
+    });
   }
 
   /* ════════════════════════════════════════════════════════════════════════════════════════════════*/
@@ -199,9 +221,100 @@ export class Customer {
   confirmationList = false;
   showDropdown = false;
   selectedIndex: number = -1; // -1 = Orange card selected by default
-  selectedCategory = '';
+  selectedCategory: any = null;
+  selectedDeliveryId: number = 0;
+  title: string = '';
+  inquiryText: string = '';
+  categories: { serviceId: number; serviceName: string; serviceType: string }[] = [];
+  messages: any[] = [];
+  currentServiceRequestId: number = 0;
+  newMessage: string = '';
 
-  categories = [];
+  openCount: number = 0;
+  closedCount: number = 0;
+  progressCount: number = 0;
+
+  openRequests: any[] = [];
+  inProgressRequests: any[] = [];
+  closedRequests: any[] = [];
+
+  fetchAllRequests() {
+    const payload = {
+      id: this.authService.getUserId(),
+    };
+
+    this.isLoading = true;
+
+    this.http.post<any>(`${API_BASE}/customer/fetch-all-requests`, payload).subscribe({
+      next: (res) => {
+        this.isLoading = false;
+
+        if (!res?.res) {
+          console.error('Invalid response');
+          this.resetRequests();
+          return;
+        }
+
+        this.openRequests = this.mapRequests(res.openRequests || []);
+        this.inProgressRequests = this.mapRequests(res.inProgressRequets || []);
+        this.closedRequests = this.mapRequests(res.closedRequests || []);
+        this.cdr.detectChanges();
+
+        console.log('All Requests:', res);
+      },
+      error: (err) => {
+        this.isLoading = false;
+        console.error('API Error:', err);
+        this.resetRequests();
+      },
+    });
+  }
+
+  mapRequests(list: any[]) {
+    return list.map((item: any) => ({
+      title: item.title,
+      category: item.serviceName,
+      ticketNumber: item.ticketNumber,
+      createdOn: item.createdOn,
+      closedOn: item.requestClosedOn,
+      serviceRequestId: item.serviceRequestId,
+
+      // UI helpers
+      date: this.formatDateOnly(item.createdOn),
+      status: item.isClosed ? 'closed' : item.inProgress ? 'progress' : 'open',
+    }));
+  }
+
+  resetRequests() {
+    this.openRequests = [];
+    this.inProgressRequests = [];
+    this.closedRequests = [];
+  }
+
+  fetchServiceCount() {
+    const payload = {
+      id: this.authService.getUserId(),
+    };
+
+    this.http.post<any>(`${API_BASE}/customer/fetch-service-count`, payload).subscribe({
+      next: (res) => {
+        if (!res?.res) {
+          console.error('Invalid response');
+          return;
+        }
+
+        this.openCount = res.open ?? 0;
+        this.closedCount = res.closed ?? 0;
+        this.progressCount = res.progress ?? 0;
+        this.cdr.detectChanges();
+
+        console.log('Counts:', res);
+      },
+      error: (err) => {
+        console.error('API Error:', err);
+      },
+    });
+  }
 
   private fetchCategories(serviceType: string): void {
     this.isLoading = true;
@@ -209,65 +322,306 @@ export class Customer {
       adminId: 1,
       serviceType: serviceType,
     };
-    this.http
-      .post<any>('http://192.168.0.155:8080/customer/fetch-cutomer-service', body)
-      .subscribe({
-        next: (res) => {
-          if (!res?.res || !res?.data) {
-            console.error('Invalid response');
-            this.categories = [];
-            this.isLoading = false;
-            return;
-          }
-
-          this.categories = res.data.map((item: any) => item.serviceName || '');
-
-          console.log('categories:', this.categories);
-
-          this.cdr.detectChanges();
-          this.isLoading = false;
-        },
-        error: (err) => {
-          console.error('API Error:', err);
+    this.http.post<any>(`${API_BASE}/customer/fetch-cutomer-service`, body).subscribe({
+      next: (res) => {
+        if (!res?.res || !res?.data) {
+          console.error('Invalid response');
           this.categories = [];
           this.isLoading = false;
-        },
-      });
+          return;
+        }
+
+        // this.categories = res.data.map((item: any) => item.serviceName || '');
+
+        this.categories = res.data.map((item: any) => ({
+          serviceId: item.serviceId,
+          serviceName: item.serviceName || '',
+        }));
+
+        console.log('categories:', this.categories);
+
+        this.cdr.detectChanges();
+        this.isLoading = false;
+      },
+      error: (err) => {
+        console.error('API Error:', err);
+        this.categories = [];
+        this.isLoading = false;
+      },
+    });
   }
 
-  selectCard(index: number) {
+  selectCard(index: number, deliveryId: number) {
     this.selectedIndex = index;
+    this.selectedDeliveryId = deliveryId;
     this.selectedCategory = '';
     this.fetchCategories('delivery');
+    this.cdr.detectChanges();
   }
 
   selectOrangeCard() {
     this.selectedIndex = -1;
+    this.selectedDeliveryId = 0;
     this.selectedCategory = '';
     this.fetchCategories('general');
+    this.cdr.detectChanges();
   }
+
   toggleDropdown(event: Event) {
     event.stopPropagation();
     this.showDropdown = !this.showDropdown;
   }
 
-  selectCategory(item: string, event: Event) {
+  selectCategory(item: any, event: Event) {
     event.stopPropagation();
     this.selectedCategory = item;
     this.showDropdown = false;
   }
 
+  validateForm(): boolean {
+    this.fieldErrors = {};
+
+    let isValid = true;
+
+    if (!this.title || !this.title.trim()) {
+      this.fieldErrors['title'] = 'Bitte Titel eingeben';
+      isValid = false;
+    }
+
+    if (!this.selectedCategory) {
+      this.fieldErrors['category'] = 'Bitte Kategorie wählen';
+      isValid = false;
+    }
+
+    if (!this.inquiryText || !this.inquiryText.trim()) {
+      this.fieldErrors['inquiryText'] = 'Bitte Anfragetext eingeben';
+      isValid = false;
+    }
+
+    return isValid;
+  }
+
+  submitRequest() {
+    if (!this.validateForm()) return;
+
+    const payload = {
+      customerId: this.authService.getUserId(),
+      title: this.title,
+      serviceId: this.selectedCategory.serviceId,
+      message: this.inquiryText,
+      serviceRequestType: this.selectedIndex === -1 ? 'general' : 'delivery',
+      deliveryId: this.selectedDeliveryId,
+    };
+
+    console.log('Final Payload:', payload);
+
+    this.isLoading = true;
+
+    this.http.post<any>(`${API_BASE}/customer/add-service-request`, payload).subscribe({
+      next: (res) => {
+        this.isLoading = false;
+
+        if (res?.res === true) {
+          console.log('Request submitted successfully');
+
+          this.fetchAllRequests();
+          this.fetchServiceCount();
+          this.toggleService(2);
+
+          this.resetForm();
+          this.cdr.detectChanges();
+        } else {
+          console.error('Invalid response', res);
+        }
+      },
+      error: (err) => {
+        this.isLoading = false;
+        console.error('API Error:', err);
+      },
+    });
+  }
+
+  resetForm() {
+    this.title = '';
+    this.selectedCategory = null;
+    this.inquiryText = '';
+    this.selectedIndex = -1;
+    this.selectedDeliveryId = 0;
+    this.clearPwdField();
+    this.fieldErrors = {};
+  }
+
+  @ViewChild('dropdownContainer') dropdownContainer!: ElementRef;
+
   // Outside click listener
   @HostListener('document:click', ['$event'])
   clickOutside(event: Event) {
-    if (!this.eRef.nativeElement.contains(event.target)) {
+    if (
+      this.showDropdown &&
+      this.dropdownContainer &&
+      !this.dropdownContainer.nativeElement.contains(event.target)
+    ) {
       this.showDropdown = false;
     }
   }
 
-  openDetails() {
+  openDetails(serviceRequestId: number) {
     this.showList = false;
     this.showDetails = true;
+    this.fetchMessages(serviceRequestId);
+  }
+
+  isClosed: boolean = false;
+  chatCategory: string = '';
+  chatTitle: string = '';
+  requestClosedOn: number | null = null;
+  createdOn: number | null = null;
+  reopenReason: string = '';
+
+  fetchMessages(serviceRequestId: number) {
+    const payload = {
+      serviceRequestId: serviceRequestId,
+    };
+
+    this.isLoading = true;
+
+    this.http.post<any>(`${API_BASE}/customer/fetch-request-messages`, payload).subscribe({
+      next: ({ res, data }) => {
+        this.isLoading = false;
+
+        if (res && data) {
+          this.isClosed = data.isClosed;
+          this.chatCategory = data.serviceName;
+          this.chatTitle = data.title;
+          this.createdOn = data.createdOn;
+          this.currentServiceRequestId = serviceRequestId;
+          this.requestClosedOn = data.requestClosedOn ?? null;
+          this.messages = data.messages.map((item: any) => ({
+            message: item.message.replace(/\n/g, '<br>'),
+            type: item.chatUser === 'CUSTOMER' ? 'customer' : 'admin',
+            title: `${
+              item.chatUser === 'CUSTOMER'
+                ? 'Ihre Nachricht an den Berater vom'
+                : 'Antwort vom Berater'
+            } • ${this.formatDate(item.sendOn)}`,
+          }));
+
+          this.cdr.detectChanges();
+          console.log('messages:', this.messages);
+        } else {
+          this.messages = [];
+        }
+      },
+      error: (err) => {
+        this.isLoading = false;
+        console.error('API Error:', err);
+        this.messages = [];
+      },
+    });
+  }
+
+  sendMessage(serviceRequestId: number) {
+    if (!this.newMessage || !this.newMessage.trim()) return;
+
+    const payload = {
+      serviceRequestId: serviceRequestId,
+      customerId: this.authService.getUserId(),
+      message: this.newMessage,
+    };
+
+    this.isLoading = true;
+
+    this.http.post<any>(`${API_BASE}/customer/add-service-request`, payload).subscribe({
+      next: (res) => {
+        this.isLoading = false;
+
+        if (res?.res === true) {
+          this.messages.push({
+            message: res.messageBody.replace(/\n/g, '<br>'),
+            type: 'customer',
+            title: `Ihre Nachricht an den Berater vom • ${this.formatDate(res.sendOn)}`,
+          });
+
+          this.newMessage = '';
+          this.cdr.detectChanges();
+        }
+      },
+      error: (err) => {
+        this.isLoading = false;
+        console.error('API Error:', err);
+      },
+    });
+  }
+
+  validateReopen(): boolean {
+    this.fieldErrors = {};
+
+    if (!this.reopenReason || !this.reopenReason.trim()) {
+      this.fieldErrors['reopenReason'] = 'Bitte Grund eingeben';
+      return false;
+    }
+
+    return true;
+  }
+
+  clearServiceId() {
+    this.currentServiceRequestId = 0;
+  }
+
+  reOpenservice(serviceRequestId: number) {
+    if (!this.validateReopen()) return;
+
+    const payload = {
+      serviceRequestId: serviceRequestId,
+      customerId: this.authService.getUserId(),
+      message: this.reopenReason,
+    };
+
+    this.isLoading = true;
+
+    this.http.post<any>(`${API_BASE}/customer/add-service-request`, payload).subscribe({
+      next: (res) => {
+        this.isLoading = false;
+
+        if (res?.res) {
+          this.reopenReason = '';
+
+          this.toggleService(2);
+          this.clearServiceId();
+          this.fetchServiceCount();
+          this.cdr.detectChanges();
+
+          console.log('Reopened successfully');
+        }
+      },
+      error: (err) => {
+        this.isLoading = false;
+        console.error('API Error:', err);
+      },
+    });
+  }
+
+  formatDateOnly(timestamp: number): string {
+    const date = new Date(timestamp * 1000);
+
+    const day = String(date.getDate()).padStart(2, '0');
+    const month = String(date.getMonth() + 1).padStart(2, '0');
+    const year = date.getFullYear();
+
+    return `${day}.${month}.${year}`;
+  }
+
+  formatDate(timestamp: number): string {
+    const date = new Date(timestamp * 1000);
+
+    const day = String(date.getDate()).padStart(2, '0');
+    const month = String(date.getMonth() + 1).padStart(2, '0');
+    const year = date.getFullYear();
+
+    const hours = String(date.getHours()).padStart(2, '0');
+    const minutes = String(date.getMinutes()).padStart(2, '0');
+
+    return `${day}.${month}.${year} - ${hours}:${minutes} Uhr`;
   }
 
   toggleService(step: number) {
@@ -276,71 +630,21 @@ export class Customer {
     this.showList = true;
     this.showDetails = false;
     this.confirmationList = false;
+    this.resetForm();
   }
+
   backToList() {
     this.showList = true;
     this.showDetails = false;
   }
-  confirmation() {
+
+  confirmation(serviceRequestId: number) {
     this.showList = false;
     this.showDetails = false;
     this.confirmationList = true;
   }
 
-  cards = [
-    {
-      logo: 'assets/icons/Icons_energyprovider/eon.png',
-      title: 'E.ON Ökostrom Extra 12',
-      date: '27.03.2026',
-      data: [
-        { label: 'Zählernummer:', value: 'XXX-1399-24689-07', icon: 'meter' },
-        { label: 'Adresse:', value: 'Marie Mustermann, Musterstraße 4a', icon: 'home' },
-        { label: 'Stromtyp:', value: 'Hausstrom', icon: 'current' },
-        { label: 'Vertragsnummer:', value: 'ÖKO-234-6789-87451', icon: 'doc' },
-      ],
-    },
-    {
-      logo: 'assets/icons/Icons_energyprovider/vattenfall.png',
-      title: 'Strom XXL Extra 12',
-      date: '14.09.2026',
-      data: [
-        { label: 'Zählernummer:', value: 'B-3951-875429-07', icon: 'meter' },
-        {
-          label: 'Adresse:',
-          value: 'Marie Mustermann Mustertraße 4a 67890 Musterhausen',
-          icon: 'home',
-        },
-        { label: 'Stromtyp:', value: 'Hausstrom', icon: 'current' },
-        { label: 'Vertragsnummer:', value: 'Flex-555-697945100', icon: 'doc' },
-      ],
-    },
-    {
-      logo: 'assets/icons/Icons_energyprovider/eon.png',
-      title: 'E.ON Ökostrom Extra 12',
-      date: '27.03.2026',
-      data: [
-        { label: 'Zählernummer:', value: 'XXX-1399-24689-07', icon: 'meter' },
-        { label: 'Adresse:', value: 'Marie Mustermann, Musterstraße 4a', icon: 'home' },
-        { label: 'Stromtyp:', value: 'Hausstrom', icon: 'current' },
-        { label: 'Vertragsnummer:', value: 'ÖKO-234-6789-87451', icon: 'doc' },
-      ],
-    },
-    {
-      logo: 'assets/icons/Icons_energyprovider/vattenfall.png',
-      title: 'Strom XXL Extra 12',
-      date: '14.09.2026',
-      data: [
-        { label: 'Zählernummer:', value: 'B-3951-875429-07', icon: 'meter' },
-        {
-          label: 'Adresse:',
-          value: 'Marie Mustermann Mustertraße 4a 67890 Musterhausen',
-          icon: 'home',
-        },
-        { label: 'Stromtyp:', value: 'Hausstrom', icon: 'current' },
-        { label: 'Vertragsnummer:', value: 'Flex-555-697945100', icon: 'doc' },
-      ],
-    },
-  ];
+  cards: any[] = [];
 
   private fetchCards(): void {
     const customerId = this.authService.getUserId() || 0;
@@ -351,67 +655,66 @@ export class Customer {
 
     this.isLoading = true;
 
-    this.http
-      .post<any>('http://192.168.0.155:8080/customer/fetch-placed-deliveries', body)
-      .subscribe({
-        next: (res) => {
-          if (!res?.res || !res?.delivery) {
-            console.error('Invalid response');
-            this.cards = [];
-            this.isLoading = false;
-            return;
-          }
-
-          this.cards = res.delivery.map((item: any) => {
-            const address = item?.customerAddress;
-
-            return {
-              logo: item?.provider?.providerSVG || 'assets/default.png',
-
-              title: item?.provider?.rateName || '',
-
-              date: item?.deliveryDate
-                ? new Date(item.deliveryDate * 1000).toLocaleDateString('de-DE')
-                : '',
-
-              data: [
-                {
-                  label: 'Zählernummer:',
-                  value: item?.connection?.meterNumber || '',
-                  icon: 'meter',
-                },
-                {
-                  label: 'Adresse:',
-                  value: address
-                    ? `${address.street || ''} ${address.houseNumber || ''}, ${address.zip || ''} ${address.city || ''}`
-                    : '',
-                  icon: 'home',
-                },
-                {
-                  label: 'Stromtyp:',
-                  value: item?.provider?.branch || '',
-                  icon: 'current',
-                },
-                {
-                  label: 'Vertragsnummer:',
-                  value: item?.uniqueDeliveryId || '',
-                  icon: 'doc',
-                },
-              ],
-            };
-          });
-
-          console.log('cards:', this.cards);
-
-          this.cdr.detectChanges();
-          this.isLoading = false;
-        },
-        error: (err) => {
-          console.error('API Error:', err);
+    this.http.post<any>(`${API_BASE}/customer/fetch-placed-deliveries`, body).subscribe({
+      next: (res) => {
+        if (!res?.res || !res?.delivery) {
+          console.error('Invalid response');
           this.cards = [];
           this.isLoading = false;
-        },
-      });
+          return;
+        }
+
+        this.cards = res.delivery.map((item: any) => {
+          const address = item?.customerAddress;
+
+          return {
+            logo: item?.provider?.providerSVG || 'assets/default.png',
+
+            title: item?.provider?.rateName || '',
+            deliveryId: item?.deliveryId || 0,
+
+            date: item?.deliveryDate
+              ? new Date(item.deliveryDate * 1000).toLocaleDateString('de-DE')
+              : '',
+
+            data: [
+              {
+                label: 'Zählernummer:',
+                value: item?.connection?.meterNumber || '',
+                icon: 'meter',
+              },
+              {
+                label: 'Adresse:',
+                value: address
+                  ? `${address.street || ''} ${address.houseNumber || ''}, ${address.zip || ''} ${address.city || ''}`
+                  : '',
+                icon: 'home',
+              },
+              {
+                label: 'Stromtyp:',
+                value: item?.provider?.branch || '',
+                icon: 'current',
+              },
+              {
+                label: 'Vertragsnummer:',
+                value: item?.uniqueDeliveryId || '',
+                icon: 'doc',
+              },
+            ],
+          };
+        });
+
+        console.log('cards:', this.cards);
+
+        this.cdr.detectChanges();
+        this.isLoading = false;
+      },
+      error: (err) => {
+        console.error('API Error:', err);
+        this.cards = [];
+        this.isLoading = false;
+      },
+    });
   }
 
   normalizeIcon(icon: string): string {
@@ -584,7 +887,17 @@ export class Customer {
   apiError: string = '';
   resendSuccess: boolean = false;
   /* ── Field-level validation errors ─────────────────────────────── */
-  fieldErrors: Record<string, string> = {};
+
+  clearPwdField() {
+    this.newPassword = '';
+    this.oldPassword = '';
+    this.confirmPassword = '';
+    this.showPw = false;
+    this.showOldPw = false;
+    this.showRepPw = false;
+    this.otpError = '';
+    this.passwordMismatch = false;
+  }
 
   validatePassword(password: string, repeat: string) {
     this.newPassword = password;
@@ -669,6 +982,7 @@ export class Customer {
 
           if (res.res) {
             this.currentStep = 2;
+            this.clearPwdField();
           } else {
             console.log('false going');
             console.log('error message', res.errMessage);
