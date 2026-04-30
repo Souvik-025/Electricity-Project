@@ -1,0 +1,295 @@
+/* ─────────────────────────────────────────────────────────────────────────────
+   Section card
+───────────────────────────────────────────────────────────────────────────── */
+.section-card {
+    background: #ffffff;
+    border: 1px solid #e5e7eb;
+    border-radius: 16px;
+    padding: 24px;
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+}
+
+.dark .section-card {
+    background: #111827;
+    border-color: #374151;
+}
+
+/* ─── Section title / step badge ─────────────────────────────────────────── */
+.section-title {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-size: 16px;
+    font-weight: 600;
+    color: #111827;
+    padding-bottom: 12px;
+    border-bottom: 1px solid #f3f4f6;
+    margin-bottom: 4px;
+}
+
+.dark .section-title {
+    color: #f9fafb;
+    border-bottom-color: #1f2937;
+}
+
+.section-num {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 28px;
+    height: 28px;
+    border-radius: 50%;
+    background: #2563eb;
+    color: #ffffff;
+    font-size: 13px;
+    font-weight: 700;
+    flex-shrink: 0;
+}
+
+/* ─────────────────────────────────────────────────────────────────────────────
+   Field group
+───────────────────────────────────────────────────────────────────────────── */
+.field-group {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+}
+
+.field-label {
+    font-size: 12px;
+    font-weight: 500;
+    color: #6b7280;
+    letter-spacing: 0.03em;
+}
+
+.dark .field-label {
+    color: #9ca3af;
+}
+
+/* ─────────────────────────────────────────────────────────────────────────────
+   Inputs & selects
+───────────────────────────────────────────────────────────────────────────── */
+.field-input,
+.field-select {
+    width: 100%;
+    height: 40px;
+    padding: 0 12px;
+    font-size: 14px;
+    color: #111827;
+    background: #ffffff;
+    border: 1px solid #d1d5db;
+    border-radius: 10px;
+    outline: none;
+    transition:
+        border-color 0.15s,
+        box-shadow 0.15s;
+    appearance: none;
+    -webkit-appearance: none;
+}
+
+.field-input:focus,
+.field-select:focus {
+    border-color: #2563eb;
+    box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.15);
+}
+
+.field-input::placeholder {
+    color: #9ca3af;
+}
+
+/* Select arrow */
+.field-select {
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%236b7280' stroke-width='2'%3E%3Cpolyline points='6 9 12 15 18 9'/%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: right 10px center;
+    padding-right: 36px;
+    cursor: pointer;
+}
+
+/* Read-only */
+.field-input.readonly {
+    background: #f9fafb;
+    color: #6b7280;
+    border-color: #e5e7eb;
+    cursor: not-allowed;
+}
+
+.dark .field-input,
+.dark .field-select {
+    background: #1f2937;
+    border-color: #374151;
+    color: #f9fafb;
+}
+
+.dark .field-input.readonly {
+    background: #111827;
+    color: #6b7280;
+    border-color: #1f2937;
+}
+
+.dark .field-input::placeholder {
+    color: #4b5563;
+}
+
+/* mono font for IBAN / meter numbers */
+.font-mono {
+    font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+    letter-spacing: 0.04em;
+}
+
+/* ─────────────────────────────────────────────────────────────────────────────
+   Read-only address block
+───────────────────────────────────────────────────────────────────────────── */
+.readonly-block {
+    background: #fffbeb;
+    border: 1px solid #fde68a;
+    border-radius: 12px;
+    padding: 16px;
+}
+
+.dark .readonly-block {
+    background: #1c1a0e;
+    border-color: #78350f;
+}
+
+/* ─────────────────────────────────────────────────────────────────────────────
+   Toggle pair (Ja/Nein, Lastschrift/Überweisung, etc.)
+───────────────────────────────────────────────────────────────────────────── */
+.toggle-pair {
+    display: inline-flex;
+    border: 1px solid #d1d5db;
+    border-radius: 10px;
+    overflow: hidden;
+}
+
+.toggle-pair button {
+    padding: 8px 20px;
+    font-size: 13px;
+    font-weight: 500;
+    color: #6b7280;
+    background: #ffffff;
+    border: none;
+    cursor: pointer;
+    transition:
+        background 0.15s,
+        color 0.15s;
+    line-height: 1;
+}
+
+.toggle-pair button + button {
+    border-left: 1px solid #d1d5db;
+}
+
+.toggle-pair button:hover:not(.active) {
+    background: #f3f4f6;
+}
+
+.toggle-pair button.active {
+    background: #2563eb;
+    color: #ffffff;
+}
+
+.dark .toggle-pair {
+    border-color: #374151;
+}
+
+.dark .toggle-pair button {
+    background: #1f2937;
+    color: #9ca3af;
+}
+
+.dark .toggle-pair button + button {
+    border-left-color: #374151;
+}
+
+.dark .toggle-pair button:hover:not(.active) {
+    background: #111827;
+}
+
+.dark .toggle-pair button.active {
+    background: #2563eb;
+    color: #ffffff;
+}
+
+/* ─────────────────────────────────────────────────────────────────────────────
+   Checkbox row
+───────────────────────────────────────────────────────────────────────────── */
+.checkbox-row {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 10px 14px;
+    font-size: 13px;
+    color: #374151;
+    background: #f9fafb;
+    border: 1px solid #e5e7eb;
+    border-radius: 10px;
+    cursor: pointer;
+    transition: background 0.15s;
+    user-select: none;
+}
+
+.checkbox-row:hover {
+    background: #f3f4f6;
+}
+
+.checkbox-row input[type="checkbox"] {
+    width: 16px;
+    height: 16px;
+    accent-color: #2563eb;
+    cursor: pointer;
+    flex-shrink: 0;
+}
+
+.dark .checkbox-row {
+    background: #1f2937;
+    border-color: #374151;
+    color: #d1d5db;
+}
+
+.dark .checkbox-row:hover {
+    background: #111827;
+}
+
+/* ─────────────────────────────────────────────────────────────────────────────
+   Field error
+───────────────────────────────────────────────────────────────────────────── */
+.field-error {
+    font-size: 12px;
+    color: #dc2626;
+    margin-top: 2px;
+}
+
+.dark .field-error {
+    color: #f87171;
+}
+
+/* ─────────────────────────────────────────────────────────────────────────────
+   Grid helpers (in case Tailwind JIT hasn't picked them up)
+───────────────────────────────────────────────────────────────────────────── */
+.grid {
+    display: grid;
+}
+
+.grid-cols-2 {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+.gap-4 {
+    gap: 16px;
+}
+
+.mt-4 {
+    margin-top: 16px;
+}
+
+.space-y-2 > * + * {
+    margin-top: 8px;
+}
+
+.field-input {
+    pointer-events: auto !important; /* Force clicks to register */
+    cursor: pointer;
+}
