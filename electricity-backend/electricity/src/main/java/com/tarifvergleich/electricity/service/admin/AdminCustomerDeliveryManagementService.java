@@ -7,15 +7,18 @@ import java.util.Map;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.tarifvergleich.electricity.dto.CustomerConnectionRequestDto;
 import com.tarifvergleich.electricity.dto.CustomerDeliveryDto;
 import com.tarifvergleich.electricity.dto.CustomerDeliveryRequestWrapper.AdminEditCustomerDeliveryRelated;
 import com.tarifvergleich.electricity.dto.CustomerPaymentRequestDto;
 import com.tarifvergleich.electricity.dto.CustomerPaymentRequestDto.PaymentDto;
+import com.tarifvergleich.electricity.dto.EnergyRateDto;
 import com.tarifvergleich.electricity.exception.InternalServerException;
 import com.tarifvergleich.electricity.model.CustomerConnect;
 import com.tarifvergleich.electricity.model.CustomerDelivery;
 import com.tarifvergleich.electricity.model.CustomerPayment;
+import com.tarifvergleich.electricity.model.CustomerSelectedProvider;
 import com.tarifvergleich.electricity.repository.CustomerDeliveryRepository;
 import com.tarifvergleich.electricity.service.ElectricityComparisonService;
 import com.tarifvergleich.electricity.util.Helper;
@@ -30,6 +33,7 @@ public class AdminCustomerDeliveryManagementService {
 	private final CustomerDeliveryRepository customerDeliveryRepo;
 	private final Helper helper;
 	private final ElectricityComparisonService electricityComparisonService;
+	private final ObjectMapper objectMapper;
 
 	@Transactional
 	public Map<String, Object> editDeliveryDetailsByAdmin(AdminEditCustomerDeliveryRelated deliveryDetails) {
@@ -37,13 +41,14 @@ public class AdminCustomerDeliveryManagementService {
 			throw new InternalServerException("No details found for edit", HttpStatus.OK);
 		if (deliveryDetails.getAdminId() == null || deliveryDetails.getAdminId() <= 0)
 			throw new InternalServerException("Admin id missing", HttpStatus.OK);
-		
-		if(deliveryDetails.getDeliveryId() == null  || deliveryDetails.getDeliveryId() <= 0)
+
+		if (deliveryDetails.getDeliveryId() == null || deliveryDetails.getDeliveryId() <= 0)
 			throw new InternalServerException("Delivery id missing", HttpStatus.OK);
 
 		CustomerDeliveryDto editDeliveryDetails = deliveryDetails.getDelivery();
 		CustomerConnectionRequestDto editCustomerConnection = deliveryDetails.getConnection();
 		CustomerPaymentRequestDto editCustomerPayment = deliveryDetails.getPaymentDetails();
+		EnergyRateDto editCustomerSelectedProvider = deliveryDetails.getProvider();
 
 		CustomerDelivery customerDelivery = customerDeliveryRepo
 				.findByIdAndAdminAdminId(deliveryDetails.getDeliveryId(), deliveryDetails.getAdminId())
@@ -52,6 +57,7 @@ public class AdminCustomerDeliveryManagementService {
 
 		CustomerConnect connection = customerDelivery.getCustomerConnection();
 		CustomerPayment payment = customerDelivery.getCustomerPayment();
+		CustomerSelectedProvider provider = customerDelivery.getCustomerProvider();
 
 		/* Edit Customer Delivery */
 
@@ -75,7 +81,7 @@ public class AdminCustomerDeliveryManagementService {
 				if (editDeliveryDetails.getDob().isBefore(eighteenYearsAgo))
 					customerDelivery.setDob(helper.toGermamUnixTimestamp(editDeliveryDetails.getDob()));
 			}
-						
+
 		}
 
 		/* Edit Connection Details */
@@ -114,7 +120,7 @@ public class AdminCustomerDeliveryManagementService {
 			if (editCustomerConnection.getMarketLocationId() != null
 					&& !editCustomerConnection.getMarketLocationId().isEmpty())
 				connection.setMarketLocationId(editCustomerConnection.getMarketLocationId());
-			
+
 			customerDelivery.setCustomerConnection(connection);
 		}
 
@@ -150,13 +156,66 @@ public class AdminCustomerDeliveryManagementService {
 					payment.setSepaConsent(paymentDetails.getSepaConsent());
 
 			}
-			
+
 			customerDelivery.setCustomerPayment(payment);
 
 		}
-		
-		customerDeliveryRepo.save(customerDelivery);
 
+		/* Edit Provider */
+		if (editCustomerSelectedProvider != null && provider != null) {
+
+			if (editCustomerSelectedProvider.getBranch() != null && !editCustomerSelectedProvider.getBranch().isEmpty())
+				provider.setBranch(editCustomerSelectedProvider.getBranch());
+
+			if (editCustomerSelectedProvider.getProviderName() != null
+					&& !editCustomerSelectedProvider.getProviderName().isEmpty())
+				provider.setProviderName(editCustomerSelectedProvider.getProviderName());
+
+			if (editCustomerSelectedProvider.getProviderSVGPath() != null
+					&& !editCustomerSelectedProvider.getProviderSVGPath().isEmpty())
+				provider.setProviderSVGPath(editCustomerSelectedProvider.getProviderSVGPath());
+
+			if (editCustomerSelectedProvider.getRateName() != null
+					&& !editCustomerSelectedProvider.getRateName().isEmpty())
+				provider.setRateName(editCustomerSelectedProvider.getRateName());
+
+			if (editCustomerSelectedProvider.getType() != null && !editCustomerSelectedProvider.getType().isEmpty())
+				provider.setType(editCustomerSelectedProvider.getType());
+
+			if (editCustomerSelectedProvider.getNetzProviderId() != null
+					&& editCustomerSelectedProvider.getNetzProviderId() > 0)
+				provider.setNetzProviderId(editCustomerSelectedProvider.getNetzProviderId());
+
+			if (editCustomerSelectedProvider.getProviderId() != null
+					&& editCustomerSelectedProvider.getProviderId() > 0)
+				provider.setProviderId(editCustomerSelectedProvider.getProviderId());
+
+			if (editCustomerSelectedProvider.getRateId() != null && editCustomerSelectedProvider.getRateId() > 0)
+				provider.setRateId(editCustomerSelectedProvider.getRateId());
+
+			if (editCustomerSelectedProvider.getConsumption() != null
+					&& editCustomerSelectedProvider.getConsumption() > 0)
+				provider.setConsumption(editCustomerSelectedProvider.getConsumption());
+
+			if (editCustomerSelectedProvider.getWorkPrice() > 0)
+				provider.setWorkPrice(editCustomerSelectedProvider.getWorkPrice());
+
+			if (editCustomerSelectedProvider.getBasePriceYear() > 0)
+				provider.setBasePriceYear(editCustomerSelectedProvider.getBasePriceYear());
+
+			if (editCustomerSelectedProvider.getTotalPrice() > 0)
+				provider.setTotalPrice(editCustomerSelectedProvider.getTotalPrice());
+
+			if (editCustomerSelectedProvider.getTotalPriceMonth() > 0)
+				provider.setTotalPriceMonth(editCustomerSelectedProvider.getTotalPriceMonth());
+
+			provider.setRaw(objectMapper.valueToTree(editCustomerSelectedProvider));
+
+			customerDelivery.setCustomerProvider(provider);
+		}
+
+		customerDeliveryRepo.save(customerDelivery);
+		
 		return Map.of("res", true, "message", "Customer booking updated successfully");
 	}
 

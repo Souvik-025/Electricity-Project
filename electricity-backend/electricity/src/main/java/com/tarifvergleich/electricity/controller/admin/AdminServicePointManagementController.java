@@ -19,14 +19,20 @@ import lombok.RequiredArgsConstructor;
 public class AdminServicePointManagementController {
 
 	private final AdminServicePointManagementService adminServicePointManagementService;
-	
+
 	@PostMapping("/add-holidays")
-	public ResponseEntity<?> addAndEditHolidays(@RequestBody ListOfHolidaysDto holidaysDto){
+	public ResponseEntity<?> addAndEditHolidays(@RequestBody ListOfHolidaysDto holidaysDto) {
 		return ResponseEntity.ok(adminServicePointManagementService.adminAddHolidays(holidaysDto));
 	}
-	
+
 	@PostMapping("/fetch-holidays")
-	public ResponseEntity<?> fetchAllHolidays(@RequestBody ListOfHolidaysDto holidaysDto){
-		return ResponseEntity.ok(adminServicePointManagementService.adminGetHolidayList(holidaysDto.getAdminId(), holidaysDto.getYear()));
+	public ResponseEntity<?> fetchAllHolidays(@RequestBody ListOfHolidaysDto holidaysDto) {
+		return ResponseEntity.ok(adminServicePointManagementService.adminGetHolidayList(holidaysDto.getAdminId(),
+				holidaysDto.getYear()));
+	}
+
+	@PostMapping("/delete-holiday")
+	public ResponseEntity<?> deleteHoliday(@RequestBody ListOfHolidaysDto holidaysDto) {
+		return ResponseEntity.ok(adminServicePointManagementService.adminDeleteHolidays(holidaysDto));
 	}
 }

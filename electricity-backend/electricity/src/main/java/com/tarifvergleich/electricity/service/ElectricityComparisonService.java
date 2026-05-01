@@ -76,7 +76,9 @@ public class ElectricityComparisonService {
 				filters.remove("isSave");
 				filters.remove("customerId");
 			}
-
+			
+			filters.put("houseNumber", Integer.parseInt(filters.get("houseNumber").toString()));
+			
 			CompletableFuture<Object> ratesFuture = CompletableFuture
 					.supplyAsync(() -> energyService.getRates(filters));
 

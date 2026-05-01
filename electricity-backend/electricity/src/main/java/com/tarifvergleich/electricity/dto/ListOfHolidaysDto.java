@@ -9,6 +9,7 @@ import java.util.Locale;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.tarifvergleich.electricity.model.ListOfHolidays;
+import com.tarifvergleich.electricity.util.Helper;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -41,6 +42,8 @@ public class ListOfHolidaysDto {
 	private String rangeId;
 	
 	private Integer year;
+	
+	static Helper helper = new Helper();
 
 	@Data
 	@NoArgsConstructor
@@ -52,19 +55,23 @@ public class ListOfHolidaysDto {
 		private String name;
 		private BigInteger startDate;
 		private BigInteger endDate;
+		private LocalDate date;
 
 		// PUBLIC or COMPANY
 		private String holidayType;
 		private BigInteger createdOn;
 		private String rangeId;
+		
 	}
 
 	public static ListOfHolidaysResponseDto mapAdminListOfHolidays(ListOfHolidays holidays) {
 		if (holidays == null)
 			return null;
 		
+		
 		return ListOfHolidaysResponseDto.builder().holidayId(holidays.getId()).rangeId(holidays.getRangeId())
 				.name(holidays.getName()).startDate(holidays.getStartDate()).endDate(holidays.getEndDate())
+				.date(helper.toGermalDateStamp(holidays.getStartDate()))
 				.holidayType(holidays.getHolidayType()).createdOn(holidays.getCreatedOn()).build();
 	}
 

@@ -19,6 +19,7 @@ public class CustomerAddressDto {
     private String street;
     private String houseNumber;
     private Integer customerId;
+    private String deliveryType;
     
     
     public static CustomerAddressDto getCustomerAddressResponseDto(CustomerAddress customerAddress) {

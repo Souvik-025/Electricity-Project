@@ -28,6 +28,7 @@ public class CustomerDeliveryRequestWrapper {
     	private CustomerDeliveryDto delivery;
     	private CustomerConnectionRequestDto connection;
     	private CustomerPaymentRequestDto paymentDetails;
+    	private EnergyRateDto provider;
     }
     
 }

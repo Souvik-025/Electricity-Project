@@ -2,6 +2,7 @@ package com.tarifvergleich.electricity.repository;
 
 import java.math.BigInteger;
 import java.util.List;
+import java.util.Optional;
 
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
@@ -14,7 +15,14 @@ public interface ListOfHolidaysRepository extends JpaRepository<ListOfHolidays, 
 	List<ListOfHolidays> findAllByAdminAdminIdAndRangeIdOrderByIdAsc(Integer adminId, String rangeId);
 	
 	Boolean existsByAdminAdminIdAndStartDate(Integer adminId, BigInteger startDate);
+	Boolean existsByIdAndAdminAdminId(Long id, Integer adminId);
+	
+	Optional<ListOfHolidays> findByAdminAdminIdAndStartDate(Integer adminId, BigInteger startDate);
+	
+	List<ListOfHolidays> findAllByRangeId(String rangeId);
 	
 	List<ListOfHolidays> findAllByAdminAdminIdAndYearOrderByStartDateAsc(Integer adminId, Integer year);
+	
+	void deleteByIdAndAdminAdminId(Long id, Integer adminId);
 	
 }

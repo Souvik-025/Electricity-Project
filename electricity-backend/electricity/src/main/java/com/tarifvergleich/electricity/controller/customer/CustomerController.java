@@ -14,6 +14,7 @@ import org.springframework.web.multipart.MultipartFile;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.tarifvergleich.electricity.dto.CustomerAddressDto;
 import com.tarifvergleich.electricity.dto.CustomerAttornyDto;
 import com.tarifvergleich.electricity.dto.CustomerConnectWrapper;
 import com.tarifvergleich.electricity.dto.CustomerContactScheduleRequestDto;
@@ -138,6 +139,11 @@ public class CustomerController {
 	@PostMapping("/revoke-attorny")
 	public ResponseEntity<?> revokeAttorny(@RequestBody CustomerDto customerDto) {
 		return ResponseEntity.ok(customerDetailService.revokeAttorny(customerDto.getId()));
+	}
+
+	@PostMapping("/check-booking")
+	public ResponseEntity<?> checkBooking(@RequestBody CustomerAddressDto addressDto) {
+		return ResponseEntity.ok(customerDetailService.checkForBookings(addressDto));
 	}
 
 }

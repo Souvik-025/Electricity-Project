@@ -1,8 +1,12 @@
 package com.tarifvergleich.electricity.service.customer;
 
 import java.math.BigInteger;
+import java.time.DayOfWeek;
+import java.time.Instant;
 import java.time.LocalDate;
 import java.time.ZoneId;
+import java.util.LinkedList;
+import java.util.List;
 import java.util.Map;
 
 import org.springframework.http.HttpStatus;
@@ -99,6 +103,11 @@ public class CustomerBookingService {
 		if (deliveryDto.getDob() == null)
 			throw new InternalServerException("DOB missing", HttpStatus.OK);
 
+		if (deliveryDto.getDeliveryType() == null || deliveryDto.getDeliveryType().isEmpty()
+				|| (!deliveryDto.getDeliveryType().equalsIgnoreCase("Electricity")
+				&& !deliveryDto.getDeliveryType().equalsIgnoreCase("GS")))
+			throw new InternalServerException("Delivery type missing", HttpStatus.OK);
+
 		LocalDate todayInBerlin = LocalDate.now(ZoneId.of("Europe/Berlin"));
 
 		// 1. Calculate the "cutoff" date (18 years ago)
@@ -175,17 +184,8 @@ public class CustomerBookingService {
 			CustomerDelivery delivery = CustomerDelivery.builder().title(deliveryDto.getTitle())
 					.firstName(deliveryDto.getFirstName()).lastName(deliveryDto.getLastName()).address(address)
 					.billingAddress(billingAddress).salutation(deliveryDto.getSalutation())
-					.mobile(deliveryDto.getMobile()).telephone(deliveryDto.getTelephone()).deliveryType("ELECTRICITY") // Manage
-																														// this
-																														// when
-																														// type
-																														// will
-																														// be
-																														// defined
-																														// in
-																														// frontend.
-																														// Don't
-																														// forget
+					.mobile(deliveryDto.getMobile()).telephone(deliveryDto.getTelephone())
+					.deliveryType(deliveryDto.getDeliveryType().toUpperCase())
 					.customerProvider(selectedProvider).dob(helper.toGermamUnixTimestamp(deliveryDto.getDob())).build();
 
 			delivery.setUserAdmin(customer.getAdmin());
@@ -436,17 +436,37 @@ public class CustomerBookingService {
 			throw new InternalServerException("Time slot missing", HttpStatus.OK);
 
 		BigInteger startTime = helper.toGermanTimestampWithDynamicTime(schedule.getScheduleDate(), 0, 0);
+		DayOfWeek dayName = schedule.getScheduleDate().atStartOfDay(ZoneId.of("Europe/Berlin")).getDayOfWeek();
 
-		if (listOfHolidaysRepo.existsByAdminAdminIdAndStartDate(schedule.getAdminId(), startTime))
-			throw new InternalServerException("It's a holiday", HttpStatus.OK);
+		if (listOfHolidaysRepo.existsByAdminAdminIdAndStartDate(schedule.getAdminId(), startTime)
+				|| dayName.equals(DayOfWeek.SUNDAY)) {
+			LocalDate start = schedule.getScheduleDate();
+
+			List<LocalDate> holidayDates = new LinkedList<LocalDate>();
+
+			while (listOfHolidaysRepo.existsByAdminAdminIdAndStartDate(schedule.getAdminId(), startTime)
+					|| Instant.ofEpochSecond(startTime.longValue()).atZone(ZoneId.of("Europe/Berlin")).getDayOfWeek()
+							.equals(DayOfWeek.SUNDAY)) {
+				holidayDates.add(start);
+				start = start.plusDays(1);
+				startTime = helper.toGermanTimestampWithDynamicTime(start, 0, 0);
+			}
+
+			startTime = helper.toGermanTimestampWithDynamicTime(start, 0, 0);
+
+			Map<String, Object> dateFormatter = Helper.getLocalDateTimeFromBigInteger(startTime);
+
+			return Map.of("res", false, "nextDate", start, "nextDay", dateFormatter.get("dayOfWeek"), "errorMessage",
+					"Selected day is a holiday", "holidayDated", holidayDates);
+
+		}
 
 		CustomerDelivery delivery = customerDeliveryRepo.findById(schedule.getDeliveryId())
 				.orElseThrow(() -> new InternalServerException("Customer delivery details missing", HttpStatus.OK));
 
 		CustomerContactSchedule customerSchedule = CustomerContactSchedule.builder().dayOfWeek(schedule.getDayOfWeek())
 				.timeSlot(schedule.getTimeSlot()).description(schedule.getDescription()).customerDelivery(delivery)
-				.scheduleDate(startTime)
-				.build();
+				.scheduleDate(startTime).build();
 		delivery.setCustomerSchedule(customerSchedule);
 
 		customerDeliveryRepo.save(delivery);

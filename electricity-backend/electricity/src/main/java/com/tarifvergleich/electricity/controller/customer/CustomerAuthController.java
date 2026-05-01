@@ -1,10 +1,14 @@
 package com.tarifvergleich.electricity.controller.customer;
 
+import java.util.Base64;
+
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.CrossOrigin;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.tarifvergleich.electricity.dto.CustomerDto;
@@ -44,7 +48,14 @@ public class CustomerAuthController {
 
 	@PostMapping("/mark-terms")
 	public ResponseEntity<?> markAcknowledgment(@RequestBody CustomerDto customerDto, HttpServletRequest request) {
-		return ResponseEntity.ok(customerAuthService.markAcknowledgement(customerDto.getId(), request));
+		return ResponseEntity.ok(customerAuthService.checkAcknowledgement(customerDto.getId()));
+	}
+
+	@GetMapping("/mark-acknowledgement")
+	public ResponseEntity<?> markAcknowledgment(@RequestParam("token") String token, HttpServletRequest request) {
+		byte[] decodedBytes = Base64.getDecoder().decode(token);
+		Integer customerId = Integer.parseInt(new String(decodedBytes));
+		return ResponseEntity.ok(customerAuthService.markAcknowledgement(customerId, request));
 	}
 
 	@PostMapping("/resend-forget-otp")
@@ -69,17 +80,18 @@ public class CustomerAuthController {
 
 	@PostMapping("/change-password-request")
 	public ResponseEntity<?> changePasswordRequest(@RequestBody CustomerChangePasswordPayload payload) {
-		return ResponseEntity.ok(customerAuthService.changePasswordRequest(payload.getAdminId(), payload.getId(), payload.getOldPassword(),
-				payload.getNewPassword(), payload.getConfirmPassword()));
+		return ResponseEntity.ok(customerAuthService.changePasswordRequest(payload.getAdminId(), payload.getId(),
+				payload.getOldPassword(), payload.getNewPassword(), payload.getConfirmPassword()));
 	}
 
 	@PostMapping("/verify-change-password")
 	public ResponseEntity<?> changePasswordVerifyAndSet(@RequestBody CustomerChangePasswordPayload payload) {
-		return ResponseEntity.ok(customerAuthService.changePasswordVerifyAndSet(payload.getAdminId(), payload.getId(), payload.getOtp()));
+		return ResponseEntity.ok(customerAuthService.changePasswordVerifyAndSet(payload.getAdminId(), payload.getId(),
+				payload.getOtp()));
 	}
-	
+
 	@PostMapping("/resend-change-otp")
-	public ResponseEntity<?> resendChangePasswordOtp(@RequestBody CustomerDto customerDto){
+	public ResponseEntity<?> resendChangePasswordOtp(@RequestBody CustomerDto customerDto) {
 		return ResponseEntity.ok(customerAuthService.resendOtp(customerDto.getId(), false, true));
 	}
 

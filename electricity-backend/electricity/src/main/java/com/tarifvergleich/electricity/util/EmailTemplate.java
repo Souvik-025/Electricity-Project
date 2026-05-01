@@ -243,4 +243,28 @@ public class EmailTemplate {
 	           "<p>Log in to your advisor dashboard to view the full thread.</p>" +
 	           "</div>";
 	}
+	
+	public String createCustomerConsentEmailBody(String salutation, String lastName, String encodedCustomerId) {
+	    String confirmationUrl = "http://192.168.0.155:8080/auth/mark-acknowledgement?token=" + encodedCustomerId;
+
+	    return "<div style='font-family: Arial, sans-serif; line-height: 1.6; color: #333; max-width: 600px; border: 1px solid #eee; padding: 20px;'>" +
+	           "<h2 style='color: #2e7d32;'>Action Required: Confirm Your Consent</h2>" +
+	           "<p>Dear " + salutation + " " + lastName + ",</p>" +
+	           "<p>Thank you for choosing <strong>Tarifvergleich Electricity</strong>. To finalize your energy tariff switch and process your delivery details, we require your formal consent.</p>" +
+	           "<p>By clicking the button below, you confirm that the details provided are correct and you authorize us to proceed with your application.</p>" +
+	           "<div style='text-align: center; margin: 30px 0;'>" +
+	           "<!--[if mso]>" +
+	           "<v:roundrect xmlns:v=\"urn:schemas-microsoft-com:vml\" xmlns:w=\"urn:schemas-microsoft-com:office:word\" href=\"" + confirmationUrl + "\" style=\"height:50px;v-text-anchor:middle;width:200px;\" arcsize=\"10%\" strokecolor=\"#2e7d32\" fillcolor=\"#2e7d32\">" +
+	           "<w:anchorlock/>" +
+	           "<center style=\"color:#ffffff;font-family:sans-serif;font-size:16px;font-weight:bold;\">Confirm Consent</center>" +
+	           "</v:roundrect>" +
+	           "<![endif]-->" +
+	           "<a href=\"" + confirmationUrl + "\" style=\"background-color:#2e7d32; border-radius:5px; color:#ffffff; display:inline-block; font-family:sans-serif; font-size:16px; font-weight:bold; line-height:50px; text-align:center; text-decoration:none; width:200px; -webkit-text-size-adjust:none; mso-hide:all;\">Confirm Consent</a>" +
+	           "</div>" +
+	           "<p style='font-size: 0.9em; color: #666;'>If the button above does not work, please copy and paste the following link into your browser:</p>" +
+	           "<p style='font-size: 0.8em; word-break: break-all;'><a href=\"" + confirmationUrl + "\">" + confirmationUrl + "</a></p>" +
+	           "<br>" +
+	           "<p>Best Regards,<br><strong>Tarifvergleich Team</strong></p>" +
+	           "</div>";
+	}
 }

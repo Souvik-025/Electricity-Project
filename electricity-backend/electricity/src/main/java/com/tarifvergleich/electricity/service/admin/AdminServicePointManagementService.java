@@ -236,10 +236,23 @@ public class AdminServicePointManagementService {
 				BigInteger currentDayStart = helper.toGermanTimestampWithDynamicTime(date, 0, 0);
 				BigInteger currentDayEnd = helper.toGermanTimestampWithDynamicTime(date, 23, 59);
 
-				ListOfHolidays newHoliday = ListOfHolidays.builder().name(holidaysDto.getName())
-						.startDate(currentDayStart).endDate(currentDayEnd).year(date.getYear())
-						.holidayType(holidaysDto.getHolidayType().toUpperCase()).rangeId(rangeId).admin(admin).build();
-				toSave.add(newHoliday);
+				ListOfHolidays holiday = listOfHolidaysRepo
+						.findByAdminAdminIdAndStartDate(admin.getAdminId(), currentDayStart).orElse(null);
+
+				if (holiday == null) {
+					ListOfHolidays newHoliday = ListOfHolidays.builder().name(holidaysDto.getName())
+							.startDate(currentDayStart).endDate(currentDayEnd).year(date.getYear())
+							.holidayType(holidaysDto.getHolidayType().toUpperCase()).rangeId(rangeId).admin(admin)
+							.build();
+					toSave.add(newHoliday);
+				} else {
+					holiday.setName(holidaysDto.getName());
+					holiday.setHolidayType(holidaysDto.getHolidayType().toUpperCase());
+					holiday.setYear(date.getYear());
+					holiday.setEndDate(currentDayEnd);
+					holiday.setRangeId(rangeId);
+					toSave.add(holiday);
+				}
 			}
 
 			listOfHolidaysRepo.saveAll(toSave);
@@ -260,10 +273,27 @@ public class AdminServicePointManagementService {
 			return Map.of("res", true, "data", List.of());
 
 		Map<String, List<ListOfHolidaysResponseDto>> holidayResponse = holidays.stream()
-				.map(ListOfHolidaysDto::mapAdminListOfHolidays)
-				.collect(Collectors.groupingBy(ListOfHolidaysDto::getMonthName, LinkedHashMap::new, Collectors.toList()));
+				.map(ListOfHolidaysDto::mapAdminListOfHolidays).collect(Collectors
+						.groupingBy(ListOfHolidaysDto::getMonthName, LinkedHashMap::new, Collectors.toList()));
 
 		return Map.of("res", true, "data", holidayResponse);
+	}
+
+	@Transactional
+	public Map<String, Object> adminDeleteHolidays(ListOfHolidaysDto holidaysDto) {
+
+		if (holidaysDto.getAdminId() == null || holidaysDto.getAdminId() <= 0)
+			throw new InternalServerException("Admin id missing", HttpStatus.OK);
+
+		if (holidaysDto.getHolidayId() == null || holidaysDto.getHolidayId() <= 0)
+			throw new InternalServerException("Holiday id missing", HttpStatus.OK);
+
+		if (!listOfHolidaysRepo.existsByIdAndAdminAdminId(holidaysDto.getHolidayId(), holidaysDto.getAdminId()))
+			throw new InternalServerException("Holiday record not found with this credential", HttpStatus.OK);
+
+		listOfHolidaysRepo.deleteByIdAndAdminAdminId(holidaysDto.getHolidayId(), holidaysDto.getAdminId());
+
+		return Map.of("res", true, "message", "Holiday removed successfully");
 	}
 
 }

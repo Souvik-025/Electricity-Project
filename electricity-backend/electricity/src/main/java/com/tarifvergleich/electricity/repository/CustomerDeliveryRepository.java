@@ -13,8 +13,12 @@ import com.tarifvergleich.electricity.model.CustomerDelivery;
 @Repository
 public interface CustomerDeliveryRepository extends JpaRepository<CustomerDelivery, Integer> {
 
-	
 	Page<CustomerDelivery> findAllByAdminAdminId(Integer adminId, Pageable pageable);
+
 	List<CustomerDelivery> findAllByAdminAdminIdOrderByOrderPlacedOnDesc(Integer adminId);
+
 	Optional<CustomerDelivery> findByIdAndAdminAdminId(Integer id, Integer adminId);
+
+	List<CustomerDelivery> findAllByCustomerIdCustomerIdAndIsExpiredAndIsCancelledAndDeliveryTypeAndOrderPlacedAndAddressIdIn(
+			Integer customerId, Boolean isExpired, Boolean isCancelled, String deliveryType, Boolean orderPlaced, List<Integer> addressIds);
 }

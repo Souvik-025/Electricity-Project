@@ -73,6 +73,12 @@ public class CustomerDelivery {
 	@Column(name = "order_no", unique = true)
 	private Long orderNo;
 	
+	@Column(name = "is_expired")
+	private Boolean isExpired;
+	
+	@Column(name = "is_cancelled")
+	private Boolean isCancelled;
+	
 	@OneToOne(cascade = {CascadeType.PERSIST, CascadeType.MERGE})
 	@JoinColumn(name = "customer_billing_id")
 	private CustomerBillingAddress billingAddress;
@@ -116,6 +122,8 @@ public class CustomerDelivery {
 		orderPlacedOn = Helper.getCurrentTimeBerlin();
 		orderPlaced = false;
 		uniqueDeliveryId = "D" + Helper.getUniqueIdForCustomerId();
+		isExpired = false;
+		isCancelled = false;
 	}
 	
 	public void setUserAdmin(AdminUser admin) {

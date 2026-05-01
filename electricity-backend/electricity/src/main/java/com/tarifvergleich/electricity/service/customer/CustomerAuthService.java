@@ -1,15 +1,18 @@
 package com.tarifvergleich.electricity.service.customer;
 
 import java.math.BigInteger;
+import java.util.Base64;
 import java.util.Collections;
 import java.util.Map;
 import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 
 import com.tarifvergleich.electricity.dto.CustomerDto;
+import com.tarifvergleich.electricity.dto.ServiceRequestEmailEvent.ServiceResponseEmailEvent;
 import com.tarifvergleich.electricity.exception.InternalServerException;
 import com.tarifvergleich.electricity.model.AdminUser;
 import com.tarifvergleich.electricity.model.Customer;
@@ -39,6 +42,7 @@ public class CustomerAuthService {
 	private final AdminUserRepository adminUserRepo;
 	@Value("${otp.verification-timer}")
 	private int expiryMinutes;
+	private final ApplicationEventPublisher eventPublisher;
 
 	@Transactional
 	public Map<String, Object> customerSignUp(CustomerDto customerDto) {
@@ -89,10 +93,27 @@ public class CustomerAuthService {
 			Customer customer = customerRepo.findByEmail(customerDto.getEmail())
 					.orElseThrow(() -> new InternalServerException("Customer not found", HttpStatus.OK));
 
-			if (customer.getIsVerified())
-				return Map.of("res", true, "data", Map.of("id", customer.getCustomerId(), "firstName",
-						customer.getFirstName(), "lastName", customer.getLastName(), "email", customer.getEmail()),
-						"page", "login");
+			if (customer.getIsVerified()) {
+
+				if (!customer.getIsAcknowledged()) {
+					String encodedId = Base64.getEncoder()
+							.encodeToString(customer.getCustomerId().toString().getBytes());
+
+					String mailBody = emailTemplate.createCustomerConsentEmailBody(customer.getSalutation(),
+							customer.getLastName(), encodedId);
+
+					ServiceResponseEmailEvent mailRes = new ServiceResponseEmailEvent(customer.getEmail(),
+							"Action Required: Confirm your Energy Selection", mailBody);
+
+					eventPublisher.publishEvent(mailRes);
+				}
+
+				return Map.of("res", true, "data",
+						Map.of("id", customer.getCustomerId(), "firstName", customer.getFirstName(), "lastName",
+								customer.getLastName(), "email", customer.getEmail()),
+						"page", "login", "isAcknowledge", customer.getIsAcknowledged());
+			}
+
 			else {
 
 				CustomerAddress address = customerAddressRepo
@@ -186,8 +207,13 @@ public class CustomerAuthService {
 		if (id == null || id <= 0)
 			throw new InternalServerException("Customer id missing", HttpStatus.OK);
 
+		boolean firstTimeVerification = false;
+
 		Customer customer = customerRepo.findById(id)
 				.orElseThrow(() -> new InternalServerException("Customer not found", HttpStatus.OK));
+
+		if (customer.getIsVerified() == null || !customer.getIsVerified())
+			firstTimeVerification = true;
 
 		BigInteger expiryMillis = BigInteger.valueOf(expiryMinutes).multiply(BigInteger.valueOf(60));
 
@@ -200,6 +226,19 @@ public class CustomerAuthService {
 				customer.setVerifiedOn(Helper.getCurrentTimeBerlin());
 			customer.setOtp(null);
 			customerRepo.save(customer);
+
+			if (firstTimeVerification) {
+				String encodedId = Base64.getEncoder().encodeToString(customer.getCustomerId().toString().getBytes());
+
+				String mailBody = emailTemplate.createCustomerConsentEmailBody(customer.getSalutation(),
+						customer.getLastName(), encodedId);
+
+				ServiceResponseEmailEvent mailRes = new ServiceResponseEmailEvent(customer.getEmail(),
+						"Action Required: Confirm your Energy Selection", mailBody);
+
+				eventPublisher.publishEvent(mailRes);
+			}
+
 			return Map.of("res", true, "message", "Valid otp");
 		} else if (customer.getOtp() != null && isExpired) {
 			String newOtp = helper.generateOtp();
@@ -232,6 +271,19 @@ public class CustomerAuthService {
 		customerRepo.save(customer);
 
 		return Map.of("res", true, "message", "Signup completed");
+	}
+
+	public Map<String, Object> checkAcknowledgement(Integer customerId) {
+		if (customerId == null || customerId <= 0)
+			throw new InternalServerException("Customer id missing", HttpStatus.OK);
+
+		Customer customer = customerRepo.findById(customerId)
+				.orElseThrow(() -> new InternalServerException("Customer not found", HttpStatus.OK));
+
+		if (customer.getIsAcknowledged() != null && customer.getIsAcknowledged())
+			return Map.of("res", true, "message", "Signup completed");
+
+		return Map.of("res", false, "message", "User didn't marked concent");
 	}
 
 	@Transactional

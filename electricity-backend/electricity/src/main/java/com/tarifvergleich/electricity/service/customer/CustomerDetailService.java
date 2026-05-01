@@ -12,6 +12,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
+import com.tarifvergleich.electricity.dto.CustomerAddressDto;
 import com.tarifvergleich.electricity.dto.CustomerAttornyDto;
 import com.tarifvergleich.electricity.dto.CustomerDeliveryResponseDto;
 import com.tarifvergleich.electricity.dto.CustomerDeliveryResponseDto.CustomerDeliveryResponseAll;
@@ -26,12 +27,14 @@ import com.tarifvergleich.electricity.dto.ServiceRequestEmailEvent;
 import com.tarifvergleich.electricity.exception.InternalServerException;
 import com.tarifvergleich.electricity.model.AdminUser;
 import com.tarifvergleich.electricity.model.Customer;
+import com.tarifvergleich.electricity.model.CustomerAddress;
 import com.tarifvergleich.electricity.model.CustomerAttorny;
 import com.tarifvergleich.electricity.model.CustomerDelivery;
 import com.tarifvergleich.electricity.model.CustomerServiceRequest;
 import com.tarifvergleich.electricity.model.CustomerServiceRequestMessages;
 import com.tarifvergleich.electricity.model.CustomerServices;
 import com.tarifvergleich.electricity.repository.AdminUserRepository;
+import com.tarifvergleich.electricity.repository.CustomerAddressRepository;
 import com.tarifvergleich.electricity.repository.CustomerAttornyRepository;
 import com.tarifvergleich.electricity.repository.CustomerDeliveryRepository;
 import com.tarifvergleich.electricity.repository.CustomerRepository;
@@ -54,6 +57,7 @@ public class CustomerDetailService {
 	private final CustomerAttornyRepository customerAttornyRepo;
 	private final CustomerServicesRepository customerServicesRepo;
 	private final CustomerDeliveryRepository customerDeliveryRepo;
+	private final CustomerAddressRepository customerAddressRepo;
 	private final CustomerServiceRequestRepository customerServiceRequestRepo;
 	private final EmailTemplate emailTemplate;
 	private final ApplicationEventPublisher eventPublisher;
@@ -449,6 +453,42 @@ public class CustomerDetailService {
 		customerAttornyRepo.save(attorny);
 
 		return Map.of("res", true, "message", "Attorny successfully revoked");
+	}
+
+	public Map<String, Object> checkForBookings(CustomerAddressDto customerAddressDto) {
+		if (customerAddressDto.getCustomerId() == null || customerAddressDto.getCustomerId() <= 0)
+			throw new InternalServerException("Customer id missing", HttpStatus.OK);
+		if (customerAddressDto.getZip() == null || customerAddressDto.getCity() == null
+				|| customerAddressDto.getStreet() == null || customerAddressDto.getZip().isEmpty()
+				|| customerAddressDto.getCity().isEmpty() || customerAddressDto.getStreet().isEmpty())
+			throw new InternalServerException("Invalid address", HttpStatus.OK);
+
+		if (customerAddressDto.getDeliveryType() == null || customerAddressDto.getDeliveryType().isEmpty()
+				|| (!customerAddressDto.getDeliveryType().equalsIgnoreCase("Electricity")
+						&& !customerAddressDto.getDeliveryType().equalsIgnoreCase("GS")))
+			throw new InternalServerException("Delivery type missing", HttpStatus.OK);
+
+		List<CustomerAddress> customerAddresses = customerAddressRepo
+				.findAllByCustomerIdCustomerIdAndZipAndCityAndStreetAndHouseNumber(customerAddressDto.getCustomerId(),
+						customerAddressDto.getZip(), customerAddressDto.getCity(), customerAddressDto.getStreet(),
+						customerAddressDto.getHouseNumber());
+
+		if (customerAddresses == null || customerAddresses.isEmpty())
+			return Map.of("res", true, "message", "No booking found with this address");
+
+		List<Integer> addressIds = customerAddresses.stream().filter(addr -> addr != null).map(CustomerAddress::getId)
+				.toList();
+		
+
+		List<CustomerDelivery> deliveries = customerDeliveryRepo
+				.findAllByCustomerIdCustomerIdAndIsExpiredAndIsCancelledAndDeliveryTypeAndOrderPlacedAndAddressIdIn(
+						customerAddressDto.getCustomerId(), false, false,
+						customerAddressDto.getDeliveryType().toUpperCase(), true, addressIds);
+
+		if (deliveries == null || deliveries.isEmpty())
+			return Map.of("res", true, "message", "No booking found with this address");
+
+		return Map.of("res", false, "message", "Active booking exits with this address");
 	}
 
 }
