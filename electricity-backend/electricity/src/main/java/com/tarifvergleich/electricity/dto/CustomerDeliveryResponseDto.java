@@ -79,6 +79,7 @@ public class CustomerDeliveryResponseDto {
 		private BigInteger dob;
 		private BigInteger orderPlacedOn;
 		private Boolean orderPlaced;
+		private BigInteger expiryOn;
 
 		private CustomerAddressRes customerAddress;
 		private CustomerBillingAddressRes billingAddress;
@@ -127,6 +128,7 @@ public class CustomerDeliveryResponseDto {
 				.connection(CustomerConnectionRequestDto.getConnectionResponse(delivery.getCustomerConnection()))
 				.payment(CustomerPaymentRequestDto.getCustomerPaymentResponse(delivery.getCustomerPayment()))
 				.contactSchedule(CustomerContactScheduleRequestDto.getContactScheduleResponse(delivery.getCustomerSchedule()))
+				.expiryOn(delivery.getExpiryOn())
 				.build();
 	}
 }

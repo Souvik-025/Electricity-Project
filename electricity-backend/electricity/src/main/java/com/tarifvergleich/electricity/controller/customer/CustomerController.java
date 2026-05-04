@@ -152,4 +152,10 @@ public class CustomerController {
 				.ok(customerBookingService.sendUnsignedDocumentByEmail(customerDto.getAdminId(), customerDto.getId()));
 	}
 
+	@PostMapping("/fetch-customer-delivery-group")
+	public ResponseEntity<?> fetchCustomerDeliveryInGroup(@RequestBody CustomerDto customerDto) {
+		return ResponseEntity.ok(
+				customerDetailService.fetchAllCustomerDeliveriesByGroup(customerDto.getAdminId(), customerDto.getId()));
+	}
+
 }

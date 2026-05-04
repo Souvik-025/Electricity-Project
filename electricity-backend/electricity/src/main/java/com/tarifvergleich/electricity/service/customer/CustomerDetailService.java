@@ -2,6 +2,7 @@ package com.tarifvergleich.electricity.service.customer;
 
 import java.math.BigInteger;
 import java.util.Collections;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -204,6 +205,9 @@ public class CustomerDetailService {
 					return deliver.getCustomerAddress().getZip() + " " + deliver.getCustomerAddress().getCity() + " "
 							+ deliver.getCustomerAddress().getStreet();
 				}));
+		
+		if(deliveryResponse == null)
+			deliveryResponse = new LinkedHashMap<String, List<CustomerDeliveryResponseAll>>();
 
 		return Map.of("res", true, "data", deliveryResponse);
 	}

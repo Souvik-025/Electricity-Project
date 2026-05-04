@@ -73,6 +73,9 @@ public class CustomerDelivery {
 	@Column(name = "order_no", unique = true)
 	private Long orderNo;
 	
+	@Column(name = "expiry_on")
+	private BigInteger expiryOn;
+	
 	@Column(name = "is_expired")
 	private Boolean isExpired;
 	

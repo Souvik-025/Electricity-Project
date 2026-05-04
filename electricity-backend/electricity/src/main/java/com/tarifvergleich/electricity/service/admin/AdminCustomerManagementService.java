@@ -380,4 +380,21 @@ public class AdminCustomerManagementService {
 		return Map.of("res", true, "message", "Order placed successfully", "Order no", orderNo);
 	}
 
+	@Transactional
+	public Map<String, Object> toggleNotificationOfCustomer(Integer adminId, Integer customerId) {
+
+		if (adminId == null || adminId <= 0)
+			throw new InternalServerException("Admin id missing", HttpStatus.OK);
+		if (customerId == null || customerId <= 0)
+			throw new InternalServerException("Customer id missing", HttpStatus.OK);
+
+		Customer customer = customerRepo.findByCustomerIdAndAdminAdminId(customerId, adminId).orElseThrow(
+				() -> new InternalServerException("Customer not found wiyth this credential", HttpStatus.OK));
+		
+		customer.setIsNotificationEnabled(!customer.getIsNotificationEnabled());
+		
+		customerRepo.save(customer);
+
+		return Map.of("res", true, "message", "Customer notification updated");
+	}
 }

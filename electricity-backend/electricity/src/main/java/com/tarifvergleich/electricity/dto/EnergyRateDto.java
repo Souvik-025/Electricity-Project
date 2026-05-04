@@ -1,7 +1,9 @@
 package com.tarifvergleich.electricity.dto;
 
+import java.time.LocalDate;
 import java.util.List;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import com.tarifvergleich.electricity.model.CustomerSelectedProvider;
 
 import lombok.AllArgsConstructor;
@@ -41,7 +43,8 @@ public class EnergyRateDto {
     private List<String> rateChangeType;
     private int cancel;
     private String termBeforeNewType;
-    private String termBeforeNewMaxDate;
+    @JsonFormat(pattern = "dd.MM.yyyy")
+    private LocalDate termBeforeNewMaxDate;
     
     // Status Flags
     private boolean selfPayment;

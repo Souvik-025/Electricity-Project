@@ -168,4 +168,30 @@ public class Helper {
 				+ "-" + ticketNumber.substring(12);
 	}
 
+	public final BigInteger getSecondValueOfDuration(Integer year, Integer month, Integer day, Integer hour,
+			Integer minute, Integer second) {
+
+		if (year == null || year <= 0)
+			year = 0;
+		if (month == null || month <= 0)
+			month = 0;
+		if (day == null || day <= 0)
+			day = 0;
+		if (hour == null || hour <= 0)
+			hour = 0;
+		if (minute == null || minute <= 0)
+			minute = 0;
+		if (second == null || second <= 0)
+			second = 0;
+
+		BigInteger getSecondOfDay = BigInteger.valueOf(24 * 60 * 60);
+
+		BigInteger totalDuration = BigInteger.valueOf(year).multiply(BigInteger.valueOf(365)).multiply(getSecondOfDay)
+				.add(BigInteger.valueOf(month).multiply(BigInteger.valueOf(30)).multiply(getSecondOfDay))
+				.add(BigInteger.valueOf(day).multiply(getSecondOfDay))
+				.add(BigInteger.valueOf(hour).multiply(BigInteger.valueOf(3600)))
+				.add(BigInteger.valueOf(minute).multiply(BigInteger.valueOf(60))).add(BigInteger.valueOf(second));
+
+		return totalDuration;
+	}
 }

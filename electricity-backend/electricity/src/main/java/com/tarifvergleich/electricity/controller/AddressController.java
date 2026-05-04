@@ -27,10 +27,23 @@ public class AddressController {
 	    return ResponseEntity.ok(addressService.getCitiesByZip(zip));
 	}
 	
+	@PostMapping("/cities-egon")
+	public ResponseEntity<?> fetchCitiesFromEgon(@RequestBody Map<String, String> request){
+		String zip = request.get("zip");
+		return ResponseEntity.ok(addressService.fetchCities(zip));
+	}
+	
 	@PostMapping("/streets-by-zip")
 	public ResponseEntity<?> fetchStreets(@RequestBody Map<String, Object> payload){
 		String placeId = payload.get("placeId").toString();
 		return ResponseEntity.ok(addressService.getStreetsByCity(placeId));		
+	}
+	
+	@PostMapping("/streets-by-city-zip")
+	public ResponseEntity<?> fetchStreetsByEgon(@RequestBody Map<String, String> payload){
+		String zip = payload.get("zip");
+		String city= payload.get("city");
+		return ResponseEntity.ok(addressService.fetchStreet(zip, city));		
 	}
 
 }

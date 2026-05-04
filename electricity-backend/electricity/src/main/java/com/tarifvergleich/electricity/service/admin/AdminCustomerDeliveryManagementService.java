@@ -209,13 +209,18 @@ public class AdminCustomerDeliveryManagementService {
 			if (editCustomerSelectedProvider.getTotalPriceMonth() > 0)
 				provider.setTotalPriceMonth(editCustomerSelectedProvider.getTotalPriceMonth());
 
+			if (editCustomerSelectedProvider.getTermBeforeNewMaxDate() != null && editCustomerSelectedProvider
+					.getTermBeforeNewMaxDate().isBefore(helper.toGermalDateStamp(Helper.getCurrentTimeBerlin())))
+				customerDelivery.setExpiryOn(
+						helper.toGermamUnixTimestamp(editCustomerSelectedProvider.getTermBeforeNewMaxDate()));
+
 			provider.setRaw(objectMapper.valueToTree(editCustomerSelectedProvider));
 
 			customerDelivery.setCustomerProvider(provider);
 		}
 
 		customerDeliveryRepo.save(customerDelivery);
-		
+
 		return Map.of("res", true, "message", "Customer booking updated successfully");
 	}
 

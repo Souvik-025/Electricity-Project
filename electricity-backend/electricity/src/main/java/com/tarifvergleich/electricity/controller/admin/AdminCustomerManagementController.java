@@ -107,4 +107,10 @@ public class AdminCustomerManagementController {
 	public ResponseEntity<?> placeCustomerOrder(@RequestBody CustomerDeliveryDto deliveryDto) {
 		return ResponseEntity.ok(adminCustomerManagementService.placeNewOrderToEgon(deliveryDto));
 	}
+
+	@PostMapping("/toggle-customer-notification")
+	public ResponseEntity<?> toggleCustomerNotification(@RequestBody CustomerDto customerDto) {
+		return ResponseEntity.ok(adminCustomerManagementService.toggleNotificationOfCustomer(customerDto.getAdminId(),
+				customerDto.getId()));
+	}
 }

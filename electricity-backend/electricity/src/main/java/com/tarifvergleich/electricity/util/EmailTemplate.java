@@ -267,4 +267,25 @@ public class EmailTemplate {
 	           "<p>Best Regards,<br><strong>Tarifvergleich Team</strong></p>" +
 	           "</div>";
 	}
+	
+	public String createBookingExpiryEmailBody(String salutation, String lastName, String firstName, String providerName, String expiryDate) {
+	    return "<div style='font-family: Arial, sans-serif; line-height: 1.6; color: #333; max-width: 600px; border: 1px solid #eee; padding: 20px;'>" +
+	           "<h2 style='color: #d32f2f;'>Important: Your booking with " + providerName + " is expiring soon!</h2>" +
+	           "<p>Dear " + salutation + " " + lastName + ",</p>" +
+	           "<p>Hello " + firstName + " " + lastName + ",</p>" +
+	           "<p>We are writing to inform you that your current energy booking/contract with <strong>" + providerName + "</strong> is scheduled to expire on <strong>" + expiryDate + "</strong>.</p>" +
+	           
+	           "<div style='margin-top: 25px; padding: 15px; background-color: #e3f2fd; border-left: 4px solid #2196f3;'>" +
+	           "<p style='margin: 0; font-weight: bold;'>What does this mean for you?</p>" +
+	           "<p style='margin: 10px 0 0 0;'>To ensure a seamless transition and avoid moving to a more expensive basic supply tariff (Grundversorgung), we recommend reviewing your renewal options immediately.</p>" +
+	           "</div>" +
+	           
+	           "<p style='margin-top: 20px;'>If you have already initiated a new contract through <strong>Tarifvergleich</strong>, you can ignore this message. Otherwise, please log in to your account to view the latest tariffs available for your region.</p>" +
+	           
+	           "<br>" +
+	           "<p>Best Regards,<br><strong>Tarifvergleich Customer Support Team</strong></p>" +
+	           "<hr style='border: 0; border-top: 1px solid #eee; margin: 20px 0;'>" +
+	           "<p style='font-size: 12px; color: #777;'>This is an automated notification based on your contract end date. Please do not reply directly to this email.</p>" +
+	           "</div>";
+	}
 }

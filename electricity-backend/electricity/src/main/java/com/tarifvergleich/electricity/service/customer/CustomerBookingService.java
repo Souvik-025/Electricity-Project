@@ -190,6 +190,7 @@ public class CustomerBookingService {
 					.billingAddress(billingAddress).salutation(deliveryDto.getSalutation())
 					.mobile(deliveryDto.getMobile()).telephone(deliveryDto.getTelephone())
 					.deliveryType(deliveryDto.getDeliveryType().toUpperCase()).customerProvider(selectedProvider)
+					.expiryOn(helper.toGermamUnixTimestamp(providerInfo.getTermBeforeNewMaxDate()))
 					.dob(helper.toGermamUnixTimestamp(deliveryDto.getDob())).build();
 
 			delivery.setUserAdmin(customer.getAdmin());
@@ -206,6 +207,7 @@ public class CustomerBookingService {
 			editDelivery.setTelephone(deliveryDto.getTelephone());
 			editDelivery.setDob(helper.toGermamUnixTimestamp(deliveryDto.getDob()));
 			editDelivery.setBillingAddress(billingAddress);
+			editDelivery.setExpiryOn(helper.toGermamUnixTimestamp(providerInfo.getTermBeforeNewMaxDate()));
 
 			editDelivery.setAddress(address);
 			customerDeliveryRepo.save(editDelivery);

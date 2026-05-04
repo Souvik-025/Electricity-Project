@@ -46,7 +46,7 @@ public class Customer {
 	private String lastName;
 
 	private String password;
-	
+
 	@Column(name = "temp_password")
 	private String tempPassword;
 
@@ -102,6 +102,9 @@ public class Customer {
 	// This field is used for blocking and unblocking
 	private Boolean status;
 
+	@Column(name = "is_notification_enabled")
+	private Boolean isNotificationEnabled;
+
 	@OneToMany(mappedBy = "customerId", cascade = { CascadeType.PERSIST, CascadeType.MERGE })
 	@JsonIgnoreProperties("customerId")
 	private List<CustomerLoginHistory> customerLoginHistories;
@@ -121,16 +124,15 @@ public class Customer {
 	@OneToMany(mappedBy = "customer", cascade = { CascadeType.PERSIST, CascadeType.MERGE })
 	@JsonIgnoreProperties("customer")
 	private List<CustomerAttorny> customerAttorny;
-	
 
 	@OneToMany(mappedBy = "customer", cascade = { CascadeType.PERSIST, CascadeType.MERGE })
 	@JsonIgnoreProperties("customer")
 	private List<CustomerChangePasswordHistory> customerChangePasswordHistories;
-	
+
 	@OneToMany(mappedBy = "customer", cascade = { CascadeType.PERSIST, CascadeType.MERGE })
 	@JsonIgnoreProperties("customer")
 	private List<CustomerServiceRequest> customerServiceRequests;
-	
+
 	@OneToMany(mappedBy = "customer", cascade = { CascadeType.PERSIST, CascadeType.MERGE })
 	@JsonIgnoreProperties("customer")
 	private List<CustomerBookingDocument> customerBookingDocuments;
@@ -147,6 +149,7 @@ public class Customer {
 		isAcknowledged = false;
 		status = true;
 		customerUniqueId = Helper.getUniqueIdForCustomerId();
+		isNotificationEnabled = true;
 	}
 
 	public void addLoginHistory(CustomerLoginHistory record) {
@@ -184,23 +187,23 @@ public class Customer {
 		attorny.setCustomer(this);
 		customerAttorny.add(attorny);
 	}
-	
+
 	public void addCustomerChangePasswordHistory(CustomerChangePasswordHistory changePasswordHistory) {
-		if(customerChangePasswordHistories == null)
+		if (customerChangePasswordHistories == null)
 			customerChangePasswordHistories = new LinkedList<CustomerChangePasswordHistory>();
 		changePasswordHistory.setCustomer(this);
 		customerChangePasswordHistories.add(changePasswordHistory);
 	}
-	
+
 	public void addCustomerBookingDocument(CustomerBookingDocument document) {
-		if(customerBookingDocuments == null)
+		if (customerBookingDocuments == null)
 			customerBookingDocuments = new LinkedList<CustomerBookingDocument>();
 		document.setCustomer(this);
 		customerBookingDocuments.add(document);
 	}
-	
+
 	public void addCustomerServiceRequest(CustomerServiceRequest request) {
-		if(this.customerServiceRequests == null)
+		if (this.customerServiceRequests == null)
 			customerServiceRequests = new LinkedList<CustomerServiceRequest>();
 		request.setCustomer(this);
 		customerServiceRequests.add(request);
