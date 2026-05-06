@@ -2,7 +2,6 @@ import { ChangeDetectorRef, Component, ElementRef, HostListener, ViewChild } fro
 import { ContactPerson } from '../../layout/contact-person/contact-person';
 import { HttpClient } from '@angular/common/http';
 import { AuthService } from '../../services/auth.service';
-import { Router } from 'express';
 import { CommonModule } from '@angular/common';
 import SignaturePad from 'signature_pad';
 import {
@@ -20,6 +19,7 @@ import { Inject, PLATFORM_ID } from '@angular/core';
 import { QRCodeComponent } from 'angularx-qrcode';
 import { isPlatformBrowser } from '@angular/common';
 import { ActivatedRoute } from '@angular/router';
+import { Router } from '@angular/router';
 
 const API_BASE = 'http://192.168.0.155:8080';
 interface Card {
@@ -57,6 +57,7 @@ export class Customer {
     private authService: AuthService,
     private eRef: ElementRef,
     private route: ActivatedRoute,
+    private router: Router,
     @Inject(PLATFORM_ID) private platformId: Object,
   ) {
     this.isBrowser = isPlatformBrowser(this.platformId);
@@ -417,35 +418,52 @@ export class Customer {
 
     return {
       logo: provider.providerSVG || 'assets/icons/default.png',
-
       title: provider.rateName || 'N/A',
-
       icon: this.getIconByBranch(provider.branch),
-
       type: this.getType(provider.branch),
-
       meter: connection.meterNumber || 'N/A',
-
       name: `${item.firstName || ''} ${item.lastName || ''}`.trim() || 'N/A',
-
       address: this.formatAddress(address),
-
+      zip: address.zip || 'N/A',
+      city: address.city || 'N/A',
+      street: address.street || 'N/A',
+      houseNumber: address.houseNumber || 'N/A',
+      consumption: item.consumption ? `${item.consumption}` : this.consumption,
+      persons: item.persons || this.person,
       contractNumber: item.uniqueDeliveryId || 'N/A',
-
       duration: this.getDuration(provider),
-
       startDate: this.formatDateReminder(item.orderPlacedOn),
-
       renewal: this.getRenewalDate(item),
-
       price: this.formatWorkPrice(provider),
-
       basePrice: this.formatBasePrice(provider),
-
       monthly: this.formatMonthly(provider),
-
       cancelDate: this.getCancelDate(item.expiryOn),
     };
+  }
+  person = 2;
+  consumption = 2510;
+
+  compareNew(contract: any) {
+    console.log('Comparing contract:', contract);
+    if (!contract.zip || !contract.city || !contract.street || !contract.houseNumber) {
+      console.error('Invalid contract data');
+      return;
+    }
+
+    const data = {
+      zip: contract.zip,
+      city: contract.city,
+      street: contract.street,
+      houseNumber: contract.houseNumber,
+      persons: contract.persons,
+      consumption: contract.consumption,
+    };
+
+    console.log('Saving address:', data);
+
+    this.authService.setAddressData(data);
+
+    this.router.navigate(['/electricity-comparision']);
   }
   // ===============================
   //  TYPE & ICON

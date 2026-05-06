@@ -135,7 +135,7 @@ export class SelectProvider implements OnInit {
   city = 'Dresden';
   street = 'Adlergasse';
   houseNumber = '6';
-  consum = 2500;
+  consum = 2510;
   type = 'private';
   branch = 'electric';
 
@@ -166,7 +166,7 @@ export class SelectProvider implements OnInit {
   streetOptions: { street: string; street_id: string }[] = [];
   isRestoring = false;
   selectedPersons = 2;
-  consumption = 2510;
+  // consumption = 2510;
 
   showCustomInput = false;
 
@@ -218,7 +218,7 @@ export class SelectProvider implements OnInit {
       this.street = data.street;
       this.houseNumber = data.houseNumber;
       this.consum = data.consumption;
-
+      this.selectedPersons = data.persons;
       this.hasAddress = true;
       // this.isOpen = true;
       // this.isOpen = false;
