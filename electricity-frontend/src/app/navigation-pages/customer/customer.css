@@ -236,7 +236,6 @@
   flex-wrap: nowrap;
 }
 
-
 /* re */
 .customer-profile-box {
   border-radius: 0px 0 8px 8px;
@@ -334,9 +333,11 @@
   width: 25%;
   display: flex;
   flex-direction: column;
-  justify-content: center;
+  /* justify-content: center; */
   align-items: flex-end;
   gap: 10px;
+
+  justify-content: space-between;
 }
 .section-body {
   display: flex;
@@ -347,6 +348,61 @@
 /* Buttons full width inside column */
 .card-actions button {
   width: 100%;
+}
+
+.toggle-wrap {
+  width: 100%;
+  display: flex;
+  justify-content: flex-end;
+}
+
+.action-buttons {
+  margin-top: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  width: 100%;
+}
+
+/* TOGGLE SWITCH */
+.switch {
+  position: relative;
+  display: inline-block;
+  width: 48px;
+  height: 24px;
+}
+
+.switch input {
+  display: none;
+}
+
+.slider {
+  position: absolute;
+  cursor: pointer;
+  inset: 0;
+  background: #ccc;
+  border-radius: 30px;
+  transition: 0.3s;
+}
+
+.slider:before {
+  content: '';
+  position: absolute;
+  height: 18px;
+  width: 18px;
+  left: 3px;
+  bottom: 3px;
+  background: white;
+  border-radius: 50%;
+  transition: 0.3s;
+}
+
+.switch input:checked + .slider {
+  background: #00a651;
+}
+
+.switch input:checked + .slider:before {
+  transform: translateX(24px);
 }
 .toggle-row {
   font-size: 14px;
@@ -1409,7 +1465,6 @@
 }
 /* Document Archive End */
 
-
 /* responsive section */
 @media (max-width: 768px) {
   .sidebar {
@@ -1429,7 +1484,6 @@
 }
 
 @media (max-width: 768px) {
-
   .customer-profile-box {
     border-radius: 8px;
   }
@@ -1470,3 +1524,381 @@
   }
 }
 
+/* =========================
+   METER SECTION
+========================= */
+
+.meter-section {
+  border: 1px solid #00a651;
+  border-radius: 8px;
+  overflow: hidden;
+  background: #f5f5f5;
+  margin-bottom: 20px;
+}
+
+.meter-section-header {
+  background: #00a651;
+  color: #fff;
+  padding: 14px 18px;
+  font-size: 20px;
+  font-weight: 600;
+}
+
+.meter-wrapper {
+  padding: 16px;
+  display: flex;
+  gap: 16px;
+  flex-wrap: wrap;
+}
+
+/* =========================
+   CARD
+========================= */
+
+.meter-card {
+  position: relative;
+  /* width: calc(50% - 8px); */
+  border: 1px solid #8bcf9f;
+  border-radius: 6px;
+  background: #efefef;
+  padding: 16px;
+  box-sizing: border-box;
+}
+
+/* =========================
+   STATUS
+========================= */
+.meter-status-row {
+  width: 100%;
+  display: flex;
+  justify-content: flex-end;
+  margin-bottom: 10px;
+}
+
+.meter-top-status {
+  background: #00a651;
+  color: #fff;
+  padding: 4px 12px;
+  border-radius: 4px;
+  font-size: 12px;
+  font-weight: 600;
+  width: fit-content;
+}
+/* =========================
+   TOP AREA
+========================= */
+
+.meter-top {
+  display: flex;
+  gap: 18px;
+  margin-bottom: 12px;
+  justify-content: center;
+}
+
+.meter-icon-box {
+  width: 90px;
+  min-width: 90px;
+}
+
+.meter-icon-box img {
+  width: 100%;
+  object-fit: contain;
+}
+
+.meter-top-content {
+  flex: 1;
+}
+
+.meter-top-content p {
+  margin: 4px 0;
+  font-size: 13px;
+}
+
+/* =========================
+   PROVIDER BADGE
+========================= */
+
+.meter-provider-badge {
+  font-weight: 600;
+  width: auto;
+  font-size: 14px;
+  background: #003b7a;
+  color: #fff;
+  padding: 5px 10px;
+  border-radius: 4px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+
+  margin-bottom: 14px;
+}
+
+/* =========================
+   BODY
+========================= */
+
+.meter-body {
+  display: flex;
+  gap: 20px;
+}
+
+.meter-left,
+.meter-right {
+  flex: 1;
+}
+
+.meter-left p,
+.meter-right p {
+  margin: 3px 0;
+  font-size: 13px;
+  line-height: 1.4;
+}
+
+.meter-contract-title {
+  background: #003b7a;
+  color: #fff;
+  display: inline-block;
+  padding: 5px 12px;
+  border-radius: 4px;
+  margin-bottom: 10px;
+  font-weight: 600;
+}
+
+/* =========================
+   BUTTONS
+========================= */
+
+.meter-blue-btn,
+.meter-orange-btn {
+  /* width: 100%; */
+  border: none;
+  border-radius: 5px;
+  padding: 9px 10px;
+  margin-top: 10px;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  display: flex;
+}
+
+.meter-blue-btn {
+  background: #003b7a;
+  color: #fff;
+}
+
+.meter-orange-btn {
+  background: #ff7a00;
+  color: #fff;
+}
+
+.meter-blue-btn.full {
+  font-size: 12px;
+}
+
+/* =========================
+   RESPONSIVE
+========================= */
+
+@media (max-width: 991px) {
+  .meter-card {
+    width: 100%;
+  }
+
+  .meter-body {
+    flex-direction: column;
+  }
+}
+
+@media (max-width: 600px) {
+  .meter-top {
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+  }
+
+  .meter-provider-badge {
+    width: 100%;
+    text-align: center;
+  }
+
+  .meter-section-header {
+    font-size: 18px;
+  }
+}
+
+.meter-wrapper {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 16px;
+  padding: 16px;
+}
+.meter-info-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.meter-info-row p {
+  margin: 0;
+}
+
+.info-circ {
+  flex-shrink: 0;
+}
+.anpassen {
+  margin-left: auto;
+  color: #1565c0;
+  font-size: 13px;
+  text-decoration: none;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  float: right;
+  cursor: pointer;
+}
+
+.meter-provider-icon {
+  width: 18px;
+  height: 18px;
+  object-fit: contain;
+}
+
+@media (max-width: 991px) {
+  .meter-wrapper {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* =========================
+   INACTIVE SECTION
+========================= */
+
+.inactive-meter-section {
+  border: 1px solid #7fd19c;
+  border-radius: 8px;
+  padding: 14px;
+  margin-top: 20px;
+  background: #f5f5f5;
+}
+
+/* =========================
+   GRID
+========================= */
+.inactive-meter-wrapper {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 14px;
+}
+
+.inactive-meter-card {
+  border: 1px solid #8bcf9f;
+  border-radius: 6px;
+  padding: 14px;
+  background: #f2f2f2;
+  opacity: 0.7;
+  transition: 0.3s ease;
+}
+
+
+/* STATUS */
+
+.inactive-status-row {
+  display: flex;
+  justify-content: flex-end;
+  margin-bottom: 10px;
+}
+
+.inactive-meter-top-status {
+  background: #a9d89d;
+  color: #fff;
+  padding: 3px 10px;
+  border-radius: 4px;
+  font-size: 12px;
+  font-weight: 600;
+}
+
+/* MOBILE */
+
+@media (max-width: 991px) {
+  .inactive-meter-wrapper {
+    grid-template-columns: 1fr;
+  }
+
+  .inactive-main-row {
+    flex-direction: column;
+  }
+
+  .inactive-left {
+    width: 100%;
+  }
+}
+
+.inactive-main-row {
+  display: flex;
+  align-items: flex-start;
+  gap: 22px;
+}
+
+/* LEFT SIDE */
+
+.inactive-left {
+  width: 180px;
+  min-width: 180px;
+}
+
+.inactive-meter-icon-box {
+  width: 80px;
+}
+
+.inactive-meter-icon-box img {
+  width: 100%;
+  object-fit: contain;
+}
+
+.inactive-tariff-title {
+  margin-top: 10px;
+  font-size: 15px;
+  font-weight: 600;
+}
+
+.inactive-provider-badge {
+  margin-top: 8px;
+  background: #5d82a9;
+  color: #fff;
+  border-radius: 4px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  width: fit-content;
+  padding: 6px 12px;
+}
+
+.inactive-provider-icon {
+  width: 16px;
+  height: 16px;
+  object-fit: contain;
+}
+
+/* RIGHT SIDE */
+
+.inactive-right {
+  flex: 1;
+}
+
+.inactive-meter-number-row {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  margin-bottom: 14px;
+  font-size: 13px;
+}
+
+.inactive-address {
+  margin-bottom: 12px;
+}
+
+.inactive-address p,
+.inactive-contract-details p {
+  margin: 2px 0;
+  font-size: 13px;
+}

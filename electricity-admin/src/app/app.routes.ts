@@ -22,6 +22,7 @@ import { HolidayMarkerComponent } from "./pages/customers/holiday-markers/holida
 import { ChangeBookingProviderComponent } from "./pages/bookings/change-booking-provider/change-booking-provider.component";
 import { CreateCustomerComponent } from "./pages/customers/create-customer/create-customer.component";
 import { CreateBookingComponent } from "./pages/bookings/create-booking/create-booking.component";
+import { CustomerCallbackComponent } from "./pages/customer-callback/customer-callback.component";
 
 export const routes: Routes = [
   {
@@ -150,7 +151,17 @@ export const routes: Routes = [
         path: "booking/new",
         component: CreateBookingComponent,
         title: "Neue Buchung erstellen",
-      }
+      },
+      {
+        path: "customers/callback-requests",
+        component: CustomerCallbackComponent,
+        title: "Rückrufe",
+      },
+      {
+        path: "customer-callback",
+        component: CustomerCallbackComponent,
+        title: "Rückrufe",
+      },
     ],
   },
   {

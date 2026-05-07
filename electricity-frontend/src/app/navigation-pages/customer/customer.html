@@ -141,6 +141,213 @@
         </div>
       </div>
     </div>
+    <!--══════════ Meters Section Start (Tab - 1) ══════════-->
+    <div class="" *ngIf="activeTab === 1 && currentStep === 1">
+      <div class="login-berich">Übersicht Zähler & Verträge</div>
+      <br />
+      <div class="meter-section">
+        <div class="meter-section-header">Meine Zähler</div>
+
+        <div class="meter-wrapper">
+          <div class="meter-card" *ngFor="let item of meterList">
+            <!-- TOP -->
+
+            <!-- PROVIDER BADGE -->
+
+            <!-- BODY -->
+            <div class="meter-body">
+              <!-- LEFT -->
+              <div class="meter-left">
+                <div class="meter-top">
+                  <div class="meter-icon-box">
+                    <img [src]="item.meterIcon" alt="meter" />
+                  </div>
+                </div>
+
+                <div class="meter-provider-badge">
+                  <img [src]="item.providerIcon" alt="provider" class="meter-provider-icon" />
+
+                  <span>{{ item.providerType }}</span>
+                </div>
+                <div class="meter-info-row">
+                  <p><strong>Zählerbezeichnung:</strong></p>
+                  <a class="anpassen">
+                    anpassen
+                    <span class="item-image">
+                      <img
+                        src="assets/icons/Bearbeiten_schwarz.png"
+                        class="icon-check"
+                        alt="check"
+                      />
+                    </span>
+                  </a>
+                </div>
+                <p>{{ item.meterName }}</p>
+
+                <p><strong>Adresse:</strong></p>
+
+                <p>{{ item.address.name }}</p>
+                <p>{{ item.address.street }}</p>
+                <p>{{ item.address.city }}</p>
+
+                <button class="meter-blue-btn">Zählerstand melden</button>
+
+                <button class="meter-blue-btn">Zähleraustausch melden</button>
+
+                <button class="meter-blue-btn">Abschlag ändern</button>
+
+                <button class="meter-blue-btn">Rechnungen anfordern</button>
+
+                <button class="meter-blue-btn full">Nachricht an Energielieferanten senden</button>
+              </div>
+
+              <!-- RIGHT -->
+              <div class="meter-right">
+                <!-- STATUS -->
+                <div class="meter-status-row">
+                  <div class="meter-top-status">
+                    <span>{{ item.status }}</span>
+                  </div>
+                </div>
+
+                <div class="meter-top-content">
+                  <div class="meter-info-row">
+                    <p>
+                      <strong>Zählernummer:</strong>
+                      {{ item.meterNumber }}
+                    </p>
+
+                    <div>
+                      <span class="info-base info-circ">i</span>
+                    </div>
+                  </div>
+                  <p>
+                    <strong>Marktlokation-ID:</strong>
+                    {{ item.marketLocation }}
+                  </p>
+                </div>
+                <div class="meter-contract-title">Vertragsdetails</div>
+
+                <p>
+                  <strong>Anbieter:</strong>
+                  {{ item.provider }}
+                </p>
+
+                <p>
+                  <strong>Tarif:</strong>
+                  {{ item.tariff }}
+                </p>
+
+                <p>
+                  <strong>Vertragsbeginn:</strong>
+                  {{ item.contractStart }}
+                </p>
+
+                <p>
+                  <strong>Ende Mindestvertragslaufzeit:</strong>
+                  {{ item.contractEnd }}
+                </p>
+
+                <p>
+                  <strong>Vertragsnummer:</strong>
+                  {{ item.contractNumber }}
+                </p>
+
+                <p>
+                  <strong>Kundennummer:</strong>
+                  {{ item.customerNumber }}
+                </p>
+
+                <button class="meter-orange-btn">Anfrage an Ihren Berater stellen</button>
+
+                <button class="meter-orange-btn">Rückruf von Berater anfordern</button>
+
+                <button class="meter-orange-btn">Umzug melden</button>
+
+                <button class="meter-orange-btn">Kündigungsservice</button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- INACTIVE / CANCELLED METERS -->
+
+      <div class="inactive-meter-section">
+        <div class="inactive-meter-wrapper">
+          <div class="inactive-meter-card" *ngFor="let item of inactiveMeterList">
+            <!-- STATUS -->
+            <div class="inactive-status-row">
+              <div class="inactive-meter-top-status">
+                {{ item.status }}
+              </div>
+            </div>
+
+            <!-- MAIN ROW -->
+            <div class="inactive-main-row">
+              <!-- LEFT SIDE -->
+              <div class="inactive-left">
+                <!-- IMAGE -->
+                <div class="inactive-meter-icon-box">
+                  <img [src]="item.meterIcon" alt="meter" />
+                </div>
+
+                <!-- TITLE -->
+                <div class="inactive-tariff-title">
+                  {{ item.tariff }}
+                </div>
+
+                <!-- BADGE -->
+                <div class="inactive-provider-badge">
+                  <img [src]="item.providerIcon" alt="provider" class="inactive-provider-icon" />
+
+                  <span>{{ item.providerType }}</span>
+                </div>
+              </div>
+
+              <!-- RIGHT SIDE -->
+              <div class="inactive-right">
+                <!-- METER -->
+                <div class="inactive-meter-number-row">
+                  <strong>Zählernummer:</strong>
+                  <span>{{ item.meterNumber }}</span>
+                </div>
+
+                <!-- ADDRESS -->
+                <div class="inactive-address">
+                  <p>
+                    <strong>Adresse:</strong>
+                    {{ item.address.name }}
+                  </p>
+
+                  <p>{{ item.address.street }}</p>
+                  <p>{{ item.address.city }}</p>
+                </div>
+
+                <!-- CONTRACT -->
+                <div class="inactive-contract-details">
+                  <p>
+                    Vertragsnummer:
+                    <strong>{{ item.contractNumber }}</strong>
+                  </p>
+
+                  <p>
+                    Vertragsbeginn:
+                    <strong>{{ item.contractStart }}</strong>
+                  </p>
+
+                  <p>
+                    Gekündigt zum:
+                    <strong> {{ item.cancelledDate }}</strong>
+                  </p>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <!--══════════ Meters Section End ══════════-->
 
     <!--══════════ Reminder Section Start (Tab - 3) ══════════-->
 
@@ -197,70 +404,94 @@
       </div>
 
       <br />
-      <div *ngIf="isNotificationEnabled">
-        <div *ngFor="let group of groupedContracts">
-          <!-- ADDRESS HEADER -->
-          <div style="border-radius: 0 0 8px 8px; border: 1px solid #00a651; margin-bottom: 20px">
-            <div
-              class="attorney-berich-green"
-              style="align-items: start; justify-content: start; padding-left: 20px"
-            >
-              Ihre Verträge und Kündigungsfristen - {{ group.addressLabel }}
-            </div>
 
-            <!-- CONTRACTS -->
-            <div class="tab-row">
-              <div class="contract-card" *ngFor="let contract of group.contracts">
-                <!-- LEFT -->
-                <div class="card-left">
-                  <img [src]="contract.logo" class="company-logo" />
+      <div *ngFor="let group of groupedContracts">
+        <!-- ADDRESS HEADER -->
+        <div style="border-radius: 0 0 8px 8px; border: 1px solid #00a651; margin-bottom: 20px">
+          <div
+            class="attorney-berich-green"
+            style="align-items: start; justify-content: start; padding-left: 20px"
+          >
+            Ihre Verträge und Kündigungsfristen - {{ group.addressLabel }}
+          </div>
 
-                  <div style="padding-bottom: 10px; font-size: 14px">
-                    <strong>{{ contract.title }}</strong>
-                  </div>
+          <!-- CONTRACTS -->
+          <div class="tab-row">
+            <div class="contract-card" *ngFor="let contract of group.contracts">
+              <!-- LEFT -->
+              <div class="card-left">
+                <img [src]="contract.logo" class="company-logo" />
 
-                  <div class="badge" style="font-size: 14px">
-                    <img [src]="contract.icon" class="badge-icon" />
-                    {{ contract.type }}
-                  </div>
+                <div style="padding-bottom: 10px; font-size: 14px">
+                  <strong>{{ contract.title }}</strong>
+                </div>
 
-                  <div class="address">
-                    <p><strong>Zählernummer:</strong> {{ contract.meter }}</p>
-                    <p><strong>Adresse:</strong> {{ contract.name }}</p>
-                    <p>{{ contract.address }}</p>
+                <div class="badge" style="font-size: 14px">
+                  <img [src]="contract.icon" class="badge-icon" />
+                  {{ contract.type }}
+                </div>
+
+                <div class="address">
+                  <p><strong>Zählernummer:</strong> {{ contract.meter }}</p>
+                  <p><strong>Adresse:</strong> {{ contract.name }}</p>
+                  <p>{{ contract.address }}</p>
+                </div>
+              </div>
+
+              <!-- MIDDLE -->
+              <div class="card-middle" style="font-size: 13px">
+                <p>
+                  Vertragsnummer: <strong>{{ contract.contractNumber }}</strong>
+                </p>
+                <p>
+                  Kundennummer: <strong>{{ contract.customerNumber }}</strong>
+                </p>
+                <p>
+                  Mindestvertragslaufzeit: <strong>{{ contract.duration }}</strong>
+                </p>
+                <p>
+                  Ende der Mindestvertragslaufzeit: <strong>{{ contract.endOfDuration }}</strong>
+                </p>
+                <p>
+                  Vertragsbeginn: <strong>{{ contract.startDate }}</strong>
+                </p>
+                <p>
+                  Automatische Verlängerung: <strong>{{ contract.renewal }}</strong>
+                </p>
+                <p>
+                  Arbeitspreis: <strong>{{ contract.price }}</strong>
+                </p>
+                <p>
+                  Grundpreis: <strong>{{ contract.basePrice }}</strong>
+                </p>
+                <p>
+                  Abschlag pro Monat: <strong>{{ contract.monthly }}</strong>
+                </p>
+              </div>
+
+              <!-- RIGHT -->
+              <div class="card-actions">
+                <!-- TOP TOGGLE -->
+                <div *ngIf="isNotificationEnabled">
+                  <div class="toggle-wrap">
+                    <label class="switch">
+                      <input
+                        type="checkbox"
+                        [(ngModel)]="contract.notificationEnabled"
+                        (change)="toggleDeliveryNotification(contract)"
+                      />
+                      <span class="slider"></span>
+                    </label>
                   </div>
                 </div>
 
-                <!-- MIDDLE -->
-                <div class="card-middle" style="font-size: 13px">
-                  <p>
-                    Vertragsnummer: <strong>{{ contract.contractNumber }}</strong>
-                  </p>
-                  <p>
-                    Mindestvertragslaufzeit: <strong>{{ contract.duration }}</strong>
-                  </p>
-                  <p>
-                    Vertragsbeginn: <strong>{{ contract.startDate }}</strong>
-                  </p>
-                  <p>
-                    Automatische Verlängerung: <strong>{{ contract.renewal }}</strong>
-                  </p>
-                  <p>
-                    Arbeitspreis: <strong>{{ contract.price }}</strong>
-                  </p>
-                  <p>
-                    Grundpreis: <strong>{{ contract.basePrice }}</strong>
-                  </p>
-                  <p>
-                    Abschlag pro Monat: <strong>{{ contract.monthly }}</strong>
-                  </p>
-                </div>
-
-                <!-- RIGHT -->
-                <div class="card-actions">
+                <!-- BOTTOM BUTTONS -->
+                <div class="action-buttons" *ngIf="contract.showActions">
                   <button class="cancel-btn">Kündigungsfrist zum {{ contract.cancelDate }}</button>
 
-                  <button class="compare-btn" (click)="compareNew(contract)">Vertrag neu vergleichen</button>
+                  <button class="compare-btn" (click)="compareNew(contract)">
+                    Vertrag neu vergleichen
+                  </button>
                 </div>
               </div>
             </div>
