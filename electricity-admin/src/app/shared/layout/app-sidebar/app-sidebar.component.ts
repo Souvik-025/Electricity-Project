@@ -86,7 +86,10 @@ export class AppSidebarComponent implements OnInit, OnDestroy {
       <path d="M20 21V19C20 18.067 19.3638 17.2519 18.5 17.0127" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
       <path d="M15.5 3.28906C16.3968 3.64352 17 4.52164 17 5.5C17 6.47836 16.3968 7.35648 15.5 7.71094" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
     </svg>`,
-      subItems: [{ name: "Customer List", path: "/customers" }, { name: "Holiday Markers", path: "/customers/holiday-markers" }],
+      subItems: [
+        { name: "Customer List", path: "/customers" },
+        { name: "Holiday Markers", path: "/customers/holiday-markers" },
+      ],
     },
     {
       name: "Bookings",
@@ -113,8 +116,24 @@ export class AppSidebarComponent implements OnInit, OnDestroy {
       <path d="M9.5 9C9.5 7.61929 10.6193 6.5 12 6.5C13.3807 6.5 14.5 7.61929 14.5 9C14.5 10.3807 13.3807 11.5 12 11.5C10.6193 11.5 9.5 10.3807 9.5 9Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
       <path d="M12 11.5V14M12 17H12.01" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
     </svg>`,
-      subItems: [{ name: "Query Categories", path: "/customer-query/categories" }, { name: "Customer Queries", path: "/customer-query/customer-queries" }],
-    }
+      subItems: [
+        { name: "Query Categories", path: "/customer-query/categories" },
+        { name: "Customer Queries", path: "/customer-query/customer-queries" },
+      ],
+    },
+    {
+      name: "Callback Requests",
+      icon: `<svg width="1em" height="1em" viewBox="0 0 24 24" fill="none">
+        <path 
+          d="M5 4H9L11 9L8.5 10.5C10 13.5 12.5 16 15.5 17.5L17 15L22 17V21C22 21.55 21.55 22 21 22C10.51 22 2 13.49 2 3C2 2.45 2.45 2 3 2H7L5 4Z"
+          stroke="currentColor"
+          stroke-width="2"
+          stroke-linecap="round"
+          stroke-linejoin="round"
+        />
+      </svg>`,
+      subItems: [{ name: "Callback Requests", path: "/customer-callback" }],
+    },
   ];
 
   openSubmenu: string | null = null;

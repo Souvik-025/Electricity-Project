@@ -74,7 +74,7 @@ export class Customer {
   ];
 
   /* ── Tab control ──────────────────────────────────────────────── */
-  activeTab: number = 3;
+  activeTab: number = 1;
   serviceTab: number = 1;
   documentTab: number = 0;
   /* ── Step control ──────────────────────────────────────────────── */
@@ -280,7 +280,114 @@ export class Customer {
   }
 
   /* ════════════════════════════════════════════════════════════════════════════════════════════════*/
+  /*── Meter Section Start ──*/
+  meterList = [
+    {
+      type: 'electricity',
+      status: 'Auftrag eingegangen',
+      meterIcon: 'assets/icons/electric-meter.png',
+      providerIcon: 'assets/icons/65bd2fa8-bd0e-497e-a781-a3c434fe6176_Stromvergleich.png',
 
+      providerType: 'Strom | Hausstrom',
+
+      meterNumber: 'MHD-1325-79-45943268',
+      marketLocation: 'MILD-054321-98674',
+
+      meterName: 'MHD-OZR-1325-79-45943268',
+
+      address: {
+        name: 'Marie Mustermann',
+        street: 'Mustermannstraße 29',
+        city: '12345 Musterhausen',
+      },
+
+      provider: 'E.ON',
+      tariff: 'EON ÖkoStrom Extra 12',
+      contractStart: '28.12.2023',
+      contractEnd: '27.12.2024',
+      contractNumber: '0215123456789',
+      customerNumber: '2026-1234567890',
+    },
+
+    {
+      type: 'gas',
+      status: 'In Belieferung',
+      meterIcon: 'assets/icons/gas-meter.png',
+      providerIcon: 'assets/icons/1a9ebeaf-78b8-48a3-9514-94f57aa1de2c_Gasvergleich.png',
+
+      providerType: 'Gas',
+
+      meterNumber: 'ZKH-1325-9147122',
+      marketLocation: 'MILD-054321-98674',
+
+      meterName: 'MHD-ZKH-31529147-122',
+
+      address: {
+        name: 'Marie Mustermann',
+        street: 'Mustermannstraße 29',
+        city: '12345 Musterhausen',
+      },
+
+      provider: 'E.ON',
+      tariff: 'Gas Extra 12',
+      contractStart: '15.09.2024',
+      contractEnd: '14.09.2026',
+      contractNumber: '012455-64564564',
+      customerNumber: '546321456987',
+    },
+  ];
+
+  inactiveMeterList = [
+    {
+      status: 'Gekündigt zum 18.03.2025',
+
+      meterIcon: 'assets/icons/electric-meter.png',
+
+      providerIcon: 'assets/icons/1c55b9e7-760a-4cb5-b070-69f9316ac0f7_Warmepumpe.png',
+
+      providerType: 'Heizstrom | Wärmepumpe',
+
+      tariff: 'Energie Öko-Extra 24',
+
+      meterNumber: 'WP-36546465444',
+
+      address: {
+        name: 'Marie Mustermann',
+        street: 'Mustermannstraße 29',
+        city: '12345 Musterhausen',
+      },
+
+      contractNumber: '0215/3216546546541',
+      contractStart: '12.03.2023',
+      cancelledDate: '18.03.2025',
+    },
+
+    {
+      status: 'Gekündigt zum 28.03.2026',
+
+      meterIcon: 'assets/icons/electric-meter.png',
+
+      providerIcon: 'assets/icons/9a900962-9eab-4317-9dc7-b1d1e529dbe4_Ladestrom.png',
+
+      providerType: 'Ladestrom | Autostrom',
+
+      tariff: 'CAR-SUN-085788787346',
+
+      meterNumber: '3CAR25914564-145452',
+
+      address: {
+        name: 'Marie Mustermann',
+        street: 'Mustermannstraße 29',
+        city: '12345 Musterhausen',
+      },
+
+      contractNumber: '0CAR12-7849146',
+      contractStart: '28.03.2025',
+      cancelledDate: '28.03.2026',
+    },
+  ];
+  /*── Meter Section end ──*/
+  /* ════════════════════════════════════════════════════════════════════════════════════════════════*/
   /*── Reminder Section Start ──*/
   selection: string = 'yes';
   showReminderModal: boolean = false;
@@ -334,43 +441,64 @@ export class Customer {
       },
     });
   }
+  toggleDeliveryNotification(contract: any): void {
+    const payload = {
+      customerId: this.authService.getUserId(),
+      deliveryId: contract.deliveryId,
+    };
 
-  contracts = [
-    {
-      logo: 'assets/icons/Icons_energyprovider/eon.png',
-      title: 'E.ON ÖkoStrom Extra 12',
-      icon: 'assets/icons/65bd2fa8-bd0e-497e-a781-a3c434fe6176_Stromvergleich.png',
-      type: 'Strom | Hausstrom',
-      meter: 'ZKH-31259147-122',
-      name: 'Marie Mustermann',
-      address: 'Musterstraße 29, 12345 Musterhausen',
-      contractNumber: '0215/123456789',
-      duration: '12 Monate',
-      startDate: '19.04.2025',
-      renewal: '19.04.2026',
-      price: '26,80 Ct./kWh',
-      basePrice: '14,90 €/Monat',
-      monthly: '68,40 €',
-      cancelDate: '18.04.2026',
-    },
-    {
-      logo: 'assets/icons/Icons_energyprovider/vattenfall.png',
-      title: 'Easy12 Gas',
-      icon: 'assets/icons/1a9ebeaf-78b8-48a3-9514-94f57aa1de2c_Gasvergleich.png',
-      type: 'Gas',
-      meter: 'ZKH-31259147-122',
-      name: 'Marie Mustermann',
-      address: 'Musterstraße 29, 12345 Musterhausen',
-      contractNumber: '012455-64564564k1245',
-      duration: '12 Monate',
-      startDate: '28.03.2025',
-      renewal: '28.03.2026',
-      price: '11,72 Ct./kWh',
-      basePrice: '21,90 €/Monat',
-      monthly: '151,40 €',
-      cancelDate: '27.04.2026',
-    },
-  ];
+    this.http.post<any>(`${API_BASE}/customer/toggle-delivery-notification`, payload).subscribe({
+      next: (res: any) => {
+        if (res?.res) {
+          console.log('Notification updated successfully');
+        }
+      },
+
+      error: (err) => {
+        // revert toggle if API fails
+        contract.enabled = !contract.enabled;
+
+        console.error('Failed to update notification', err);
+      },
+    });
+  }
+
+  // contracts = [
+  //   {
+  //     logo: 'assets/icons/Icons_energyprovider/eon.png',
+  //     title: 'E.ON ÖkoStrom Extra 12',
+  //     icon: 'assets/icons/65bd2fa8-bd0e-497e-a781-a3c434fe6176_Stromvergleich.png',
+  //     type: 'Strom | Hausstrom',
+  //     meter: 'ZKH-31259147-122',
+  //     name: 'Marie Mustermann',
+  //     address: 'Musterstraße 29, 12345 Musterhausen',
+  //     contractNumber: '0215/123456789',
+  //     duration: '12 Monate',
+  //     startDate: '19.04.2025',
+  //     renewal: '19.04.2026',
+  //     price: '26,80 Ct./kWh',
+  //     basePrice: '14,90 €/Monat',
+  //     monthly: '68,40 €',
+  //     cancelDate: '18.04.2026',
+  //   },
+  //   {
+  //     logo: 'assets/icons/Icons_energyprovider/vattenfall.png',
+  //     title: 'Easy12 Gas',
+  //     icon: 'assets/icons/1a9ebeaf-78b8-48a3-9514-94f57aa1de2c_Gasvergleich.png',
+  //     type: 'Gas',
+  //     meter: 'ZKH-31259147-122',
+  //     name: 'Marie Mustermann',
+  //     address: 'Musterstraße 29, 12345 Musterhausen',
+  //     contractNumber: '012455-64564564k1245',
+  //     duration: '12 Monate',
+  //     startDate: '28.03.2025',
+  //     renewal: '28.03.2026',
+  //     price: '11,72 Ct./kWh',
+  //     basePrice: '21,90 €/Monat',
+  //     monthly: '151,40 €',
+  //     cancelDate: '27.04.2026',
+  //   },
+  // ];
 
   groupedContracts: any[] = [];
   private fetchDeliveryByAddress(): void {
@@ -410,7 +538,22 @@ export class Customer {
       },
     });
   }
+  shouldShowContractActions(startTimestamp: number, durationMonths: number): boolean {
+    if (!startTimestamp || !durationMonths) {
+      return false;
+    }
 
+    const showDate = new Date(startTimestamp * 1000);
+
+    // minimum term - 12 months
+    const monthsBeforeEnd = durationMonths - 12;
+
+    showDate.setMonth(showDate.getMonth() + monthsBeforeEnd);
+
+    const today = new Date();
+
+    return today >= showDate;
+  }
   mapToContract(item: any) {
     const provider = item.provider || {};
     const connection = item.connection || {};
@@ -430,14 +573,22 @@ export class Customer {
       houseNumber: address.houseNumber || 'N/A',
       consumption: item.consumption ? `${item.consumption}` : this.consumption,
       persons: item.persons || this.person,
+      deliveryId: item.deliveryId,
+      notificationEnabled: item.notificationEnabled ?? true,
       contractNumber: item.uniqueDeliveryId || 'N/A',
+      customerNumber: item.mobile || 'N/A',
       duration: this.getDuration(provider),
+      endOfDuration: this.getEndOfDuration(item.orderPlacedOn, this.getDurationMonths(provider)),
       startDate: this.formatDateReminder(item.orderPlacedOn),
       renewal: this.getRenewalDate(item),
       price: this.formatWorkPrice(provider),
       basePrice: this.formatBasePrice(provider),
       monthly: this.formatMonthly(provider),
       cancelDate: this.getCancelDate(item.expiryOn),
+      showActions: this.shouldShowContractActions(
+        item.orderPlacedOn,
+        this.getDurationMonths(provider),
+      ),
     };
   }
   person = 2;
@@ -465,6 +616,25 @@ export class Customer {
 
     this.router.navigate(['/electricity-comparision']);
   }
+
+  getDurationMonths(provider: any): number {
+    return Number(provider?.optTerm || 0);
+  }
+
+  getEndOfDuration(startTimestamp: number, months: number): string {
+    if (!startTimestamp || !months) return 'N/A';
+
+    const date = new Date(startTimestamp * 1000);
+
+    // add months
+    date.setMonth(date.getMonth() + months);
+
+    // minus 1 day
+    date.setDate(date.getDate() - 1);
+
+    return date.toLocaleDateString('de-DE');
+  }
+
   // ===============================
   //  TYPE & ICON
   // ===============================
@@ -524,7 +694,19 @@ export class Customer {
   //  RENEWAL (NOT IN API)
   // ===============================
   getRenewalDate(item: any): string {
-    return 'N/A';
+    const startTimestamp = item?.orderPlacedOn;
+    const months = Number(item?.provider?.optTerm || 0);
+
+    if (!startTimestamp || !months) {
+      return 'N/A';
+    }
+
+    const date = new Date(startTimestamp * 1000);
+
+    // add contract term months
+    date.setMonth(date.getMonth() + months);
+
+    return date.toLocaleDateString('de-DE');
   }
 
   // ===============================
