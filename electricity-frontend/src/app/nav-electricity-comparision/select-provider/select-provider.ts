@@ -68,6 +68,13 @@ export interface Rate {
   branch: string;
   type: string;
   rateChangeType: string[];
+  commission: {
+    type: string;
+    amount: number;
+    validFrom?: string;
+    validTo?: string;
+    requiredOrderState?: string;
+  }[];
   uiExpanded?: boolean;
 }
 
@@ -611,6 +618,54 @@ export class SelectProvider implements OnInit {
     this.addressForm.get('houseNumber')?.reset();
     this.addressForm.get('houseNumber')?.disable();
   }
+  baseProviders: any[] = [];
+
+  selectedProviderId!: number;
+  selectedRateId!: number;
+
+  selectedProvider: any = null;
+  selectedRate: any = null;
+
+  selectedProviderRates: any[] = [];
+
+  // ======================
+  // MODES
+  // ======================
+
+  isGrossPrice = true;
+
+  basePriceMode: 'month' | 'year' = 'month';
+
+  abschlagCount = 12;
+
+  adjustedBaseYearlyPrice = 0;
+  // ======================
+  // EDITABLE VALUES
+  // ======================
+  originalBaseRate: any = null;
+
+  originalEditableWorkPrice = 0;
+
+  originalEditableBasePrice = 0;
+
+  originalIsGrossPrice = true;
+
+  originalBasePriceMode: 'month' | 'year' = 'month';
+
+  editableWorkPrice = 0;
+
+  editableBasePrice = 0;
+
+  editableMonthlyPrice = 0;
+
+  abschlagOptions = [12, 11, 10, 9, 8, 7, 6];
+  baseAbschlagPrice = 0;
+
+  savedActiveTab: 'price' | 'abschlag' = 'price';
+
+  savedAbschlagCount = 12;
+
+  savedEditableMonthlyPrice = 0;
 
   private fetchRates(): void {
     if (!this.hasAddress) {
@@ -655,10 +710,13 @@ export class SelectProvider implements OnInit {
         const total = res.rates?.total || rates.length;
         const baseProviderData = res.baseProvider?.result?.[0] || null;
 
-        this.allRates = rates.map((rate: Rate) => ({
-          ...rate,
-          uiExpanded: true,
-        }));
+        this.allRates = rates
+          .map((rate: Rate) => ({
+            ...rate,
+            uiExpanded: true,
+            finalPrice: this.getDisplayPrice(rate),
+          }))
+          .sort((a, b) => b.finalPrice - a.finalPrice);
 
         this.totalCount = total;
 
@@ -674,11 +732,30 @@ export class SelectProvider implements OnInit {
         this.applyFiltersAndSort();
         this.expandVisibleRates();
 
-        this.isDropdownOpen = true;
+        // this.isDropdownOpen = true;
         this.hasLoadedRates = true;
         this.isLoading = false;
 
         this.persistViewState();
+
+        this.baseProviders = res.baseProvider?.result || [];
+
+        if (this.baseProviders.length > 0) {
+          this.selectedProvider = this.baseProviders[0];
+
+          this.selectedProviderId = this.selectedProvider.providerId;
+
+          this.selectedProviderRates = this.selectedProvider.rates || [];
+
+          if (this.selectedProviderRates.length > 0) {
+            this.selectedRate = this.selectedProviderRates[0];
+
+            this.selectedRateId = this.selectedRate.rateId;
+
+            this.updateEditableValues();
+          }
+        }
+
         this.cdr.detectChanges();
       },
       error: (err) => {
@@ -687,6 +764,217 @@ export class SelectProvider implements OnInit {
         this.hasLoadedRates = true;
       },
     });
+  }
+
+  onProviderChange(): void {
+    this.selectedProvider = this.baseProviders.find((p) => p.providerId == this.selectedProviderId);
+
+    this.selectedProviderRates = this.selectedProvider?.rates || [];
+
+    if (this.selectedProviderRates.length > 0) {
+      this.selectedRate = this.selectedProviderRates[0];
+
+      this.selectedRateId = this.selectedRate.rateId;
+
+      this.updateEditableValues();
+    }
+  }
+
+  applyComparisonPrice(): void {
+    if (!this.baseRate) return;
+
+    // WORK PRICE
+    if (this.isGrossPrice) {
+      this.baseRate.workPrice = Number(this.editableWorkPrice.toFixed(2));
+    } else {
+      this.baseRate.workPrice = Number((this.editableWorkPrice * 1.19).toFixed(2));
+    }
+
+    // BASE PRICE
+    if (this.basePriceMode === 'month') {
+      this.baseRate.basePriceMonth = Number(this.editableBasePrice.toFixed(2));
+
+      this.baseRate.basePriceYear = Number((this.editableBasePrice * 12).toFixed(2));
+    } else {
+      this.baseRate.basePriceYear = Number(this.editableBasePrice.toFixed(2));
+
+      this.baseRate.basePriceMonth = Number((this.editableBasePrice / 12).toFixed(2));
+    }
+
+    // ABSCHLAG
+    if (this.activeTab === 'abschlag') {
+      this.baseRate.totalPriceMonth = Number(this.editableMonthlyPrice.toFixed(2));
+
+      this.baseRate.totalPrice = Number((this.editableMonthlyPrice * 12).toFixed(2));
+    }
+
+    // refresh ui
+    this.baseRate = {
+      ...this.baseRate,
+    };
+
+    this.filteredRates = [...this.filteredRates];
+
+    // save popup state
+    this.savedActiveTab = this.activeTab;
+
+    this.savedAbschlagCount = this.abschlagCount;
+
+    this.savedEditableMonthlyPrice = this.editableMonthlyPrice;
+
+    // save state
+    this.originalBaseRate = {
+      ...this.baseRate,
+    };
+
+    // close
+    this.showEditSection = false;
+
+    this.isModalOpen = false;
+  }
+
+  onAbschlagInputChange(value: number): void {
+    this.baseAbschlagPrice = Number(value);
+  }
+
+  getAbschlagPrice(): number {
+    // original monthly average
+    const monthlyAverage = this.getPopupYearlyPrice() / 12;
+
+    // scale by selected count
+    const value = (monthlyAverage * this.abschlagCount) / 12;
+
+    return Number(value.toFixed(2));
+  }
+
+  changeAbschlagCount(count: number): void {
+    this.abschlagCount = count;
+
+    this.editableMonthlyPrice = Number(((this.baseAbschlagPrice * count) / 12).toFixed(2));
+  }
+
+  getPopupYearlyPrice(): number {
+    const yearlyBasePrice =
+      this.basePriceMode === 'month' ? this.editableBasePrice * 12 : this.editableBasePrice;
+
+    let bruttoWorkPrice = this.editableWorkPrice;
+
+    // netto -> brutto
+    if (!this.isGrossPrice) {
+      bruttoWorkPrice = this.editableWorkPrice * 1.19;
+    }
+
+    const yearlyWorkPrice = (this.consum * bruttoWorkPrice) / 100;
+
+    const yearlyTotal = yearlyBasePrice + yearlyWorkPrice;
+
+    return Number(yearlyTotal.toFixed(2));
+  }
+  // ======================
+  // RATE CHANGE
+  // ======================
+
+  onRateChange(): void {
+    this.selectedRate = this.selectedProviderRates.find((r) => r.rateId == this.selectedRateId);
+
+    this.updateEditableValues();
+  }
+
+  // ======================
+  // GROSS / NET
+  // ======================
+
+  setGrossMode(isGross: boolean): void {
+    // current displayed value
+    let currentPrice = Number(this.editableWorkPrice);
+
+    // brutto -> netto
+    if (!isGross && this.isGrossPrice) {
+      currentPrice = currentPrice / 1.19;
+    }
+
+    // netto -> brutto
+    if (isGross && !this.isGrossPrice) {
+      currentPrice = currentPrice * 1.19;
+    }
+
+    this.isGrossPrice = isGross;
+
+    this.editableWorkPrice = Number(currentPrice.toFixed(2));
+  }
+
+  // ======================
+  // BASE PRICE MODE
+  // ======================
+
+  changeBasePriceMode(mode: 'month' | 'year'): void {
+    // month -> year
+    if (this.basePriceMode === 'month' && mode === 'year') {
+      this.editableBasePrice = Number((this.editableBasePrice * 12).toFixed(2));
+    }
+
+    // year -> month
+    if (this.basePriceMode === 'year' && mode === 'month') {
+      this.editableBasePrice = Number((this.editableBasePrice / 12).toFixed(2));
+    }
+
+    this.basePriceMode = mode;
+  }
+  onBasePriceInputChange(): void {
+    this.editableBasePrice = Number(this.editableBasePrice.toFixed(2));
+  }
+  // ======================
+  // UPDATE INPUT VALUES
+  // ======================
+
+  updateEditableValues(): void {
+    if (!this.selectedRate) return;
+
+    // API workPrice = brutto
+    if (this.isGrossPrice) {
+      this.editableWorkPrice = this.selectedRate.workPrice;
+    } else {
+      // brutto -> netto
+      this.editableWorkPrice = this.selectedRate.workPrice / 1.19;
+    }
+
+    // base price
+    this.editableBasePrice =
+      this.basePriceMode === 'month'
+        ? this.selectedRate.basePriceMonth
+        : this.selectedRate.basePriceYear;
+
+    // average
+    this.editableMonthlyPrice = this.getPopupAveragePrice();
+  }
+
+  // ======================
+  // POPUP PRICE
+  // ======================
+  getPopupAveragePrice(): number {
+    if (!this.selectedRate) return 0;
+
+    // base price yearly
+    const yearlyBasePrice =
+      this.basePriceMode === 'month' ? this.editableBasePrice * 12 : this.editableBasePrice;
+
+    let bruttoWorkPrice = this.editableWorkPrice;
+
+    // netto -> brutto
+    if (!this.isGrossPrice) {
+      bruttoWorkPrice = this.editableWorkPrice * 1.19;
+    }
+
+    // yearly work price
+    const yearlyWorkPrice = (this.consum * bruttoWorkPrice) / 100;
+
+    // yearly total
+    const yearlyTotal = yearlyWorkPrice + yearlyBasePrice;
+
+    // result
+    const finalPrice = this.priceDisplayMonthly ? yearlyTotal / 12 : yearlyTotal;
+
+    return Number(finalPrice.toFixed(2));
   }
 
   applyFiltersAndSort(): void {
@@ -820,9 +1108,53 @@ export class SelectProvider implements OnInit {
   }
 
   getDisplayPrice(rate: Rate): number {
-    return this.priceDisplayMonthly ? rate.totalPriceMonth : rate.totalPrice;
+    if (!rate) return 0;
+
+    const commissionTotal = this.getCommissionTotal(rate);
+
+    let basePrice = 0;
+
+    // monthly
+    if (this.priceDisplayMonthly) {
+      if (rate.totalPriceMonth) {
+        basePrice = rate.totalPriceMonth;
+      } else {
+        basePrice = this.getYearlyPrice(rate) / 12;
+      }
+
+      return Number((basePrice + commissionTotal).toFixed(2));
+    }
+
+    // yearly
+    if (rate.totalPrice) {
+      basePrice = rate.totalPrice;
+    } else {
+      basePrice = this.getYearlyPrice(rate);
+    }
+
+    return Number((basePrice + commissionTotal).toFixed(2));
   }
 
+  private getCommissionTotal(rate: Rate): number {
+    if (!rate?.commission?.length) return 0;
+
+    const today = new Date();
+
+    return rate.commission.reduce((sum, c) => {
+      if (!c.amount) return sum;
+
+      // check validity window if exists
+      if (c.validFrom && new Date(c.validFrom) > today) return sum;
+      if (c.validTo && new Date(c.validTo) < today) return sum;
+
+      // optional: filter by order state
+      if (c.requiredOrderState && c.requiredOrderState !== 'completed') {
+        return sum;
+      }
+
+      return sum + Number(c.amount);
+    }, 0);
+  }
   getBasePrice(rate: Rate): number {
     if (!rate) return 0;
 
@@ -831,6 +1163,55 @@ export class SelectProvider implements OnInit {
     return this.priceDisplayMonthly
       ? yearlyTotal / 12 // monthly
       : yearlyTotal; // yearly
+  }
+
+  getAveragePrice(rate: Rate): number {
+    if (!rate) return 0;
+
+    // priority edited values
+    if (this.priceDisplayMonthly && rate.totalPriceMonth) {
+      return Number(rate.totalPriceMonth.toFixed(2));
+    }
+
+    if (!this.priceDisplayMonthly && rate.totalPrice) {
+      return Number(rate.totalPrice.toFixed(2));
+    }
+
+    const yearlyWorkPrice = (this.consum * rate.workPrice) / 100;
+
+    const yearlyTotal = yearlyWorkPrice + rate.basePriceYear;
+
+    return this.priceDisplayMonthly
+      ? Number((yearlyTotal / 12).toFixed(2))
+      : Number(yearlyTotal.toFixed(2));
+  }
+
+  getYearlyPrice(rate: Rate): number {
+    if (!rate) return 0;
+
+    // edited yearly value
+    if (rate.totalPrice) {
+      return Number(rate.totalPrice.toFixed(2));
+    }
+    const commissionTotal = this.getCommissionTotal(rate);
+
+    const yearlyWorkPrice = (this.consum * rate.workPrice) / 100;
+
+    return Number((yearlyWorkPrice + rate.basePriceYear).toFixed(2));
+  }
+
+  getSavingPerYear(rate: Rate): number {
+    if (!rate) return 0;
+    const commissionTotalYearly = this.getCommissionTotal(rate) * 12;
+
+    const baseYearly =
+      this.adjustedBaseYearlyPrice > 0
+        ? this.adjustedBaseYearlyPrice
+        : this.getYearlyPrice(this.baseRate);
+
+        console.log('Base Yearly:', baseYearly, 'Rate Yearly:', this.getYearlyPrice(rate), 'Commission:', commissionTotalYearly);
+
+    return Number((baseYearly - (this.getYearlyPrice(rate) + commissionTotalYearly)).toFixed(2));
   }
 
   getDisplayPriceSuffix(): string {
@@ -879,13 +1260,79 @@ export class SelectProvider implements OnInit {
 
   isModalOpen = false;
 
-  openModal() {
+  openModal(): void {
     this.isModalOpen = true;
+
+    // backup current saved state
+    this.originalBaseRate = {
+      ...this.baseRate,
+    };
+
+    this.originalEditableWorkPrice = this.editableWorkPrice;
+
+    this.originalEditableBasePrice = this.editableBasePrice;
+
+    this.originalIsGrossPrice = this.isGrossPrice;
+
+    this.originalBasePriceMode = this.basePriceMode;
+
+    // restore saved popup state
+    this.activeTab = this.savedActiveTab;
+
+    this.abschlagCount = this.savedAbschlagCount;
+
+    // restore saved monthly value
+    if (this.savedEditableMonthlyPrice > 0) {
+      this.editableMonthlyPrice = this.savedEditableMonthlyPrice;
+    } else {
+      this.baseAbschlagPrice = this.getPopupAveragePrice();
+
+      this.editableMonthlyPrice = this.baseAbschlagPrice;
+    }
   }
 
-  closeModal() {
-    this.isModalOpen = false;
+  @ViewChild('abschlagScroll')
+  abschlagScroll!: ElementRef;
+
+  scrollAbschlag(direction: 'left' | 'right'): void {
+    const container = this.abschlagScroll.nativeElement;
+
+    const scrollAmount = 120;
+
+    container.scrollBy({
+      left: direction === 'right' ? scrollAmount : -scrollAmount,
+      behavior: 'smooth',
+    });
+  }
+  closeModal(): void {
+    // restore original values
+    if (this.originalBaseRate) {
+      this.baseRate = {
+        ...this.originalBaseRate,
+      };
+    }
+
+    this.editableWorkPrice = this.originalEditableWorkPrice;
+
+    this.editableBasePrice = this.originalEditableBasePrice;
+
+    this.isGrossPrice = this.originalIsGrossPrice;
+
+    this.basePriceMode = this.originalBasePriceMode;
+
+    // restore saved popup state
+    this.activeTab = this.savedActiveTab;
+
+    this.abschlagCount = this.savedAbschlagCount;
+
+    this.editableMonthlyPrice = this.savedEditableMonthlyPrice;
+
+    // refresh ui
+    this.filteredRates = [...this.filteredRates];
+
     this.showEditSection = false;
+
+    this.isModalOpen = false;
   }
 
   apply() {

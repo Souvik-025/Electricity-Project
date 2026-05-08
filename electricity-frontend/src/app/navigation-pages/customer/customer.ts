@@ -77,6 +77,7 @@ export class Customer {
   activeTab: number = 1;
   serviceTab: number = 1;
   documentTab: number = 0;
+  redirect: number = 1;
   /* ── Step control ──────────────────────────────────────────────── */
   currentStep: number = 1;
   /* ── Customer Type (PRIVATE/Business) ──────────────────────────────────────────────── */
@@ -343,6 +344,8 @@ export class Customer {
 
       meterIcon: 'assets/icons/electric-meter.png',
 
+      brandImage: 'assets/icons/Icons_energyprovider/ExtraGruen.png',
+
       providerIcon: 'assets/icons/1c55b9e7-760a-4cb5-b070-69f9316ac0f7_Warmepumpe.png',
 
       providerType: 'Heizstrom | Wärmepumpe',
@@ -367,6 +370,8 @@ export class Customer {
 
       meterIcon: 'assets/icons/electric-meter.png',
 
+      brandImage: 'assets/icons/Icons_energyprovider/goldgas.png',
+
       providerIcon: 'assets/icons/9a900962-9eab-4317-9dc7-b1d1e529dbe4_Ladestrom.png',
 
       providerType: 'Ladestrom | Autostrom',
@@ -386,6 +391,157 @@ export class Customer {
       cancelledDate: '28.03.2026',
     },
   ];
+
+  electricityList = [
+    {
+      type: 'electricity',
+      status: 'Vertrag aktiv',
+
+      meterIcon: 'assets/icons/Icons_energyprovider/eon.png',
+
+      providerIcon: 'assets/icons/65bd2fa8-bd0e-497e-a781-a3c434fe6176_Stromvergleich.png',
+
+      providerType: 'Strom | Hausstrom',
+
+      tariff: 'E.ON ÖkoStrom Extra 12',
+
+      contractNumber: '0215/123456789',
+      customerNumber: '2026-1234567890',
+
+      minimumTerm: '12 Monate',
+      orderDate: '05.04.2025',
+
+      contractStart: '28.12.2025',
+      noticePeriod: '27.12.2026',
+      contractEnd: '27.12.2026',
+
+      workPrice: '26,80 Ct./kWh',
+      basePrice: '14,90 €/Monat',
+      monthlyPrice: '68,40 €',
+
+      meterNumber: 'MHD-OZR-1325-79-45943268',
+      marketLocation: 'MILD-054321-98674',
+
+      meterName: 'MHD-OZR-1325-79-45943268',
+
+      address: {
+        name: 'Marie Mustermann',
+        street: 'Mustermannstraße 29',
+        city: '12345 Musterhausen',
+      },
+    },
+
+    {
+      type: 'gas',
+      status: 'In Belieferung',
+
+      meterIcon: 'assets/icons/Icons_energyprovider/vattenfall.png',
+
+      providerIcon: 'assets/icons/1a9ebeaf-78b8-48a3-9514-94f57aa1de2c_Gasvergleich.png',
+
+      providerType: 'Gas',
+
+      tariff: 'Easy12 Gas',
+
+      contractNumber: '012455-64564564',
+      customerNumber: '546321456987',
+
+      minimumTerm: '12 Monate',
+      orderDate: '10.03.2025',
+
+      contractStart: '28.03.2025',
+      noticePeriod: '28.03.2026',
+      contractEnd: '28.03.2026',
+
+      workPrice: '11,72 Ct./kWh',
+      basePrice: '21,90 €/Monat',
+      monthlyPrice: '151,40 €',
+
+      meterNumber: 'ZKH-31259147-122',
+      marketLocation: 'MILD-054321-9874563',
+
+      meterName: 'Mustermänstraße 29',
+
+      address: {
+        name: 'Marie Mustermann',
+        street: 'Mustermänstraße 29',
+        city: '12345 Musterhausen',
+      },
+    },
+  ];
+
+  inactiveMeterList2 = [
+    {
+      status: 'Gekündigt zum 10.03.2026',
+
+      tariff: 'EG ÖkoGrünStrom Extra 18',
+      brandImage: 'assets/icons/Icons_energyprovider/ExtraGruen.png',
+
+      providerIcon: 'assets/icons/65bd2fa8-bd0e-497e-a781-a3c434fe6176_Stromvergleich.png',
+
+      providerType: 'Strom | Hausstrom',
+
+      meterNumber: 'WP-36546465444',
+
+      address: {
+        name: 'Marie Mustermann',
+        street: 'Mustermannstraße 29',
+        city: '12345 Musterhausen',
+      },
+
+      contractNumber: '0815/245786554469',
+
+      minimumTerm: '12 Monate',
+
+      contractStart: '22.04.2025',
+
+      autoRenewal: '22.04.2026',
+
+      workPrice: '26,80 Ct./kWh',
+
+      basePrice: '14,90 €/Monat',
+
+      monthlyPrice: '68,40 €',
+
+      cancelledDate: '18.03.2025',
+    },
+
+    {
+      status: 'Gekündigt zum 21.01.2026',
+
+      tariff: 'GoldGas24 Öko',
+      brandImage: 'assets/icons/Icons_energyprovider/goldgas.png',
+
+      providerIcon: 'assets/icons/1a9ebeaf-78b8-48a3-9514-94f57aa1de2c_Gasvergleich.png',
+
+      providerType: 'Gas',
+
+      meterNumber: '3CAR25914564-145452',
+
+      address: {
+        name: 'Marie Mustermann',
+        street: 'Mustermannstraße 29',
+        city: '12345 Musterhausen',
+      },
+
+      contractNumber: '012455-64564564k1245',
+
+      minimumTerm: '12 Monate',
+
+      contractStart: '01.02.2025',
+
+      autoRenewal: '01.02.2026',
+
+      workPrice: '11,72 Ct./kWh',
+
+      basePrice: '21,90 €/Monat',
+
+      monthlyPrice: '151,40 €',
+
+      cancelledDate: '28.03.2026',
+    },
+  ];
+
   /*── Meter Section end ──*/
   /* ════════════════════════════════════════════════════════════════════════════════════════════════*/
   /*── Reminder Section Start ──*/

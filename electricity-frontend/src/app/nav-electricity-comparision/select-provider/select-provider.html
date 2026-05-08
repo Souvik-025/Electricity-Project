@@ -560,17 +560,10 @@
               | Grundpreis:
               <strong>{{ baseRate.basePriceMonth | number: '1.2-2' }} €/Monat</strong>
             </div>
-            <!-- <a href="#" class="toggle-link" style="margin-top: 4px; display: inline-flex"
-              >Tarif- und Preisdetails <span class="arrow down-v"></span
-            ></a> -->
           </div>
           <div class="provider-price">
             <div class="provider-price__amount">
-              <!-- {{ filteredRates[0].totalPriceMonth | number: '1.2-2' }} € -->
-              <!-- {{
-                baseRate.basePriceMonth + (consum * baseRate.workPrice) / 100 / 12 | number: '1.2-2'
-              }} €-->
-              {{ getBasePrice(baseRate) | number: '1.2-2' }}
+              {{ getAveragePrice(baseRate) | number: '1.2-2' }}
               {{ priceDisplayMonthly ? '€' : '€' }}
             </div>
             <div class="provider-price__sub">
@@ -999,9 +992,16 @@
             <div class="tc-price__sub">
               {{ getDisplayPriceSuffix() }} &nbsp;<span class="info-base info-circ">i</span>
             </div>
-            <div class="tc-price__savings" *ngIf="rate.savingPerYear < 0">
+            <div class="tc-price__savings" *ngIf="getSavingPerYear(rate)">
               Sie sparen:
-              <span class="amount">{{ rate.savingPerYear * -1 | number: '1.2-2' }} €</span> &nbsp;
+              <span class="amount" style="color: red">
+                {{
+                  (priceDisplayMonthly ? getSavingPerYear(rate) / 12 : getSavingPerYear(rate))
+                    | number: '1.2-2'
+                }}
+                €</span
+              >
+              &nbsp;
               <span class="info-wrapper" #popoverContainer>
                 <span class="info-base info-circ" (click)="toggleInfo($event)">i</span>
                 <div class="info-popover" *ngIf="isInfoOpen">
@@ -1011,14 +1011,14 @@
                       <div class="tc-price__vergleich">
                         <div class="label">
                           Kosten pro Jahr: &nbsp; &nbsp; &nbsp;
-                          {{ rate.totalPrice | number: '1.2-2' }} €
+                          {{ getYearlyPrice(rate) | number: '1.2-2' }} €
                         </div>
                         <div class="label-low" style="margin-right: 6rem">(mit diesem Tarif)</div>
                         <br />
                         <div class="label">
                           Gespart: &nbsp; &nbsp; &nbsp;
                           <span class="gespart"
-                            >{{ rate.savingPerYear * -1 | number: '1.2-2' }} €</span
+                            >{{ getSavingPerYear(rate) | number: '1.2-2' }} €</span
                           >
                         </div>
                         <div style="margin-top: 16px">
@@ -1055,34 +1055,54 @@
               Sie besser vergleichen, wie viel Sie bei einem Wechsel sparen können.
             </p>
 
+            <!-- Anbieter -->
             <div class="form-group" style="padding-right: 20px; gap: 10px; margin-bottom: 10px">
               <div class="input-field select-wrap" style="display: inline-block">
                 <div>
                   <span
                     class="field-label"
                     style="margin-left: 10px; font-size: 12px; font-weight: 500; display: block"
-                    >Anbieter</span
                   >
-                  <select class="styled-select">
-                    <option value="">Drewag</option>
+                    Anbieter
+                  </span>
+
+                  <select
+                    class="styled-select"
+                    [(ngModel)]="selectedProviderId"
+                    (change)="onProviderChange()"
+                  >
+                    <option *ngFor="let provider of baseProviders" [value]="provider.providerId">
+                      {{ provider.providerName }}
+                    </option>
                   </select>
-                  <span class="material-symbols-outlined dropdown-arrow">expand_more</span>
+
+                  <span class="material-symbols-outlined dropdown-arrow"> expand_more </span>
                 </div>
               </div>
             </div>
 
+            <!-- Tarif -->
             <div class="form-group" style="padding-right: 20px; gap: 10px; margin-bottom: 10px">
               <div class="input-field select-wrap" style="display: inline-block">
                 <div>
                   <span
                     class="field-label"
                     style="margin-left: 10px; font-size: 12px; font-weight: 500; display: block"
-                    >Tarif</span
                   >
-                  <select class="styled-select">
-                    <option value="">Strom Klassik</option>
+                    Tarif
+                  </span>
+
+                  <select
+                    class="styled-select"
+                    [(ngModel)]="selectedRateId"
+                    (change)="onRateChange()"
+                  >
+                    <option *ngFor="let rate of selectedProviderRates" [value]="rate.rateId">
+                      {{ rate.rateName }}
+                    </option>
                   </select>
-                  <span class="material-symbols-outlined dropdown-arrow">expand_more</span>
+
+                  <span class="material-symbols-outlined dropdown-arrow"> expand_more </span>
                 </div>
               </div>
             </div>
@@ -1094,12 +1114,21 @@
 
             <div class="price-row">
               <div>
-                <div class="price-label">Durchschnitt pro Monat:</div>
+                <div class="price-label">
+                  {{ priceDisplayMonthly ? 'Durchschnitt pro Monat:' : 'Durchschnitt pro Jahr:' }}
+                </div>
+
                 <div class="sub">(gerechnet auf 12 Monate, ohne Boni und Rabatte)</div>
               </div>
 
               <div class="price">
-                84,65 €
+                {{
+                  activeTab === 'abschlag'
+                    ? (editableMonthlyPrice | number: '1.2-2')
+                    : (getPopupAveragePrice() | number: '1.2-2')
+                }}
+                €
+
                 <span class="item-image">
                   <img
                     src="assets/icons/Bearbeiten_schwarz.png"
@@ -1129,54 +1158,120 @@
                   Abschlag
                 </div>
               </div>
+
+              <!-- PRICE TAB -->
               <div *ngIf="activeTab === 'price'">
-                <!-- VAT toggle -->
+                <!-- VAT -->
                 <div class="section">
                   <label>Mehrwertsteuer einberechnet?</label>
+
                   <div class="toggle">
-                    <div class="toggle-btn active">Bruttopreise (inkl. Mwst.)</div>
-                    <div class="toggle-btn">Nettopreise (ohne Mwst.)</div>
+                    <div
+                      class="toggle-btn"
+                      [class.active]="isGrossPrice"
+                      (click)="setGrossMode(true)"
+                    >
+                      Bruttopreise (inkl. Mwst.)
+                    </div>
+
+                    <div
+                      class="toggle-btn"
+                      [class.active]="!isGrossPrice"
+                      (click)="setGrossMode(false)"
+                    >
+                      Nettopreise (ohne Mwst.)
+                    </div>
                   </div>
                 </div>
 
                 <!-- Arbeitspreis -->
                 <div class="form-group" style="margin-bottom: 20px">
                   <div class="field-wrap">
-                    <span class="field-label">Arbeitspreis in Cent</span>
-                    <input type="text" value="35.71" />
+                    <span class="field-label"> Arbeitspreis in Cent </span>
+
+                    <input type="number" [(ngModel)]="editableWorkPrice" />
+                  </div>
+                </div>
+
+                <!-- Grundpreis type -->
+                <div class="section">
+                  <label>Grundpreis in €</label>
+
+                  <div class="toggle">
+                    <div
+                      class="toggle-btn"
+                      [class.active]="basePriceMode === 'year'"
+                      (click)="changeBasePriceMode('year')"
+                    >
+                      pro Jahr
+                    </div>
+
+                    <div
+                      class="toggle-btn"
+                      [class.active]="basePriceMode === 'month'"
+                      (click)="changeBasePriceMode('month')"
+                    >
+                      pro Monat
+                    </div>
                   </div>
                 </div>
 
                 <!-- Grundpreis -->
-                <div class="section">
-                  <label>Grundpreis in €</label>
-                  <div class="toggle">
-                    <div class="toggle-btn">pro Jahr</div>
-                    <div class="toggle-btn active">pro Monat</div>
-                  </div>
-                </div>
-
                 <div class="form-group">
                   <div class="field-wrap">
-                    <span class="field-label">Grundpreis in €</span>
-                    <input type="text" value="10.25" />
+                    <span class="field-label"> Grundpreis in € </span>
+
+                    <input
+                      type="number"
+                      step="0.01"
+                      [(ngModel)]="editableBasePrice"
+                      (ngModelChange)="onBasePriceInputChange()"
+                    />
                   </div>
                 </div>
               </div>
 
+              <!-- ABSCHLAG -->
               <div *ngIf="activeTab === 'abschlag'">
                 <div class="form-group" style="margin-bottom: 20px">
                   <div class="field-wrap">
-                    <span class="field-label">Abschlag in €/Monat</span>
-                    <input type="text" value="84.65" />
+                    <span class="field-label"> Abschlag in €/Monat </span>
+
+                    <input
+                      type="number"
+                      [(ngModel)]="editableMonthlyPrice"
+                      (ngModelChange)="onAbschlagInputChange($event)"
+                    />
                   </div>
                 </div>
+
                 <div class="section">
-                  <label>Anzahl Abschläge pro Jahr</label>
-                  <div class="toggle">
-                    <div class="toggle-btn">12 Abschläge</div>
-                    <div class="toggle-btn">11 Abschläge</div>
-                    <div class="toggle-btn active">10 Abschläge</div>
+                  <label><strong>Anzahl Abschläge pro Jahr</strong></label>
+
+                  <div class="abschlag-wrapper">
+                    <!-- LEFT -->
+                    <button type="button" class="scroll-btn" (click)="scrollAbschlag('left')">
+                      ‹
+                    </button>
+
+                    <!-- SCROLL -->
+                    <div class="abschlag-scroll" #abschlagScroll>
+                      <div class="toggle abschlag-toggle">
+                        <div
+                          class="toggle-btn"
+                          *ngFor="let count of abschlagOptions"
+                          [class.active]="abschlagCount === count"
+                          (click)="changeAbschlagCount(count)"
+                        >
+                          {{ count }} Abschläge
+                        </div>
+                      </div>
+                    </div>
+
+                    <!-- RIGHT -->
+                    <button type="button" class="scroll-btn" (click)="scrollAbschlag('right')">
+                      ›
+                    </button>
                   </div>
                 </div>
                 <div class="sub">
@@ -1186,7 +1281,7 @@
               </div>
             </div>
             <div class="actions">
-              <button class="submit-btn">übernehmen</button>
+              <button class="submit-btn" (click)="applyComparisonPrice()">übernehmen</button>
             </div>
           </div>
         </div>

@@ -288,12 +288,14 @@
               <!-- LEFT SIDE -->
               <div class="inactive-left">
                 <!-- IMAGE -->
-                <div class="inactive-meter-icon-box">
-                  <img [src]="item.meterIcon" alt="meter" />
+                <div class="meter-top">
+                  <div class="inactive-meter-icon-box">
+                    <img [src]="item.meterIcon" alt="meter" />
+                  </div>
                 </div>
 
                 <!-- TITLE -->
-                <div class="inactive-tariff-title">
+                <div class="meter-tariff">
                   {{ item.tariff }}
                 </div>
 
@@ -342,6 +344,341 @@
                   </p>
                 </div>
               </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <br />
+      <div class="meter-section">
+        <div class="meter-section-header">Meine Verträge</div>
+
+        <div class="meter-wrapper">
+          <div class="meter-card" *ngFor="let item of electricityList">
+            <!-- STATUS -->
+            <div class="meter-card-top">
+              <div class="meter-top-status">
+                {{ item.status }}
+              </div>
+            </div>
+
+            <!-- BODY -->
+            <div class="meter-body">
+              <!-- LEFT -->
+              <div class="meter-left">
+                <!-- PROVIDER LOGO -->
+                <div class="meter-logo">
+                  <img [src]="item.meterIcon" alt="provider" />
+                </div>
+
+                <!-- TARIFF -->
+                <div class="meter-tariff">
+                  {{ item.tariff }}
+                </div>
+
+                <!-- BADGE -->
+                <div class="meter-provider-badge">
+                  <img [src]="item.providerIcon" alt="provider" class="meter-provider-icon" />
+
+                  <span>{{ item.providerType }}</span>
+                </div>
+
+                <!-- METER LABEL -->
+                <div class="meter-info-row meter-label-row">
+                  <p><strong>Zählerbezeichnung:</strong></p>
+
+                  <a class="anpassen">
+                    ändern
+
+                    <img src="assets/icons/Bearbeiten_schwarz.png" class="icon-check" alt="edit" />
+                  </a>
+                </div>
+
+                <p class="meter-small-text">{{ item.meterName }}</p>
+
+                <!-- ADDRESS -->
+                <div class="meter-address">
+                  <p><strong>Adresse:</strong></p>
+
+                  <p>{{ item.address.name }}</p>
+                  <p>{{ item.address.street }}</p>
+                  <p>{{ item.address.city }}</p>
+                </div>
+              </div>
+
+              <!-- RIGHT -->
+              <div class="meter-right">
+                <!-- CONTRACT -->
+                <div class="inactive-contract-details">
+                  <p>
+                    Vertragsnummer:
+                    <strong>{{ item.contractNumber }}</strong>
+                  </p>
+
+                  <p>
+                    Kundennummer:
+                    <strong>{{ item.customerNumber }}</strong>
+                  </p>
+
+                  <p>
+                    Mindestvertragslaufzeit:
+                    <strong>{{ item.minimumTerm }}</strong>
+                  </p>
+
+                  <p>
+                    Auftragsdatum:
+                    <strong>{{ item.orderDate }}</strong>
+                  </p>
+
+                  <p>
+                    Vertragsbeginn:
+                    <strong>{{ item.contractStart }}</strong>
+                  </p>
+
+                  <p>
+                    Kündigungsfrist:
+                    <strong>{{ item.noticePeriod }}</strong>
+                  </p>
+
+                  <p>
+                    Ende Mindestvertragslaufzeit:
+                    <strong>{{ item.contractEnd }}</strong>
+                  </p>
+
+                  <p>
+                    Arbeitspreis:
+                    <strong>{{ item.workPrice }}</strong>
+                  </p>
+
+                  <p>
+                    Grundpreis:
+                    <strong>{{ item.basePrice }}</strong>
+                  </p>
+
+                  <p>
+                    Abschlag geschätzt pro Monat:
+                    <strong>{{ item.monthlyPrice }}</strong>
+                  </p>
+                </div>
+
+                <!-- BOTTOM DETAILS -->
+                <div class="meter-bottom-details">
+                  <p>
+                    Zählernummer:
+                    <strong>{{ item.meterNumber }}</strong>
+                  </p>
+
+                  <p>
+                    Marktlokation-ID:
+                    <strong>{{ item.marketLocation }}</strong>
+                  </p>
+                </div>
+              </div>
+            </div>
+            <!-- BUTTONS -->
+            <div class="meter-button-wrapper">
+              <button class="meter-btn">Vertragsdetails ansehen</button>
+
+              <button class="meter-btn">Vertrag neu vergleichen</button>
+
+              <button class="meter-btn meter-download-btn">Vertrag downloaden</button>
+            </div>
+          </div>
+        </div>
+      </div>
+      <!-- INACTIVE / CANCELLED METERS -->
+
+      <div class="inactive-meter-section">
+        <div class="inactive-meter-wrapper">
+          <div class="inactive-meter-card" *ngFor="let item of inactiveMeterList2">
+            <!-- STATUS -->
+            <div class="inactive-status-row">
+              <div class="inactive-meter-top-status">
+                {{ item.status }}
+              </div>
+            </div>
+
+            <!-- MAIN ROW -->
+            <div class="inactive-main-row">
+              <!-- LEFT SIDE -->
+              <div class="inactive-left">
+                <!-- IMAGE -->
+                <div class="inactive-meter-icon-box" style="width: auto">
+                  <img [src]="item.brandImage" alt="meter" />
+                </div>
+
+                <!-- TITLE -->
+                <div class="meter-tariff">
+                  {{ item.tariff }}
+                </div>
+
+                <!-- BADGE -->
+                <div class="inactive-provider-badge">
+                  <img [src]="item.providerIcon" alt="provider" class="inactive-provider-icon" />
+
+                  <span>{{ item.providerType }}</span>
+                </div>
+                <!-- METER -->
+                <div class="inactive-meter-number-row">
+                  <strong>Zählernummer:</strong>
+                  <span>{{ item.meterNumber }}</span>
+                </div>
+
+                <!-- ADDRESS -->
+                <div class="inactive-address">
+                  <p>
+                    <strong>Adresse:</strong>
+                    {{ item.address.name }}
+                  </p>
+
+                  <p>{{ item.address.street }}</p>
+                  <p>{{ item.address.city }}</p>
+                </div>
+              </div>
+
+              <!-- RIGHT SIDE -->
+              <!-- RIGHT SIDE -->
+              <div class="inactive-right">
+                <!-- CONTRACT -->
+                <div class="inactive-contract-details">
+                  <p>
+                    Vertragsnummer:
+                    <strong>{{ item.contractNumber }}</strong>
+                  </p>
+
+                  <p>
+                    Mindestvertragslaufzeit:
+                    <strong>{{ item.minimumTerm }}</strong>
+                  </p>
+
+                  <p>
+                    Vertragsbeginn:
+                    <strong>{{ item.contractStart }}</strong>
+                  </p>
+
+                  <p>
+                    Automatische Verlängerung:
+                    <strong>{{ item.autoRenewal }}</strong>
+                  </p>
+
+                  <p>
+                    Arbeitspreis:
+                    <strong>{{ item.workPrice }}</strong>
+                  </p>
+
+                  <p>
+                    Grundpreis:
+                    <strong>{{ item.basePrice }}</strong>
+                  </p>
+
+                  <p>
+                    Abschlag geschätzt pro Monat:
+                    <strong>{{ item.monthlyPrice }}</strong>
+                  </p>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="" *ngIf="activeTab === 1 && currentStep === 2">
+      <div class="login-berich">Zählerstand melden</div>
+      <br />
+      <div style="margin-left: 30px"><strong>Zählerstand melden per...</strong></div>
+
+      <br />
+      <div class="upload-selection-wrapper">
+        <div class="upload-option active">
+          <input type="checkbox" checked />
+          <span>Einzeleingabe</span>
+        </div>
+
+        <div class="upload-option">
+          <input type="checkbox" />
+          <span>Foto-Upload (mehrere gleichzeitig möglich) - NEU</span>
+        </div>
+      </div>
+      <br />
+      <div style="margin-left: 30px">
+        <strong>Einzeleingabe Zählerstand</strong>
+        <p>Bitte wählen Sie den Zähler aus, für welchen Sie den Zählerstand melden möchten</p>
+      </div>
+      <br />
+      <div class="meter-section">
+        <div class="meter-section-header">Bitte gewünschten Zähler auswählen</div>
+
+        <div class="meter-wrapper">
+          <div class="meter-card" *ngFor="let item of meterList">
+            <!-- TOP -->
+
+            <!-- PROVIDER BADGE -->
+
+            <!-- BODY -->
+            <div class="meter-body">
+              <!-- LEFT -->
+              <div class="meter-left">
+                <div class="meter-top">
+                  <div class="meter-icon-box">
+                    <img [src]="item.meterIcon" alt="meter" />
+                  </div>
+                </div>
+
+                <div class="meter-provider-badge">
+                  <img [src]="item.providerIcon" alt="provider" class="meter-provider-icon" />
+
+                  <span>{{ item.providerType }}</span>
+                </div>
+                <div class="meter-info-row">
+                  <p><strong>Zählerbezeichnung:</strong></p>
+                  <a class="anpassen">
+                    anpassen
+                    <span class="item-image">
+                      <img
+                        src="assets/icons/Bearbeiten_schwarz.png"
+                        class="icon-check"
+                        alt="check"
+                      />
+                    </span>
+                  </a>
+                </div>
+                <p>{{ item.meterName }}</p>
+
+                <p><strong>Adresse:</strong></p>
+
+                <p>{{ item.address.name }}</p>
+                <p>{{ item.address.street }}</p>
+                <p>{{ item.address.city }}</p>
+              </div>
+
+              <!-- RIGHT -->
+              <div class="meter-right">
+                <div class="meter-top-content">
+                  <p>
+                    <strong>Zählernummer:</strong>
+                    {{ item.meterNumber }}
+                  </p>
+
+                  <p>
+                    <strong>Marktlokation-ID:</strong>
+                    {{ item.marketLocation }}
+                  </p>
+                </div>
+
+                <p>
+                  <strong>Vertragsnummer:</strong>
+                  {{ item.contractNumber }}
+                </p>
+
+                <p>
+                  <strong>Kundennummer:</strong>
+                  {{ item.customerNumber }}
+                </p>
+              </div>
+            </div>
+            <!-- OUTSIDE BUTTON -->
+            <div class="meter-bottom-btn-section">
+              <button class="meter-select-btn">Zähler auswählen</button>
             </div>
           </div>
         </div>
