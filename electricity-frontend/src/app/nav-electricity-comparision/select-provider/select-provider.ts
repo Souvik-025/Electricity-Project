@@ -195,6 +195,45 @@ export class SelectProvider implements OnInit {
 
   selectedOption = 'Sortieren nach: Beste Treffer';
   activeTabMap: { [rateId: number]: string } = {};
+
+  baseProviders: any[] = [];
+
+  selectedProviderId!: number;
+  selectedRateId!: number;
+
+  selectedProvider: any = null;
+  selectedRate: any = null;
+
+  selectedProviderRates: any[] = [];
+
+  isGrossPrice = true;
+  basePriceMode: 'month' | 'year' = 'month';
+  abschlagCount = 12;
+  adjustedBaseYearlyPrice = 0;
+  originalBaseRate: any = null;
+  originalEditableWorkPrice = 0;
+  originalEditableBasePrice = 0;
+  originalIsGrossPrice = true;
+  originalBasePriceMode: 'month' | 'year' = 'month';
+  editableWorkPrice = 0;
+  editableBasePrice = 0;
+  editableMonthlyPrice = 0;
+  abschlagOptions = [12, 11, 10, 9, 8, 7, 6];
+  baseAbschlagPrice = 0;
+  savedActiveTab: 'price' | 'abschlag' = 'price';
+  savedAbschlagCount = 12;
+  savedEditableMonthlyPrice = 0;
+  fieldErrors: any = {};
+
+  streetSearch = '';
+  filteredStreetOptions: any[] = [];
+  showDropdown = false;
+  lastValidCity: { city: string; city_id: string } | null = null;
+  lastValidStreet: string | null = null;
+  hasAddress = false;
+  isEditMode = false;
+  isModalOpen = false;
+
   @ViewChild('popoverContainer', { static: false }) popoverContainer!: ElementRef;
 
   constructor(
@@ -210,8 +249,6 @@ export class SelectProvider implements OnInit {
     private fb: FormBuilder,
   ) {}
   isLoggedIn = computed(() => !!this.authService.currentUser()?.user_id);
-
-  hasAddress = false;
 
   ngOnInit(): void {
     this.restoreViewState();
@@ -336,11 +373,6 @@ export class SelectProvider implements OnInit {
     }
     // });
   }
-  streetSearch = '';
-  filteredStreetOptions: any[] = [];
-  showDropdown = false;
-  lastValidCity: { city: string; city_id: string } | null = null;
-  lastValidStreet: string | null = null;
 
   onCityInput(event: any) {
     if (this.addressForm.get('city')?.disabled) return;
@@ -388,8 +420,6 @@ export class SelectProvider implements OnInit {
   goBack() {
     this.router.navigate(['/home/electricity']);
   }
-
-  isEditMode = false;
 
   searchMode() {
     this.isEditMode = true;
@@ -525,9 +555,14 @@ export class SelectProvider implements OnInit {
 
             this.citySearch = city.city;
             this.lastValidCity = city;
+
+            this.addressForm.get('city')?.setValue(city.city_id, {
+              emitEvent: true,
+            });
+
             this.showCityDropdown = false;
 
-            this.addressForm.get('city')?.setValue(city.city_id);
+            this.cdr.detectChanges();
           }
         } else {
           this.addressForm.get('city')?.disable();
@@ -618,54 +653,6 @@ export class SelectProvider implements OnInit {
     this.addressForm.get('houseNumber')?.reset();
     this.addressForm.get('houseNumber')?.disable();
   }
-  baseProviders: any[] = [];
-
-  selectedProviderId!: number;
-  selectedRateId!: number;
-
-  selectedProvider: any = null;
-  selectedRate: any = null;
-
-  selectedProviderRates: any[] = [];
-
-  // ======================
-  // MODES
-  // ======================
-
-  isGrossPrice = true;
-
-  basePriceMode: 'month' | 'year' = 'month';
-
-  abschlagCount = 12;
-
-  adjustedBaseYearlyPrice = 0;
-  // ======================
-  // EDITABLE VALUES
-  // ======================
-  originalBaseRate: any = null;
-
-  originalEditableWorkPrice = 0;
-
-  originalEditableBasePrice = 0;
-
-  originalIsGrossPrice = true;
-
-  originalBasePriceMode: 'month' | 'year' = 'month';
-
-  editableWorkPrice = 0;
-
-  editableBasePrice = 0;
-
-  editableMonthlyPrice = 0;
-
-  abschlagOptions = [12, 11, 10, 9, 8, 7, 6];
-  baseAbschlagPrice = 0;
-
-  savedActiveTab: 'price' | 'abschlag' = 'price';
-
-  savedAbschlagCount = 12;
-
-  savedEditableMonthlyPrice = 0;
 
   private fetchRates(): void {
     if (!this.hasAddress) {
@@ -781,6 +768,30 @@ export class SelectProvider implements OnInit {
   }
 
   applyComparisonPrice(): void {
+    this.fieldErrors = {};
+    // Arbeitspreis validation
+    if (!this.editableWorkPrice || this.editableWorkPrice <= 0) {
+      this.fieldErrors['workPrice'] = 'Der Mindestverbrauch beträgt 1 Cent/kWh';
+    }
+
+    // Grundpreis validation
+    if (!this.editableBasePrice || this.editableBasePrice <= 0) {
+      this.fieldErrors['basePrice'] = 'Bitte geben Sie einen gültigen Grundpreis ein';
+    }
+
+    // Abschlag validation
+    if (
+      this.activeTab === 'abschlag' &&
+      (!this.editableMonthlyPrice || this.editableMonthlyPrice <= 0)
+    ) {
+      this.fieldErrors['monthlyPrice'] = 'Bitte geben Sie einen gültigen Abschlag ein';
+    }
+
+    // stop submit if errors
+    if (Object.keys(this.fieldErrors).length > 0) {
+      return;
+    }
+
     if (!this.baseRate) return;
 
     // WORK PRICE
@@ -1071,6 +1082,7 @@ export class SelectProvider implements OnInit {
     //     },
     //   });
   }
+
   toggleDropdown(): void {
     this.isDropdownOpen = !this.isDropdownOpen;
   }
@@ -1209,7 +1221,14 @@ export class SelectProvider implements OnInit {
         ? this.adjustedBaseYearlyPrice
         : this.getYearlyPrice(this.baseRate);
 
-        console.log('Base Yearly:', baseYearly, 'Rate Yearly:', this.getYearlyPrice(rate), 'Commission:', commissionTotalYearly);
+    console.log(
+      'Base Yearly:',
+      baseYearly,
+      'Rate Yearly:',
+      this.getYearlyPrice(rate),
+      'Commission:',
+      commissionTotalYearly,
+    );
 
     return Number((baseYearly - (this.getYearlyPrice(rate) + commissionTotalYearly)).toFixed(2));
   }
@@ -1257,8 +1276,6 @@ export class SelectProvider implements OnInit {
     event.stopPropagation();
     this.isInfoOpen = !this.isInfoOpen;
   }
-
-  isModalOpen = false;
 
   openModal(): void {
     this.isModalOpen = true;
@@ -1311,7 +1328,7 @@ export class SelectProvider implements OnInit {
         ...this.originalBaseRate,
       };
     }
-
+    this.fieldErrors = {};
     this.editableWorkPrice = this.originalEditableWorkPrice;
 
     this.editableBasePrice = this.originalEditableBasePrice;

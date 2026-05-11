@@ -24,6 +24,7 @@ import { CreateCustomerComponent } from "./pages/customers/create-customer/creat
 import { CreateBookingComponent } from "./pages/bookings/create-booking/create-booking.component";
 import { CustomerCallbackComponent } from "./pages/customer-callback/customer-callback.component";
 import { BookingDetailComponent } from "./pages/bookings/booking-details/booking-details.component";
+import { EmailTemplateViewComponent } from "./pages/email-template-view/email-template-view.component";
 
 export const routes: Routes = [
   {
@@ -168,6 +169,11 @@ export const routes: Routes = [
         component: BookingDetailComponent,
         title: "Buchungsdetails",
       },
+      {
+        path: "email-template-view",
+        component: EmailTemplateViewComponent,
+        title: "E-Mail-Vorlage",
+      }
     ],
   },
   {

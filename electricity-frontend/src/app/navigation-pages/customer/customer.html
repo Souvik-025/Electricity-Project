@@ -149,7 +149,7 @@
         <div class="meter-section-header">Meine Zähler</div>
 
         <div class="meter-wrapper">
-          <div class="meter-card" *ngFor="let item of meterList">
+          <div class="meter-card" *ngFor="let item of meterList" (click)="nextStep(2)">
             <!-- TOP -->
 
             <!-- PROVIDER BADGE -->
@@ -275,7 +275,11 @@
 
       <div class="inactive-meter-section">
         <div class="inactive-meter-wrapper">
-          <div class="inactive-meter-card" *ngFor="let item of inactiveMeterList">
+          <div
+            class="inactive-meter-card"
+            *ngFor="let item of inactiveMeterList"
+            (click)="nextStep(2)"
+          >
             <!-- STATUS -->
             <div class="inactive-status-row">
               <div class="inactive-meter-top-status">
@@ -353,7 +357,7 @@
         <div class="meter-section-header">Meine Verträge</div>
 
         <div class="meter-wrapper">
-          <div class="meter-card" *ngFor="let item of electricityList">
+          <div class="meter-card" *ngFor="let item of electricityList" (click)="nextStep(2)">
             <!-- STATUS -->
             <div class="meter-card-top">
               <div class="meter-top-status">
@@ -489,7 +493,11 @@
 
       <div class="inactive-meter-section">
         <div class="inactive-meter-wrapper">
-          <div class="inactive-meter-card" *ngFor="let item of inactiveMeterList2">
+          <div
+            class="inactive-meter-card"
+            *ngFor="let item of inactiveMeterList2"
+            (click)="nextStep(2)"
+          >
             <!-- STATUS -->
             <div class="inactive-status-row">
               <div class="inactive-meter-top-status">
@@ -600,86 +608,452 @@
         </div>
       </div>
       <br />
-      <div style="margin-left: 30px">
-        <strong>Einzeleingabe Zählerstand</strong>
-        <p>Bitte wählen Sie den Zähler aus, für welchen Sie den Zählerstand melden möchten</p>
+      <div *ngIf="redirect === 1">
+        <div style="margin-left: 30px">
+          <strong>Einzeleingabe Zählerstand</strong>
+          <p>Bitte wählen Sie den Zähler aus, für welchen Sie den Zählerstand melden möchten</p>
+        </div>
+        <br />
+        <div class="meter-section">
+          <div class="meter-section-header">Bitte gewünschten Zähler auswählen</div>
+
+          <div class="meter-wrapper">
+            <div class="meter-card" *ngFor="let item of meterList">
+              <!-- TOP -->
+
+              <!-- PROVIDER BADGE -->
+
+              <!-- BODY -->
+              <div class="meter-body">
+                <!-- LEFT -->
+                <div class="meter-left">
+                  <div class="meter-top">
+                    <div class="meter-icon-box">
+                      <img [src]="item.meterIcon" alt="meter" />
+                    </div>
+                  </div>
+
+                  <div class="meter-provider-badge">
+                    <img [src]="item.providerIcon" alt="provider" class="meter-provider-icon" />
+
+                    <span>{{ item.providerType }}</span>
+                  </div>
+                  <div class="meter-info-row">
+                    <p><strong>Zählerbezeichnung:</strong></p>
+                    <a class="anpassen">
+                      anpassen
+                      <span class="item-image">
+                        <img
+                          src="assets/icons/Bearbeiten_schwarz.png"
+                          class="icon-check"
+                          alt="check"
+                        />
+                      </span>
+                    </a>
+                  </div>
+                  <p>{{ item.meterName }}</p>
+
+                  <p><strong>Adresse:</strong></p>
+
+                  <p>{{ item.address.name }}</p>
+                  <p>{{ item.address.street }}</p>
+                  <p>{{ item.address.city }}</p>
+                </div>
+
+                <!-- RIGHT -->
+                <div class="meter-right">
+                  <div class="meter-top-content">
+                    <p>
+                      <strong>Zählernummer:</strong>
+                      {{ item.meterNumber }}
+                    </p>
+
+                    <p>
+                      <strong>Marktlokation-ID:</strong>
+                      {{ item.marketLocation }}
+                    </p>
+                  </div>
+
+                  <p>
+                    <strong>Vertragsnummer:</strong>
+                    {{ item.contractNumber }}
+                  </p>
+
+                  <p>
+                    <strong>Kundennummer:</strong>
+                    {{ item.customerNumber }}
+                  </p>
+                </div>
+              </div>
+              <!-- OUTSIDE BUTTON -->
+              <div class="meter-bottom-btn-section">
+                <button class="meter-select-btn" (click)="nextRoute(2)">Zähler auswählen</button>
+              </div>
+            </div>
+          </div>
+        </div>
       </div>
-      <br />
-      <div class="meter-section">
-        <div class="meter-section-header">Bitte gewünschten Zähler auswählen</div>
 
-        <div class="meter-wrapper">
-          <div class="meter-card" *ngFor="let item of meterList">
+      <div *ngIf="redirect === 2">
+        <div style="margin-left: 30px">
+          <strong>Einzeleingabe Zählerstand</strong>
+          <p>Bitte wählen Sie den Vertrag aus, für welchen Sie den Zählerstand melden möchten</p>
+        </div>
+        <br />
+
+        <div class="meter-section">
+          <div class="meter-section-header">Bitte gewünschten Vertrag auswählen</div>
+
+          <div class="meter-wrapper">
+            <div class="meter-card-wrapper" *ngFor="let item of electricity">
+              <div class="meter-card">
+                <!-- BODY -->
+                <div class="meter-body">
+                  <!-- LEFT -->
+                  <div class="meter-left">
+                    <!-- PROVIDER LOGO -->
+                    <div class="meter-logo">
+                      <img [src]="item.meterIcon" alt="provider" />
+                    </div>
+
+                    <!-- TARIFF -->
+                    <div class="meter-tariff">
+                      {{ item.tariff }}
+                    </div>
+
+                    <!-- BADGE -->
+                    <div class="meter-provider-badge">
+                      <img [src]="item.providerIcon" alt="provider" class="meter-provider-icon" />
+
+                      <span>{{ item.providerType }}</span>
+                    </div>
+
+                    <!-- METER LABEL -->
+                    <div class="meter-info-row meter-label-row">
+                      <p><strong>Zählerbezeichnung:</strong></p>
+
+                      <a class="anpassen">
+                        ändern
+
+                        <img
+                          src="assets/icons/Bearbeiten_schwarz.png"
+                          class="icon-check"
+                          alt="edit"
+                        />
+                      </a>
+                    </div>
+
+                    <p class="meter-small-text">{{ item.meterName }}</p>
+
+                    <!-- ADDRESS -->
+                    <div class="meter-address">
+                      <p><strong>Adresse:</strong></p>
+
+                      <p>{{ item.address.name }}</p>
+                      <p>{{ item.address.street }}</p>
+                      <p>{{ item.address.city }}</p>
+                    </div>
+                  </div>
+
+                  <!-- RIGHT -->
+                  <div class="meter-right">
+                    <!-- CONTRACT -->
+                    <div class="inactive-contract-details">
+                      <p>
+                        Vertragsnummer:
+                        <strong>{{ item.contractNumber }}</strong>
+                      </p>
+
+                      <p>
+                        Kundennummer:
+                        <strong>{{ item.customerNumber }}</strong>
+                      </p>
+                    </div>
+
+                    <!-- BOTTOM DETAILS -->
+                    <div class="meter-bottom-details">
+                      <p>
+                        Zählernummer:
+                        <strong>{{ item.meterNumber }}</strong>
+                      </p>
+
+                      <p>
+                        Marktlokation-ID:
+                        <strong>{{ item.marketLocation }}</strong>
+                      </p>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <br />
+              <div class="meter-btn-wrap">
+                <button class="meter-blue-btn" (click)="nextRoute(3)">Vertrag auswählen</button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div *ngIf="redirect === 3">
+        <div class="selected-contract-wrapper">
+          <!-- HEADER -->
+          <div class="selected-contract-header">Ausgewählter Vertrag</div>
+
+          <!-- CARD -->
+          <div class="selected-contract-card">
             <!-- TOP -->
+            <div class="green-container">
+              <div class="contract-top">
+                <!-- LEFT -->
+                <div class="contract-left">
+                  <img
+                    src="assets/icons/Icons_energyprovider/eon.png"
+                    alt="provider"
+                    class="provider-logo"
+                  />
 
-            <!-- PROVIDER BADGE -->
+                  <div class="provider-name">E.ON ÖkoStrom Extra 12</div>
 
-            <!-- BODY -->
-            <div class="meter-body">
-              <!-- LEFT -->
-              <div class="meter-left">
-                <div class="meter-top">
-                  <div class="meter-icon-box">
-                    <img [src]="item.meterIcon" alt="meter" />
+                  <div class="meter-provider-badge">
+                    <img
+                      src="assets/icons/65bd2fa8-bd0e-497e-a781-a3c434fe6176_Stromvergleich.png"
+                      alt=""
+                      class="badge-icon"
+                    />
+
+                    <span>Strom | Hausstrom</span>
                   </div>
                 </div>
 
-                <div class="meter-provider-badge">
-                  <img [src]="item.providerIcon" alt="provider" class="meter-provider-icon" />
+                <!-- CENTER -->
+                <div class="contract-center">
+                  <div class="contract-row-title">
+                    <strong>Zählerbezeichnung:</strong>
 
-                  <span>{{ item.providerType }}</span>
+                    <a class="change-link">
+                      ändern
+
+                      <img src="assets/icons/Bearbeiten_schwarz.png" alt="edit" />
+                    </a>
+                  </div>
+
+                  <div class="meter-id">MHD-OZR-1325-79-45943268</div>
+
+                  <div class="address-wrap">
+                    <p><strong>Adresse:</strong> Marie Mustermann</p>
+                    <p>Mustermannstraße 29</p>
+                    <p>12345 Musterhausen</p>
+                  </div>
                 </div>
-                <div class="meter-info-row">
-                  <p><strong>Zählerbezeichnung:</strong></p>
-                  <a class="anpassen">
-                    anpassen
-                    <span class="item-image">
-                      <img
-                        src="assets/icons/Bearbeiten_schwarz.png"
-                        class="icon-check"
-                        alt="check"
-                      />
-                    </span>
-                  </a>
-                </div>
-                <p>{{ item.meterName }}</p>
 
-                <p><strong>Adresse:</strong></p>
-
-                <p>{{ item.address.name }}</p>
-                <p>{{ item.address.street }}</p>
-                <p>{{ item.address.city }}</p>
-              </div>
-
-              <!-- RIGHT -->
-              <div class="meter-right">
-                <div class="meter-top-content">
+                <!-- RIGHT -->
+                <div class="contract-right">
                   <p>
-                    <strong>Zählernummer:</strong>
-                    {{ item.meterNumber }}
+                    Vertragsnummer:
+                    <strong>0215/123456789</strong>
                   </p>
 
                   <p>
-                    <strong>Marktlokation-ID:</strong>
-                    {{ item.marketLocation }}
+                    Kundennummer:
+                    <strong>2026-1234567890</strong>
+                  </p>
+
+                  <br />
+
+                  <p>
+                    Zählernummer:
+                    <strong>MHD-OZR-1325-79-45943268</strong>
+                  </p>
+
+                  <p>
+                    Marktlokation-ID:
+                    <strong>MLID-054321-98674</strong>
                   </p>
                 </div>
+              </div>
 
-                <p>
-                  <strong>Vertragsnummer:</strong>
-                  {{ item.contractNumber }}
+              <!-- FORM -->
+              <div class="meter-reading-section">
+                <h4>Zählerstand eingeben</h4>
+
+                <p class="meter-subtext">
+                  Bitte tragen Sie hier das Datum und den aktuellen Zählerstand ein
                 </p>
 
-                <p>
-                  <strong>Kundennummer:</strong>
-                  {{ item.customerNumber }}
+                <!-- <div class="meter-input-row">
+                  <div class="input-group">
+                    <label>Ablesedatum</label>
+
+                    <input type="text" value="05.05.2026" />
+                  </div>
+
+                  <div class="input-group">
+                    <label>Zählerstand (ohne Nachkommastellen)</label>
+
+                    <input type="text" value="37125" />
+                  </div>
+                </div> -->
+
+                <div class="form-row">
+                  <div class="form-group">
+                    <div class="field-wrap">
+                      <span class="field-label">Ablesedatum</span>
+                      <input type="text" placeholder="05.05.2026" />
+                    </div>
+                  </div>
+                  <div class="form-group">
+                    <div class="field-wrap">
+                      <span class="field-label">Zählerstand (ohne Nachkommastellen)</span>
+                      <input type="text" placeholder="37125" />
+                    </div>
+                  </div>
+                </div>
+
+                <p class="upload-note">
+                  Ihr Provider bittet für den Fall einer manuellen Gegenprüfung zusätzlich noch
+                  darum, ein Zählerfoto mit dem entsprechenden Zählerstand hochzuladen.
+                  <br />
+                  Bitte laden sie hier das entsprechende Zählerfoto hoch oder benutzen Sie die
+                  Kamera Ihres Smartphones.
                 </p>
               </div>
             </div>
-            <!-- OUTSIDE BUTTON -->
-            <div class="meter-bottom-btn-section">
-              <button class="meter-select-btn">Zähler auswählen</button>
+            <br />
+            <!-- CHECKBOX -->
+            <div class="confirm-box">
+              <input type="checkbox" />
+
+              <span>
+                Hiermit bestätige ich, dass die hochgeladenen Zählerfotos mit Zählerstand und
+                Zählernummer entsprechend für mich an den jeweiligen Anbieter übermittelt werden
+                dürfen
+              </span>
             </div>
+
+            <!-- BUTTONS -->
+            <div class="meter-btn-row">
+              <button class="upload-btn" (click)="nextRoute(4)">
+                Zählerfoto mit aktuellem Zählerstand hochladen
+              </button>
+
+              <button class="submit-btn" (click)="nextRoute(4)">Zählerstand übermitteln</button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div *ngIf="redirect === 4">
+        <div style="margin-left: 20px">
+          <strong>Foto-Upload (NEU)</strong>
+          <p style="font-size: 14px">
+            Bitte laden Sie hier alle Fotos der entsprechenden Zähler hoch. Beachten Sie, dass Sie
+            je Zählernummer max. 1 Foto hochladen. Bitte verwenden Sie nur Fotos, welche klar und
+            gut leserlich sein sollen und nicht verschwommen. Auf den Fotos muss sowohl die
+            Zählernummer, wie auch der Zählerstand gut leserlich sein
+          </p>
+          <br />
+          <p style="font-size: 14px">
+            Wenn Sie alle Fotos entsprechend hochgeladen haben, auf „Zählerfotos mit Zählernummer
+            und Zählerstand hochladen“ (Dieser Vorgang kann ein wenig dauern, bitte haben Sie etwas
+            Geduld).
+          </p>
+          <!-- CHECKBOX -->
+          <div class="confirm-box">
+            <input type="checkbox" />
+
+            <span>
+              Hiermit bestätige ich, dass die hochgeladenen Zählerfotos mit Zählerstand und
+              Zählernummer entsprechend für mich an den jeweiligen Anbieter übermittelt werden
+              dürfen.
+            </span>
+          </div>
+          <div
+            style="display: flex; flex-direction: row; justify-content: flex-end; margin-top: 10px"
+          >
+            <button class="btn-primary" (click)="nextStep(3)">
+              <span class="spinner"></span>
+              Bitte Zählerfotos mit Zählernummer und Zählerstand hochladen
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="" *ngIf="activeTab === 1 && currentStep === 3">
+      <div class="login-berich">Zählerstand melden</div>
+
+      <div class="customer-profile-box">
+        <div class="tab-row">
+          <div class="success-box" style="width: auto">
+            <div class="success-content">
+              <div class="success-row">
+                <img src="assets/icons/Kreis_Haken_gruen.png" alt="success" />
+
+                <div class="text-block">
+                  <div class="tab-header">Foto-Upload erfolgreich!</div>
+                  <div class="tab-text">
+                    In der Übersicht finden Sie die hochgeladen Zählerfotos, bitte überprüfen Sie
+                    diese auf Vollständigkeit und Lesbarkeit
+                  </div>
+                  <div class="tab-text">
+                    Wenn die Zählerfotos korrekt sind, bitte auf „Zählerfotos übermitteln“ klicken,
+                    unsere Mitarbeiter prüfen diese und leiten die Zählerfotos für Sie weiter.
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="upload-photo-wrapper">
+            <!-- CARD -->
+            <div class="upload-photo-card">
+              <div class="upload-photo-content">
+                <!-- IMAGE -->
+                <div class="upload-photo-img">
+                  <img src="assets/icons/customer_meter.png" alt="meter" />
+                </div>
+
+                <!-- TEXT -->
+                <div class="upload-photo-info">
+                  <h4>Upload Foto 1</h4>
+
+                  <p>IMG_245636847.jpg</p>
+
+                  <span>Zum Vergrößern bitte anklicken.</span>
+
+                  <button class="delete-upload-btn">Zählerfoto löschen und erneut hochladen</button>
+                </div>
+              </div>
+            </div>
+
+            <!-- CARD -->
+            <div class="upload-photo-card">
+              <div class="upload-photo-content">
+                <!-- IMAGE -->
+                <div class="upload-photo-img">
+                  <img src="assets/icons/customer_meter.png" alt="meter" />
+                </div>
+
+                <!-- TEXT -->
+                <div class="upload-photo-info">
+                  <h4>Ihr Uploadfoto 2:</h4>
+
+                  <p>IMG_124567847.jpg</p>
+
+                  <span>Zum Vergrößern bitte anklicken.</span>
+
+                  <button class="delete-upload-btn">Zählerfoto löschen und erneut hochladen</button>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div
+            style="display: flex; flex-direction: row; justify-content: flex-end; margin-top: 10px"
+          >
+            <button class="btn-primary">
+              <span class="spinner"></span>
+              Zählerfotos übermitteln
+            </button>
           </div>
         </div>
       </div>
@@ -1793,7 +2167,7 @@
             </div>
           </div>
         </div>
-
+        <div class="error-msg" *ngIf="apiError">{{ apiError }}</div>
         <div
           style="display: flex; flex-direction: row; justify-content: flex-end; margin-top: 10px"
         >

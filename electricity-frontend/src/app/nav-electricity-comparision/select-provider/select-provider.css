@@ -1043,6 +1043,20 @@ a {
   /* border-top-left-radius: 8px;
   border-bottom-left-radius: 8px; */
 }
+
+.toggle-btn.active:first-child {
+  border-radius: 8px 0 0 8px;
+}
+
+.toggle-btn.active:last-child {
+  border-radius: 0 8px 8px 0;
+}
+.field-error-msg {
+  color: #d92d20;
+  font-size: 13px;
+  margin-top: 6px;
+  font-weight: 500;
+}
 .edit-tabs {
   display: flex;
   justify-content: center;

@@ -1530,7 +1530,7 @@
 
 .meter-section {
   border: 1px solid #00a651;
-  border-radius: 8px;
+  border-radius: 0 0 8px 8px;
   overflow: hidden;
   background: #f5f5f5;
   margin-bottom: 20px;
@@ -1539,7 +1539,7 @@
 .meter-section-header {
   background: #00a651;
   color: #fff;
-  padding: 14px 18px;
+  padding: 10px 18px;
   font-size: 20px;
   font-weight: 600;
 }
@@ -1685,7 +1685,11 @@
   background: #003b7a;
   color: #fff;
 }
-
+.meter-btn-wrap {
+  display: flex;
+  justify-content: flex-end;
+  align-items: flex-start;
+}
 .meter-orange-btn {
   background: #ff7a00;
   color: #fff;
@@ -1695,6 +1699,17 @@
   font-size: 12px;
 }
 
+.meter-side-btn {
+  min-width: 120px;
+  height: 46px;
+  border: none;
+  border-radius: 10px;
+  background: #003b7a;
+  color: #fff;
+  font-size: 15px;
+  font-weight: 600;
+  cursor: pointer;
+}
 /* =========================
    RESPONSIVE
 ========================= */
@@ -1904,7 +1919,6 @@
   font-size: 13px;
 }
 
-
 .meter-tariff {
   font-size: 13px;
   font-weight: 700;
@@ -1924,7 +1938,6 @@
   font-weight: 600;
 }
 
-
 .meter-address {
   margin-top: 8px;
 }
@@ -1941,7 +1954,7 @@
   font-size: 12px;
   margin-bottom: 2px;
   line-height: 1.4;
-   margin: 0;
+  margin: 0;
 }
 
 .contract-row span {
@@ -2082,4 +2095,272 @@
   font-weight: 700;
 
   cursor: pointer;
+}
+
+.selected-contract-wrapper {
+  border: 1px solid #3b89d8;
+  border-radius: 4px;
+  overflow: hidden;
+  background: #fff;
+}
+
+.selected-contract-header {
+  background: #00a63f;
+  color: #fff;
+  font-size: 18px;
+  font-weight: 700;
+  padding: 12px 16px;
+}
+
+.selected-contract-card {
+  padding: 16px;
+}
+
+.green-container {
+  border: 1px solid #00a63f;
+  border-radius: 4px;
+  padding: 16px;
+}
+.contract-top {
+  /* padding: 16px; */
+  display: flex;
+  justify-content: space-between;
+  gap: 24px;
+}
+
+.contract-left {
+  width: 230px;
+}
+
+.provider-logo {
+  width: 100%;
+  object-fit: contain;
+  margin-bottom: 10px;
+}
+
+.provider-name {
+  font-size: 16px;
+  font-weight: 700;
+  margin-bottom: 10px;
+  color: #111;
+}
+
+.provider-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  background: #003b7a;
+  color: #fff;
+  padding: 6px 12px;
+  border-radius: 5px;
+  font-size: 14px;
+  font-weight: 600;
+}
+
+.badge-icon {
+  width: 14px;
+  height: 14px;
+}
+
+.contract-center {
+  flex: 1;
+}
+
+.contract-row-title {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 4px;
+}
+
+.change-link {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  color: #4b9cff;
+  font-size: 13px;
+  cursor: pointer;
+  text-decoration: none;
+}
+
+.change-link img {
+  width: 12px;
+  height: 12px;
+}
+
+.meter-id {
+  font-size: 14px;
+  margin-bottom: 16px;
+  color: #333;
+}
+
+.address-wrap p {
+  margin: 2px 0;
+  font-size: 14px;
+  color: #333;
+}
+
+.contract-right {
+  width: 320px;
+}
+
+.contract-right p {
+  margin: 4px 0;
+  font-size: 14px;
+  color: #333;
+}
+
+.meter-reading-section {
+  margin-top: 22px;
+}
+
+.meter-reading-section h4 {
+  font-size: 18px;
+  margin-bottom: 6px;
+  color: black;
+}
+
+.meter-subtext {
+  font-size: 14px;
+  margin-bottom: 18px;
+  color: #555;
+}
+
+.upload-note {
+  font-size: 14px;
+  line-height: 1.6;
+  color: #555;
+  margin-bottom: 18px;
+}
+
+.confirm-box {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  border: 1px solid #003b7a;
+  border-radius: 8px;
+  padding: 12px;
+  margin-bottom: 20px;
+}
+
+.confirm-box input {
+  margin-top: 3px;
+}
+
+.confirm-box span {
+  font-size: 14px;
+  color: #333;
+  line-height: 1.5;
+}
+
+.meter-btn-row {
+  display: flex;
+  justify-content: space-between;
+  gap: 80px;
+}
+
+.upload-btn,
+.submit-btn {
+  flex: 1;
+  height: 32px;
+  border: none;
+  border-radius: 6px;
+  font-size: 15px;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.upload-btn {
+  background: #0085e0;
+  color: #fff;
+}
+
+.submit-btn {
+  background: #d9d9d9;
+  color: #222;
+}
+
+@media (max-width: 991px) {
+  .contract-top {
+    flex-direction: column;
+  }
+
+  .contract-left,
+  .contract-right {
+    width: 100%;
+  }
+
+  .meter-input-row,
+  .meter-btn-row {
+    flex-direction: column;
+  }
+}
+
+
+.upload-photo-wrapper {
+  display: flex;
+  gap: 14px;
+  margin-top: 20px;
+}
+
+.upload-photo-card {
+  flex: 1;
+  border: 1px solid #8fd19e;
+  border-radius: 2px;
+  background: transparent;
+  padding: 12px;
+}
+
+.upload-photo-content {
+  display: flex;
+  align-items: flex-start;
+  gap: 14px;
+}
+
+.upload-photo-img img {
+  width: 72px;
+  height: 72px;
+  object-fit: cover;
+  border: 1px solid #ccc;
+}
+
+.upload-photo-info {
+  flex: 1;
+}
+
+.upload-photo-info h4 {
+  margin: 0 0 6px;
+  font-size: 14px;
+  font-weight: 700;
+  color: #111;
+}
+
+.upload-photo-info p {
+  margin: 0 0 5px;
+  font-size: 13px;
+  color: #666;
+}
+
+.upload-photo-info span {
+  display: block;
+  margin-bottom: 12px;
+  font-size: 13px;
+  color: #444;
+}
+
+.delete-upload-btn {
+  background: #003b7a;
+  color: #fff;
+  border: none;
+  border-radius: 4px;
+  padding: 8px 14px;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+@media (max-width: 768px) {
+  .upload-photo-wrapper {
+    flex-direction: column;
+  }
 }

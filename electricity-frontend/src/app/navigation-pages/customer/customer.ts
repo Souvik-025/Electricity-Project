@@ -77,9 +77,10 @@ export class Customer {
   activeTab: number = 1;
   serviceTab: number = 1;
   documentTab: number = 0;
-  redirect: number = 1;
+
   /* ── Step control ──────────────────────────────────────────────── */
   currentStep: number = 1;
+  redirect: number = 1;
   /* ── Customer Type (PRIVATE/Business) ──────────────────────────────────────────────── */
   customerType: string = 'PRIVATE';
   isNotificationEnabled: boolean = true;
@@ -153,7 +154,10 @@ export class Customer {
       }, 0);
     }
   }
-
+  nextRoute(step: number) {
+    this.redirect = step;
+    this.cdr.detectChanges();
+  }
   showLogoutModal: boolean = false;
 
   openLogoutModal() {
@@ -539,6 +543,60 @@ export class Customer {
       monthlyPrice: '151,40 €',
 
       cancelledDate: '28.03.2026',
+    },
+  ];
+
+  electricity = [
+    {
+      type: 'electricity',
+
+      meterIcon: 'assets/icons/Icons_energyprovider/eon.png',
+
+      providerIcon: 'assets/icons/65bd2fa8-bd0e-497e-a781-a3c434fe6176_Stromvergleich.png',
+
+      providerType: 'Strom | Hausstrom',
+
+      tariff: 'E.ON ÖkoStrom Extra 12',
+
+      contractNumber: '0215/123456789',
+      customerNumber: '2026-1234567890',
+
+      meterNumber: 'MHD-OZR-1325-79-45943268',
+      marketLocation: 'MILD-054321-98674',
+
+      meterName: 'MHD-OZR-1325-79-45943268',
+
+      address: {
+        name: 'Marie Mustermann',
+        street: 'Mustermannstraße 29',
+        city: '12345 Musterhausen',
+      },
+    },
+
+    {
+      type: 'electricity',
+
+      meterIcon: 'assets/icons/Icons_energyprovider/ExtraGruen.png',
+
+      providerIcon: 'assets/icons/65bd2fa8-bd0e-497e-a781-a3c434fe6176_Stromvergleich.png',
+
+      providerType: 'Strom | Hausstrom',
+
+      tariff: 'EG ÖkoGrünStrom Extra 18',
+
+      contractNumber: '012455-64564564',
+      customerNumber: '546321456987',
+
+      meterNumber: 'ZKH-31259147-122',
+      marketLocation: 'MILD-054321-9874563',
+
+      meterName: 'Mustermänstraße 29',
+
+      address: {
+        name: 'Marie Mustermann',
+        street: 'Mustermänstraße 29',
+        city: '12345 Musterhausen',
+      },
     },
   ];
 
@@ -1501,7 +1559,6 @@ export class Customer {
   formatAttorneyDate(dateValue: any): string {
     if (!dateValue) return '';
 
-    // 👇 convert seconds → milliseconds
     const date = new Date(Number(dateValue) * 1000);
 
     const formatter = new Intl.DateTimeFormat('de-DE', {
@@ -1636,7 +1693,7 @@ export class Customer {
     this.isLoading = true;
 
     this.http.post<any>(`${API_BASE}/customer/add-attorny`, formData).subscribe({
-      next: ({ res, message, createdOn }) => {
+      next: ({ res, message, createdOn, errMessage }) => {
         this.isLoading = false;
 
         if (res) {
@@ -1647,21 +1704,27 @@ export class Customer {
           this.legalLastName = '';
           this.approvalStatus = 'PENDING';
           this.recordIsPresent = true;
+          this.attorneyCreatedOn = this.formatAttorneyDate(createdOn);
           this.signaturePad.clear();
           this.nextStep(3);
-          this.cdr.detectChanges();
+        } else {
+          this.isLoading = false;
+          this.apiError = errMessage;
         }
+
+        this.cdr.detectChanges();
       },
       error: (err) => {
         this.isLoading = false;
         console.error('API Error:', err);
+        this.cdr.detectChanges();
       },
     });
   }
 
   createQRData() {
     const user = {
-      user_id: '32',
+      user_id: this.authService.getUserId() || 0,
       flag: 'CUSTOMER_ONLY',
     };
 
@@ -1670,11 +1733,7 @@ export class Customer {
     // encode
     const encoded = btoa(json);
 
-    // simple signature (VERY basic, just for temp)
-    const secret = 'my-secret-key';
-    const signature = btoa(encoded + secret);
-
-    return `http://192.168.0.131:4200/customer?data=${encoded}`;
+    return `http://localhost:4200/customer?data=${encoded}`;
   }
 
   /*── Power of Attorney Section End ──*/

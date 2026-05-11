@@ -68,7 +68,8 @@
                   type="text"
                   class="box large"
                   placeholder="Ihre Ort"
-                  [value]="citySearch"
+                  [(ngModel)]="citySearch"
+                  [ngModelOptions]="{ standalone: true }"
                   (input)="onCityInput($event)"
                   (focus)="closeAllDropdowns(); showCityDropdown = true"
                   (click)="$event.stopPropagation()"
@@ -153,7 +154,7 @@
                 <span class="watt-per-year">kWh / Jahr</span>
               </div>
 
-              <button class="btn-suche" (click)="searchApply()">Apply Address</button>
+              <button class="btn-suche" (click)="searchApply()">Adresse anwenden</button>
             </div>
           </form>
         </ng-template>
@@ -1017,7 +1018,7 @@
                         <br />
                         <div class="label">
                           Gespart: &nbsp; &nbsp; &nbsp;
-                          <span class="gespart"
+                          <span class="gespart" style="color: red;"
                             >{{ getSavingPerYear(rate) | number: '1.2-2' }} €</span
                           >
                         </div>
@@ -1191,6 +1192,9 @@
 
                     <input type="number" [(ngModel)]="editableWorkPrice" />
                   </div>
+                  <div class="field-error-msg" *ngIf="fieldErrors['workPrice']">
+                    {{ fieldErrors['workPrice'] }}
+                  </div>
                 </div>
 
                 <!-- Grundpreis type -->
@@ -1228,6 +1232,10 @@
                       (ngModelChange)="onBasePriceInputChange()"
                     />
                   </div>
+
+                  <div class="field-error-msg" *ngIf="fieldErrors['basePrice']">
+                    {{ fieldErrors['basePrice'] }}
+                  </div>
                 </div>
               </div>
 
@@ -1242,6 +1250,9 @@
                       [(ngModel)]="editableMonthlyPrice"
                       (ngModelChange)="onAbschlagInputChange($event)"
                     />
+                  </div>
+                  <div class="field-error-msg" *ngIf="fieldErrors['monthlyPrice']">
+                    {{ fieldErrors['monthlyPrice'] }}
                   </div>
                 </div>
 
@@ -1275,8 +1286,12 @@
                   </div>
                 </div>
                 <div class="sub">
-                  Bitte beachten Sie: Da es zu Rück- oder Nachzahlungen kommen kann, spiegelt der
-                  Abschlag ggf. nicht Ihre tatsächlichen Kosten wider.
+                  <span>Ihr Vergleichstarif: Grundversorger voreingestellt</span> &nbsp;
+                  <div style="display: flex; gap: 8px">
+                    <span class="info-base info-circ" style="margin-top: 3px">i</span>
+                    Bitte beachten Sie: Da es zu Rück- oder Nachzahlungen kommen kann, spiegelt der
+                    Abschlag ggf. nicht Ihre tatsächlichen Kosten wider.
+                  </div>
                 </div>
               </div>
             </div>
