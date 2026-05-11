@@ -70,6 +70,8 @@ export type AdminCustomer = {
     customerId?: number | null;
   } | null;
   attornies: Attorney[];
+  /** Lexoffice number — admin-only field */
+  lexofficeNumber: string | null;
 };
 
 @Component({
@@ -91,6 +93,14 @@ export class CustomerListComponent implements OnInit {
 
   /** Stores one admin note per customer id */
   customerNotes: Record<string | number, string> = {};
+
+  isLexofficeModalOpen = false;
+  lexofficeCustomer: AdminCustomer | null = null;
+  lexofficeInput = "";
+  isSavingLexoffice = false;
+
+  /** Stores the Lexoffice number per customer id (admin-only) */
+  customerLexofficeNumbers: Record<string | number, string> = {};
 
   /** Currently selected customer shown in the sidebar */
   selectedCustomer: AdminCustomer | null = null;
@@ -119,7 +129,7 @@ export class CustomerListComponent implements OnInit {
   constructor(
     private api: ApiService,
     private authService: AuthService,
-  ) { }
+  ) {}
 
   ngOnInit(): void {
     this.fetchCustomers();
@@ -171,7 +181,7 @@ export class CustomerListComponent implements OnInit {
       note: trimmedNote,
     };
 
-    this.api.post("admin/add-customer-note", payload).subscribe({
+    this.api.post("admin/add-note", payload).subscribe({
       next: () => {
         this.customerNotes[this.noteCustomer!.id] = trimmedNote;
         this.closeNoteModal();
@@ -179,6 +189,48 @@ export class CustomerListComponent implements OnInit {
       error: () => {
         // Keep modal open so admin can retry without losing note text.
         this.isSavingNote = false;
+      },
+    });
+  }
+
+  /** Open Lexoffice number modal for a customer */
+  openLexofficeModal(event: Event, customer: AdminCustomer): void {
+    event.stopPropagation();
+    this.lexofficeCustomer = customer;
+    this.lexofficeInput = this.customerLexofficeNumbers[customer.id] ?? "";
+    this.isLexofficeModalOpen = true;
+  }
+
+  /** Close Lexoffice modal and reset state */
+  closeLexofficeModal(): void {
+    this.isLexofficeModalOpen = false;
+    this.lexofficeCustomer = null;
+    this.lexofficeInput = "";
+    this.isSavingLexoffice = false;
+  }
+
+  /** Save Lexoffice number for the selected customer */
+  saveLexofficeNumber(): void {
+    if (!this.lexofficeCustomer || this.isSavingLexoffice) return;
+
+    const trimmed = this.lexofficeInput.trim();
+    if (!trimmed) return;
+
+    this.isSavingLexoffice = true;
+
+    const payload = {
+      id: this.lexofficeCustomer.id,
+      adminId: this.authService.getUserId(),
+      lexofficeNumber: trimmed,
+    };
+
+    this.api.post("admin/add-lexoffice-number", payload).subscribe({
+      next: () => {
+        this.customerLexofficeNumbers[this.lexofficeCustomer!.id] = trimmed;
+        this.closeLexofficeModal();
+      },
+      error: () => {
+        this.isSavingLexoffice = false;
       },
     });
   }
@@ -213,6 +265,11 @@ export class CustomerListComponent implements OnInit {
 
           if (!(c.id in this.customerNotes)) {
             this.customerNotes[c.id] = "";
+          }
+
+          // Seed Lexoffice number from API response (prefer existing local edit)
+          if (!(c.id in this.customerLexofficeNumbers)) {
+            this.customerLexofficeNumbers[c.id] = c.lexofficeNumber ?? "";
           }
         });
       },
@@ -350,6 +407,7 @@ export class CustomerListComponent implements OnInit {
       attornies: Array.isArray(item.attornies)
         ? item.attornies.map((a: any) => ({ ...a, isProcessing: false }))
         : [],
+      lexofficeNumber: item.lexofficeNumber ?? null,
     }));
   }
 }

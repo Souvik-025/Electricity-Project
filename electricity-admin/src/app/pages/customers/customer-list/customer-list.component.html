@@ -64,6 +64,7 @@
               <th class="px-4 py-3 font-medium">Verifiziert</th>
               <th class="px-4 py-3 font-medium">Status</th>
               <th class="px-4 py-3 font-medium">GDPR Kontakt</th>
+              <th class="px-4 py-3 font-medium">Lexoffice-Nr.</th>
               <th class="px-4 py-3 text-right rounded-tr-xl font-medium">Aktion</th>
             </tr>
           </thead>
@@ -173,6 +174,18 @@
                 </button>
               </td>
 
+              <!-- Lexoffice-Nr. -->
+              <td class="px-4 py-3.5" (click)="$event.stopPropagation()">
+                @if (customerLexofficeNumbers[customer.id]) {
+                <span
+                  class="inline-flex items-center gap-1 font-mono text-xs text-indigo-700 dark:text-indigo-400 bg-indigo-50 dark:bg-indigo-900/20 border border-indigo-200 dark:border-indigo-700 px-2 py-0.5 rounded-md">
+                  {{ customerLexofficeNumbers[customer.id] }}
+                </span>
+                } @else {
+                <span class="text-xs text-gray-400 italic">—</span>
+                }
+              </td>
+
               <!-- Details action -->
               <td class="px-4 py-3.5 text-right">
                 <div class="inline-flex items-center gap-2" (click)="$event.stopPropagation()">
@@ -183,6 +196,15 @@
                         d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5M18.586 2.586a2 2 0 112.828 2.828L12 14.828l-4 1 1-4 9.586-9.414z" />
                     </svg>
                     <span>{{ customerNotes[customer.id] ? 'Notiz bearbeiten' : 'Notiz' }}</span>
+                  </button>
+
+                  <button (click)="openLexofficeModal($event, customer)"
+                    class="inline-flex items-center gap-1.5 text-xs font-medium text-indigo-600 dark:text-indigo-400 hover:text-indigo-800 dark:hover:text-indigo-200 transition-colors px-2.5 py-1.5 rounded-lg hover:bg-indigo-50 dark:hover:bg-indigo-900/20">
+                    <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                        d="M7 7h.01M7 3h5c.512 0 1.024.195 1.414.586l7 7a2 2 0 010 2.828l-7 7a2 2 0 01-2.828 0l-7-7A1.994 1.994 0 013 12V7a4 4 0 014-4z" />
+                    </svg>
+                    <span>{{ customerLexofficeNumbers[customer.id] ? 'Lexoffice bearbeiten' : 'Lexoffice' }}</span>
                   </button>
 
                   <button
@@ -422,6 +444,31 @@
               </svg>
               GDPR Kontakt: Inaktiv
               }
+            </button>
+          </div>
+        </div>
+
+        <!-- === SECTION: Lexoffice-Nr. === -->
+        <div class="px-5 py-4">
+          <p class="text-[10px] font-semibold uppercase tracking-widest text-gray-400 mb-3">Lexoffice-Nr.</p>
+          <div class="flex items-center justify-between gap-4">
+            <div>
+              @if (customerLexofficeNumbers[selectedCustomer.id]) {
+              <p class="font-mono text-sm font-semibold text-indigo-700 dark:text-indigo-400">
+                {{ customerLexofficeNumbers[selectedCustomer.id] }}
+              </p>
+              <p class="text-xs text-gray-400 mt-0.5">Lexoffice-Nummer zugewiesen</p>
+              } @else {
+              <p class="text-sm text-gray-400 italic">Noch keine Nummer vergeben</p>
+              }
+            </div>
+            <button (click)="openLexofficeModal($event, selectedCustomer)"
+              class="shrink-0 inline-flex items-center gap-1.5 px-3 py-2 rounded-lg text-xs font-semibold border border-indigo-300 dark:border-indigo-700 bg-indigo-50 dark:bg-indigo-900/20 text-indigo-700 dark:text-indigo-400 hover:bg-indigo-100 dark:hover:bg-indigo-900/40 transition active:scale-95">
+              <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                  d="M7 7h.01M7 3h5c.512 0 1.024.195 1.414.586l7 7a2 2 0 010 2.828l-7 7a2 2 0 01-2.828 0l-7-7A1.994 1.994 0 013 12V7a4 4 0 014-4z" />
+              </svg>
+              {{ customerLexofficeNumbers[selectedCustomer.id] ? 'Ändern' : 'Vergeben' }}
             </button>
           </div>
         </div>
@@ -718,7 +765,7 @@
 </div>
 
 @if (isNoteModalOpen && noteCustomer) {
-<div class="fixed inset-0 z-50 flex items-center justify-center p-4">
+<div class="fixed inset-0 z-99999 flex items-center justify-center p-4">
   <div class="absolute inset-0 bg-black/50" (click)="closeNoteModal()"></div>
 
   <div
@@ -762,6 +809,65 @@
         <span>Speichert...</span>
         } @else {
         <span>Notiz speichern</span>
+        }
+      </button>
+    </div>
+  </div>
+</div>
+}
+
+@if (isLexofficeModalOpen && lexofficeCustomer) {
+<div class="fixed inset-0 z-99999 flex items-center justify-center p-4">
+  <div class="absolute inset-0 bg-black/50" (click)="closeLexofficeModal()"></div>
+
+  <div
+    class="relative w-full max-w-md rounded-2xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-900 shadow-2xl overflow-hidden">
+    <!-- Modal Header -->
+    <div class="flex items-start justify-between px-5 py-4 border-b border-gray-200 dark:border-gray-700">
+      <div>
+        <h3 class="text-base font-semibold text-gray-900 dark:text-white">Lexoffice-Nummer vergeben</h3>
+        <p class="text-xs text-gray-500 mt-0.5">
+          {{ lexofficeCustomer.firstName || '—' }} {{ lexofficeCustomer.lastName || '—' }} ·
+          #{{ lexofficeCustomer.uniqueCustomerId }}
+        </p>
+      </div>
+      <button (click)="closeLexofficeModal()"
+        class="ml-3 p-1.5 rounded-lg text-gray-400 hover:text-gray-600 hover:bg-gray-100 dark:hover:bg-gray-700 transition">
+        <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+        </svg>
+      </button>
+    </div>
+
+    <!-- Modal Body -->
+    <div class="px-5 py-4">
+      <label for="lexoffice-number" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+        Lexoffice-Nummer
+      </label>
+      <input id="lexoffice-number" type="text" [(ngModel)]="lexofficeInput" placeholder="z.B. ZP12345"
+        class="w-full rounded-xl border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 text-sm text-gray-800 dark:text-gray-100 px-3 py-2.5 font-mono outline-none focus:ring-2 focus:ring-indigo-500 transition" />
+      <p class="text-[11px] text-gray-400 mt-2">
+        Diese Nummer ist nur für Administratoren sichtbar und wird dem Kunden nicht angezeigt.
+      </p>
+    </div>
+
+    <!-- Modal Footer -->
+    <div
+      class="flex items-center justify-end gap-2 px-5 py-4 bg-gray-50 dark:bg-gray-800/60 border-t border-gray-200 dark:border-gray-700">
+      <button (click)="closeLexofficeModal()"
+        class="px-3.5 py-2 rounded-lg text-sm font-medium border border-gray-300 dark:border-gray-600 text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 transition">
+        Abbrechen
+      </button>
+      <button (click)="saveLexofficeNumber()" [disabled]="isSavingLexoffice || !lexofficeInput.trim()"
+        class="inline-flex items-center gap-2 px-3.5 py-2 rounded-lg text-sm font-medium bg-indigo-600 hover:bg-indigo-700 text-white disabled:opacity-60 disabled:cursor-not-allowed transition">
+        @if (isSavingLexoffice) {
+        <div class="animate-spin rounded-full h-3.5 w-3.5 border-b-2 border-white"></div>
+        <span>Speichert...</span>
+        } @else {
+        <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
+        </svg>
+        <span>Speichern</span>
         }
       </button>
     </div>
