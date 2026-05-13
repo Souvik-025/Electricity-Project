@@ -41,6 +41,8 @@ public class CustomerConnectionRequestDto {
 	private Boolean selfCancellation;
 
 	private Boolean delivery;
+	
+	private String customerNumber;
 
 	@JsonFormat(pattern = "dd.MM.yyyy")
 	private LocalDate desiredDelivery;
@@ -80,6 +82,7 @@ public class CustomerConnectionRequestDto {
 		private Boolean selfCancellation;
 		private Boolean delivery;
 		private BigInteger desiredDelivery;
+		private String customerNumber;
 	}
 
 	public static CustomerConnectionResponse getConnectionResponse(CustomerConnect connect) {
@@ -92,6 +95,7 @@ public class CustomerConnectionRequestDto {
 				.meterNumber(connect.getMeterNumber()).marketLocationId(connect.getMarketLocationId())
 				.currentProvider(connect.getCurrentProvider()).autoCancellation(connect.getAutoCancellation())
 				.alreadyCancelled(connect.getAlreadyCancelled()).selfCancellation(connect.getSelfCancellation())
+				.customerNumber(connect.getCustomerNumber())
 				.delivery(connect.getDelivery()).desiredDelivery(connect.getDesiredDelivery()).build();
 	}
 

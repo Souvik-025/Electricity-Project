@@ -13,9 +13,12 @@ public interface CustomerAttornyRepository extends JpaRepository<CustomerAttorny
 
 	List<CustomerAttorny> findAllByCustomerCustomerIdAndIsRevokedOrderBySubmittedOnDesc(Integer customerId,
 			Boolean isRevoked);
-	
+
 	Optional<CustomerAttorny> findByIdAndAdminAdminId(Integer id, Integer adminId);
-	
-	Optional<CustomerAttorny> findByCustomerCustomerIdAndAdminAdminIdAndIsRevoked(Integer customerId, Integer adminId, Boolean isRevoked);
+
+	List<CustomerAttorny> findAllByCustomerCustomerId(Integer customerId);
+
+	Optional<CustomerAttorny> findByCustomerCustomerIdAndAdminAdminIdAndIsRevoked(Integer customerId, Integer adminId,
+			Boolean isRevoked);
 
 }

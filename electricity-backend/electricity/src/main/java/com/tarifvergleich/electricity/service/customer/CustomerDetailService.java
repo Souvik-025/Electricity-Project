@@ -101,8 +101,10 @@ public class CustomerDetailService {
 			throw new InternalServerException("Street missing", HttpStatus.OK);
 		if (attornyDto.getPlaceAndDate() == null || attornyDto.getPlaceAndDate().isEmpty())
 			throw new InternalServerException("Place and date missing", HttpStatus.OK);
-		if (file == null)
+		if (file == null || file.isEmpty())
 			throw new InternalServerException("Signature missing", HttpStatus.OK);
+		if (file.getContentType().equals("image/png") || file.getContentType().equals("image/jpeg"))
+			throw new InternalServerException("Content type mismatch", HttpStatus.OK);
 
 		if (attornyDto.getUserType().toUpperCase().equals("BUSINESS")) {
 			if (attornyDto.getCompanyName() == null || attornyDto.getCompanyName().trim().isEmpty())
@@ -443,12 +445,18 @@ public class CustomerDetailService {
 
 		String approvalStatus = "";
 		boolean recordIsPresent = false;
+		boolean pastIsRevoked = false;
 
+		List<CustomerAttorny> attorniesAll = customerAttornyRepo.findAllByCustomerCustomerId(customerId);
 		List<CustomerAttorny> attornies = customerAttornyRepo
 				.findAllByCustomerCustomerIdAndIsRevokedOrderBySubmittedOnDesc(customerId, false);
 
+		if (attorniesAll != null && !attorniesAll.isEmpty())
+			pastIsRevoked = true;
+
 		if (attornies == null || attornies.isEmpty())
-			return Map.of("res", true, "recordIsPresent", recordIsPresent, "approvalStatus", "Not found");
+			return Map.of("res", true, "recordIsPresent", recordIsPresent, "approvalStatus", "Not found", "isRevoked",
+					pastIsRevoked);
 
 		CustomerAttorny attorny = attornies.getFirst();
 		recordIsPresent = true;
@@ -461,7 +469,7 @@ public class CustomerDetailService {
 			approvalStatus = "rejected".toUpperCase();
 
 		return Map.of("res", true, "recordIsPresent", recordIsPresent, "approvalStatus", approvalStatus, "createdOn",
-				attorny.getSubmittedOn());
+				attorny.getSubmittedOn(), "isRevoked", attorny.getIsRevoked());
 	}
 
 	@Transactional

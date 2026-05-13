@@ -21,15 +21,19 @@ import com.tarifvergleich.electricity.dto.CustomerServicesDto;
 import com.tarifvergleich.electricity.dto.CustomerServicesDto.CustomerListOfServiceForAdminResDto;
 import com.tarifvergleich.electricity.dto.ListOfHolidaysDto;
 import com.tarifvergleich.electricity.dto.ListOfHolidaysDto.ListOfHolidaysResponseDto;
+import com.tarifvergleich.electricity.dto.ManageAdminDocumentDto;
+import com.tarifvergleich.electricity.dto.ManageAdminDocumentDto.ManageAdminDocumentResDto;
 import com.tarifvergleich.electricity.exception.InternalServerException;
 import com.tarifvergleich.electricity.model.AdminUser;
 import com.tarifvergleich.electricity.model.CustomerRequestCounselling;
 import com.tarifvergleich.electricity.model.CustomerServices;
 import com.tarifvergleich.electricity.model.ListOfHolidays;
+import com.tarifvergleich.electricity.model.ManageAdminDocument;
 import com.tarifvergleich.electricity.repository.AdminUserRepository;
 import com.tarifvergleich.electricity.repository.CustomerRequestCounsellingRepository;
 import com.tarifvergleich.electricity.repository.CustomerServicesRepository;
 import com.tarifvergleich.electricity.repository.ListOfHolidaysRepository;
+import com.tarifvergleich.electricity.repository.ManageAdminDocumentRepository;
 import com.tarifvergleich.electricity.util.Helper;
 
 import jakarta.transaction.Transactional;
@@ -44,6 +48,7 @@ public class AdminServicePointManagementService {
 	private final Helper helper;
 	private final ListOfHolidaysRepository listOfHolidaysRepo;
 	private final CustomerRequestCounsellingRepository customerRequestCounsellingRepo;
+	private final ManageAdminDocumentRepository adminDocumentRepo;
 
 	@Transactional
 	public Map<String, Object> addCustomerServices(CustomerServicesDto servicesDto) {
@@ -319,7 +324,8 @@ public class AdminServicePointManagementService {
 			Pageable pageable = PageRequest.of(requestDto.getPage() - 1, requestDto.getSize(),
 					Sort.by("createdOn").descending());
 			Page<CustomerRequestCounselling> counsellingRequests = customerRequestCounsellingRepo
-					.findAllByAdminAdminIdAndOptionalConclude(requestDto.getAdminId(), requestDto.getConcluded(), pageable);
+					.findAllByAdminAdminIdAndOptionalConclude(requestDto.getAdminId(), requestDto.getConcluded(),
+							pageable);
 
 			Page<CustomerRequestCousellingResponseForAdmin> mappedRequest = counsellingRequests
 					.map(CustomerRequestCounsellingDto::mapCustomerRequestCounsellingResponseForAdmin);
@@ -332,7 +338,8 @@ public class AdminServicePointManagementService {
 		}
 
 		List<CustomerRequestCounselling> counsellingRequests = customerRequestCounsellingRepo
-				.findAllByAdminAdminIdAndOptionalConcludedOrderByCreatedOnDesc(requestDto.getAdminId(), requestDto.getConcluded());
+				.findAllByAdminAdminIdAndOptionalConcludedOrderByCreatedOnDesc(requestDto.getAdminId(),
+						requestDto.getConcluded());
 
 		List<CustomerRequestCousellingResponseForAdmin> mappedRequest = counsellingRequests.stream()
 				.map(CustomerRequestCounsellingDto::mapCustomerRequestCounsellingResponseForAdmin).toList();
@@ -368,9 +375,45 @@ public class AdminServicePointManagementService {
 
 		return Map.of("res", true, "message", "Request status updated successfully");
 	}
-	
-	public Map<String, Object> fetchAllAdminDocuments(Integer adminId){
-		return Map.of();
+
+	public Map<String, Object> fetchAllAdminDocuments(ManageAdminDocumentDto adminDocDto) {
+
+		if (adminDocDto.getAdminId() == null || adminDocDto.getAdminId() <= 0)
+			throw new InternalServerException("Admin id missing", HttpStatus.OK);
+
+		if (adminDocDto.getAdminDocId() != null && adminDocDto.getAdminDocId() > 0) {
+			ManageAdminDocument adminDoc = adminDocumentRepo
+					.findByIdAndAdminAdminId(adminDocDto.getAdminDocId(), adminDocDto.getAdminId())
+					.orElseThrow(() -> new InternalServerException("Admin document not found with this credential",
+							HttpStatus.OK));
+
+			ManageAdminDocumentResDto adminDocRes = ManageAdminDocumentDto.mapForAdmin(adminDoc);
+
+			return Map.of("res", true, "data", adminDocRes);
+		}
+
+		else if (adminDocDto.getPage() != null && adminDocDto.getPage() > 0) {
+			int size = adminDocDto.getSize() != null && adminDocDto.getSize() > 0 ? adminDocDto.getSize() : 10;
+
+			Pageable pageable = PageRequest.of(adminDocDto.getPage() - 1, size,
+					Sort.by("documentCategory").ascending());
+
+			Page<ManageAdminDocument> adminDocs = adminDocumentRepo.findAllByAdminAdminId(adminDocDto.getAdminId(),
+					pageable);
+
+			Page<ManageAdminDocumentResDto> adminDocsRes = adminDocs.map(ManageAdminDocumentDto::mapForAdmin);
+
+			return Map.of("res", true, "data", adminDocsRes.getContent(), "page",
+					adminDocsRes.getPageable().getPageNumber() + 1, "totalPage", adminDocsRes.getTotalPages(),
+					"totalRecord", adminDocsRes.getTotalElements());
+		}
+
+		List<ManageAdminDocument> adminDocs = adminDocumentRepo
+				.findAllByAdminAdminIdOrderByDocumentCategoryAsc(adminDocDto.getAdminId());
+		List<ManageAdminDocumentResDto> adminDocsRes = adminDocs.stream().map(ManageAdminDocumentDto::mapForAdmin)
+				.toList();
+
+		return Map.of("res", true, "data", adminDocsRes);
 	}
 
 }

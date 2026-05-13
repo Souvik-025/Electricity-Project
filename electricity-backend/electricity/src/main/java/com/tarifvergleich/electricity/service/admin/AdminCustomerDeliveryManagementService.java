@@ -319,8 +319,8 @@ public class AdminCustomerDeliveryManagementService {
 		try {
 			expiry = helper.flexibleDateParser(provider.getRaw().get("optTerm").asText())
 					.atStartOfDay(ZoneId.of("Europe/Berlin")).minusDays(1).toLocalDate();
-		} catch (DateTimeParseException e) {
-			Integer expireDuration = Integer.parseInt(provider.getRaw().get("optTerm").asText());
+		} catch (DateTimeParseException | IllegalArgumentException e) {
+			Long expireDuration = provider.getRaw().get("optTerm").asLong();
 			expiry = LocalDate.now().atStartOfDay().atZone(ZoneId.of("Europe/Berlin")).plusMonths(expireDuration)
 					.minusDays(1).toLocalDate();
 		}
@@ -442,6 +442,9 @@ public class AdminCustomerDeliveryManagementService {
 		CustomerDelivery delivery = customerDeliveryRepo
 				.findByIdAndAdminAdminId(deliveryDto.getDeliveryId(), deliveryDto.getAdminId()).orElseThrow(
 						() -> new InternalServerException("Delivery not found with this credential", HttpStatus.OK));
+
+		if (delivery.getCustomerOrder() != null)
+			return Map.of("res", true, "customerOrderId", delivery.getCustomerOrder().getId());
 
 		CustomerOrder newOrder = CustomerOrder.builder().delivery(delivery).customer(delivery.getCustomerId())
 				.admin(delivery.getAdmin()).build();

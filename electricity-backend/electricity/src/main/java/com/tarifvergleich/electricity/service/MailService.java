@@ -96,7 +96,7 @@ public class MailService {
 				if (Files.exists(path)) {
 					FileSystemResource file = new FileSystemResource(path.toFile());
 
-					helper.addAttachment("Contract_Details.pdf", file);
+					helper.addAttachment(file.getFilename(), file);
 				} else
 					throw new InternalServerException("File path does not exits", HttpStatus.BAD_REQUEST);
 			}

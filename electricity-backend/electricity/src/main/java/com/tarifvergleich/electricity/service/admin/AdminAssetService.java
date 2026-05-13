@@ -12,14 +12,17 @@ import org.springframework.web.multipart.MultipartFile;
 import com.tarifvergleich.electricity.dto.AdminAssetDto;
 import com.tarifvergleich.electricity.dto.AdminAssetDto.AdminAssetSuffleDto;
 import com.tarifvergleich.electricity.dto.AdminServiceMenuDto;
+import com.tarifvergleich.electricity.dto.AdminSignatureDto;
 import com.tarifvergleich.electricity.dto.ManageAdminDocumentDto;
 import com.tarifvergleich.electricity.exception.InternalServerException;
 import com.tarifvergleich.electricity.model.AdminAsset;
 import com.tarifvergleich.electricity.model.AdminServiceMenu;
+import com.tarifvergleich.electricity.model.AdminSignature;
 import com.tarifvergleich.electricity.model.AdminUser;
 import com.tarifvergleich.electricity.model.ManageAdminDocument;
 import com.tarifvergleich.electricity.repository.AdminAssetRepository;
 import com.tarifvergleich.electricity.repository.AdminServiceMenuRepository;
+import com.tarifvergleich.electricity.repository.AdminSignatureRepository;
 import com.tarifvergleich.electricity.repository.AdminUserRepository;
 import com.tarifvergleich.electricity.repository.ManageAdminDocumentRepository;
 import com.tarifvergleich.electricity.util.FileServiceSuperAdmin;
@@ -36,6 +39,7 @@ public class AdminAssetService {
 	private final FileServiceSuperAdmin fileUtil;
 	private final AdminServiceMenuRepository adminServiceMenuRepo;
 	private final ManageAdminDocumentRepository manageAdminDocumentRepo;
+	private final AdminSignatureRepository adminSignatureRepo;
 
 	@Transactional
 	public Map<String, Object> addAsset(AdminAssetDto assetDto, MultipartFile file) {
@@ -374,7 +378,7 @@ public class AdminAssetService {
 	@Transactional
 	public Map<String, Object> addAdminDocument(ManageAdminDocumentDto documentDto, MultipartFile file) {
 
-		if (documentDto == null || file == null)
+		if (documentDto == null)
 			throw new InternalServerException("Insufficient data", HttpStatus.OK);
 
 		if (documentDto.getAdminId() == null || documentDto.getAdminId() <= 0)
@@ -384,27 +388,33 @@ public class AdminAssetService {
 			throw new InternalServerException("Document category missing", HttpStatus.OK);
 
 		if (documentDto.getAdminDocId() != null && documentDto.getAdminDocId() > 0) {
+			Boolean addNewFile = false;
 			ManageAdminDocument existingDoc = manageAdminDocumentRepo
 					.findByIdAndAdminAdminId(documentDto.getAdminDocId(), documentDto.getAdminId())
 					.orElseThrow(() -> new InternalServerException("Admin document not found with this credentials",
 							HttpStatus.OK));
 
 			String relativePath = existingDoc.getFilePath();
-			String newPath = fileUtil.saveFilePdf(file, "documents");
+			String newPath = "";
+			if (file != null && !file.isEmpty()) {
+				newPath = fileUtil.saveFilePdf(file, "documents");
+				addNewFile = true;
+				existingDoc.setFilePath(newPath);
+			}
 
-			if (newPath == null || newPath.isEmpty())
-				throw new InternalServerException("Error saving file", HttpStatus.OK);
-
-			existingDoc.setFilePath(newPath);
 			existingDoc.setDocumentCategory(documentDto.getDocumentCategory());
 			existingDoc.setOriginalFileName(file.getOriginalFilename());
 
 			existingDoc = manageAdminDocumentRepo.save(existingDoc);
 
-			fileUtil.deleteFile(relativePath);
+			if (addNewFile)
+				fileUtil.deleteFile(relativePath);
 
 			return Map.of("res", true, "adminDocId", existingDoc.getId());
 		}
+
+		if (file == null)
+			throw new InternalServerException("Document missing", HttpStatus.OK);
 
 		AdminUser admin = adminUserRepo.findById(documentDto.getAdminId())
 				.orElseThrow(() -> new InternalServerException("Admin not found with this credential", HttpStatus.OK));
@@ -418,5 +428,60 @@ public class AdminAssetService {
 		newDoc = manageAdminDocumentRepo.save(newDoc);
 
 		return Map.of("res", true, "adminDocId", newDoc.getId());
+	}
+
+	@Transactional
+	public Map<String, Object> addAdminSignature(AdminSignatureDto signatureDto, MultipartFile file) {
+
+		if (signatureDto.getAdminId() == null || signatureDto.getAdminId() <= 0)
+			throw new InternalServerException("Admin id missing", HttpStatus.OK);
+
+		AdminUser admin = adminUserRepo.findById(signatureDto.getAdminId())
+				.orElseThrow(() -> new InternalServerException("Admin not found with this credential", HttpStatus.OK));
+
+		AdminSignature adminSignature = admin.getAdminSignatures();
+
+		if (signatureDto.getAdminSignatureId() != null && signatureDto.getAdminSignatureId() > 0
+				&& adminSignature != null) {
+
+			if (!adminSignature.getId().equals(signatureDto.getAdminSignatureId()))
+				throw new InternalServerException("Signature and admin mis-match", HttpStatus.OK);
+
+			Boolean newFileAdded = false;
+
+			String oldSignature = adminSignature.getFilePath();
+
+			if (file != null && !file.isEmpty()) {
+				if (!file.getContentType().equals("image/png") || !file.getContentType().equals("image/jpeg"))
+					throw new InternalServerException("Content type mismatch", HttpStatus.OK);
+				String newPath = fileUtil.saveFile(file, "signature");
+				adminSignature.setFilePath(newPath);
+				newFileAdded = true;
+			}
+
+			adminSignature.setOriginalFileName(file.getOriginalFilename());
+
+			adminSignature = adminSignatureRepo.save(adminSignature);
+
+			if (newFileAdded)
+				fileUtil.deleteFile(oldSignature);
+
+			return Map.of("res", true, "adminSignatureId", adminSignature.getId());
+		}
+
+		if (file == null || file.isEmpty())
+			throw new InternalServerException("Signature missing", HttpStatus.OK);
+
+		if (!file.getContentType().equals("image/png") && !file.getContentType().equals("image/jpeg"))
+			throw new InternalServerException("Content type mismatch", HttpStatus.OK);
+
+		String newFilePath = fileUtil.saveFile(file, "signature");
+
+		adminSignature = AdminSignature.builder().filePath(newFilePath).originalFileName(file.getOriginalFilename())
+				.admin(admin).build();
+
+		adminSignature = adminSignatureRepo.save(adminSignature);
+
+		return Map.of("res", true, "adminSignatureId", adminSignature.getId());
 	}
 }

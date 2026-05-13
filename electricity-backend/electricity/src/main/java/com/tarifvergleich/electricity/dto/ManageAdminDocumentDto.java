@@ -23,6 +23,9 @@ public class ManageAdminDocumentDto {
 	private BigInteger lastUpdatedOn;
 	private Integer adminId;
 	
+	private Integer page;
+	private Integer size;
+	
 	
 	@NoArgsConstructor
 	@AllArgsConstructor
