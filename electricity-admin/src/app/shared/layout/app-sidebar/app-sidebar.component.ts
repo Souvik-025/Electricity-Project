@@ -134,6 +134,53 @@ export class AppSidebarComponent implements OnInit, OnDestroy {
       </svg>`,
       subItems: [{ name: "Callback Requests", path: "/customer-callback" }],
     },
+
+    {
+      name: "Content",
+      icon: `
+        <svg
+          xmlns="http://www.w3.org/2000/svg"
+          width="1em"
+          height="1em"
+          viewBox="0 0 24 24"
+          fill="none"
+        >
+          <path
+            d="M4 5C4 3.89543 4.89543 3 6 3H18C19.1046 3 20 3.89543 20 5V19C20 20.1046 19.1046 21 18 21H6C4.89543 21 4 20.1046 4 19V5Z"
+            stroke="currentColor"
+            stroke-width="2"
+            stroke-linejoin="round"
+          />
+          
+          <path
+            d="M8 8H16"
+            stroke="currentColor"
+            stroke-width="2"
+            stroke-linecap="round"
+          />
+
+          <path
+            d="M8 12H16"
+            stroke="currentColor"
+            stroke-width="2"
+            stroke-linecap="round"
+          />
+
+          <path
+            d="M8 16H13"
+            stroke="currentColor"
+            stroke-width="2"
+            stroke-linecap="round"
+          />
+        </svg>
+      `,
+      subItems: [
+        {
+          name: "Content Pdf",
+          path: "/content",
+        },
+      ],
+    },
   ];
 
   openSubmenu: string | null = null;
