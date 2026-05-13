@@ -288,7 +288,7 @@ public class CustomerBookingService {
 					.autoCancellation(customerConnectDto.getAutoCancellation())
 					.alreadyCancelled(customerConnectDto.getAlreadyCancelled())
 					.selfCancellation(customerConnectDto.getSelfCancellation())
-					.delivery(customerConnectDto.getDelivery())
+					.delivery(customerConnectDto.getDelivery()).customerNumber(customerConnectDto.getCustomerNumber())
 					.desiredDelivery(customerConnectDto.getDesiredDelivery() != null
 							? helper.toGermamUnixTimestamp(customerConnectDto.getDesiredDelivery())
 							: null)
@@ -314,6 +314,7 @@ public class CustomerBookingService {
 					? helper.toGermamUnixTimestamp(customerConnectDto.getDesiredDelivery())
 					: null);
 
+			customerConnect.setCustomerNumber(customerConnectDto.getCustomerNumber());
 			customerConnect.setMarketLocationId(customerConnectDto.getMarketLocationId());
 			delivery.setCustomerConnection(customerConnect);
 		}
@@ -381,7 +382,7 @@ public class CustomerBookingService {
 			payment.setAccountHolderFirstName(account.getFirstName());
 			payment.setAccountHolderLastName(account.getLastName());
 			payment.setSepaConsent(paymentDetails.getSepaConsent());
-			
+
 			delivery.setCustomerPayment(payment);
 		}
 

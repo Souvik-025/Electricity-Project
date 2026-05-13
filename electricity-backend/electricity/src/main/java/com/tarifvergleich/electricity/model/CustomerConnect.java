@@ -65,6 +65,9 @@ public class CustomerConnect {
 	@Column(name = "market_location_id")
 	private String marketLocationId;
 	
+	@Column(name = "customer_number")
+	private String customerNumber;
+	
 	@OneToOne(mappedBy = "customerConnection")
 	@JsonIgnore
 	private CustomerDelivery customerDelivery;

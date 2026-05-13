@@ -108,6 +108,7 @@ public class CustomerAttorny {
 	protected void onCreate() {
 		submittedOn = Helper.getCurrentTimeBerlin();
 		uniqueAttornyId = Helper.getUniqueId();
+		isRevoked = false;
 	}
 	
 	public void setCustomerRef(Customer customer) {

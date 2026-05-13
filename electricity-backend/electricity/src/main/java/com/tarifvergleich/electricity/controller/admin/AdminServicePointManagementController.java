@@ -9,6 +9,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.tarifvergleich.electricity.dto.CustomerRequestCounsellingDto;
 import com.tarifvergleich.electricity.dto.ListOfHolidaysDto;
+import com.tarifvergleich.electricity.dto.ManageAdminDocumentDto;
 import com.tarifvergleich.electricity.service.admin.AdminServicePointManagementService;
 
 import lombok.RequiredArgsConstructor;
@@ -47,5 +48,10 @@ public class AdminServicePointManagementController {
 			@RequestBody CustomerRequestCounsellingDto counsellingDto) {
 		return ResponseEntity.ok(adminServicePointManagementService.toggleCustomerRequestCounsellingConcluded(
 				counsellingDto.getAdminId(), counsellingDto.getCounsellingId(), counsellingDto.getConcluded()));
+	}
+
+	@PostMapping("/fetch-admin-documents")
+	public ResponseEntity<?> fetchAdminDocument(@RequestBody ManageAdminDocumentDto adminDocDto) {
+		return ResponseEntity.ok(adminServicePointManagementService.fetchAllAdminDocuments(adminDocDto));
 	}
 }

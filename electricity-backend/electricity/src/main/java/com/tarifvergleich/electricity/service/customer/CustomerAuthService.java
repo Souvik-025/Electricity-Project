@@ -12,7 +12,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 
 import com.tarifvergleich.electricity.dto.CustomerDto;
-import com.tarifvergleich.electricity.dto.ServiceRequestEmailEvent.ServiceResponseEmailEvent;
+import com.tarifvergleich.electricity.dto.ServiceRequestEmailEvent.ServiceAttachmentMailOfAcknowledgement;
 import com.tarifvergleich.electricity.exception.InternalServerException;
 import com.tarifvergleich.electricity.model.AdminUser;
 import com.tarifvergleich.electricity.model.Customer;
@@ -102,8 +102,9 @@ public class CustomerAuthService {
 					String mailBody = emailTemplate.createCustomerConsentEmailBody(customer.getSalutation(),
 							customer.getLastName(), encodedId);
 
-					ServiceResponseEmailEvent mailRes = new ServiceResponseEmailEvent(customer.getEmail(),
-							"Action Required: Confirm your Energy Selection", mailBody);
+					ServiceAttachmentMailOfAcknowledgement mailRes = new ServiceAttachmentMailOfAcknowledgement(
+							customer.getEmail(), "Action Required: Confirm your Energy Selection", mailBody,
+							customerDto.getAdminId());
 
 					eventPublisher.publishEvent(mailRes);
 				}
@@ -235,8 +236,9 @@ public class CustomerAuthService {
 				String mailBody = emailTemplate.createCustomerConsentEmailBody(customer.getSalutation(),
 						customer.getLastName(), encodedId);
 
-				ServiceResponseEmailEvent mailRes = new ServiceResponseEmailEvent(customer.getEmail(),
-						"Action Required: Confirm your Energy Selection", mailBody);
+				ServiceAttachmentMailOfAcknowledgement mailRes = new ServiceAttachmentMailOfAcknowledgement(
+						customer.getEmail(), "Action Required: Confirm your Energy Selection", mailBody,
+						customer.getAdmin().getAdminId());
 
 				eventPublisher.publishEvent(mailRes);
 			}
@@ -535,23 +537,23 @@ public class CustomerAuthService {
 
 		return Map.of("res", false, "newOtp", false, "message", "Invalid otp");
 	}
-	
-//	public Map<String, Object> sendMail(Integer id){
+
+//	@Transactional
+//	public Map<String, Object> sendMail(Integer id) {
 //		Customer customer = customerRepo.findById(id).orElse(null);
-//		
-//		String encodedId = Base64.getEncoder()
-//				.encodeToString(customer.getCustomerId().toString().getBytes());
 //
-//		String mailBody = emailTemplate.createCustomerConsentEmailBody(customer.getSalutation(),
-//				customer.getLastName(), encodedId);
+//		String encodedId = Base64.getEncoder().encodeToString(customer.getCustomerId().toString().getBytes());
+//
+//		String mailBody = emailTemplate.createCustomerConsentEmailBody(customer.getSalutation(), customer.getLastName(),
+//				encodedId);
+//
+//		ServiceAttachmentMailOfAcknowledgement mailRes = new ServiceAttachmentMailOfAcknowledgement(customer.getEmail(),
+//				"Action Required: Confirm your Energy Selection", mailBody, customer.getAdmin().getAdminId());
+//
+//		eventPublisher.publishEvent(mailRes);
 //		
-////		ServiceResponseEmailEvent mailRes = new ServiceResponseEmailEvent(customer.getEmail(),
-////				"Action Required: Confirm your Energy Selection", mailBody);
-////
-////		eventPublisher.publishEvent(mailRes);
-//		
-//		mailService.sendMail(customer.getEmail(), "Something", mailBody);
-//		
+////		mailService.sendMail(customer.getEmail(), "Something", mailBody);
+//
 //		return Map.of("res", true);
 //	}
 }
