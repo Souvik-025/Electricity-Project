@@ -1,18 +1,18 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 
-import { ContentComponent } from './content.component';
+import { AdminSignatureComponent } from './admin-signature.component';
 
-describe('ContentComponent', () => {
-  let component: ContentComponent;
-  let fixture: ComponentFixture<ContentComponent>;
+describe('AdminSignatureComponent', () => {
+  let component: AdminSignatureComponent;
+  let fixture: ComponentFixture<AdminSignatureComponent>;
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      imports: [ContentComponent]
+      imports: [AdminSignatureComponent]
     })
     .compileComponents();
 
-    fixture = TestBed.createComponent(ContentComponent);
+    fixture = TestBed.createComponent(AdminSignatureComponent);
     component = fixture.componentInstance;
     fixture.detectChanges();
   });

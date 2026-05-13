@@ -69,6 +69,7 @@ type ConnectionInfo = {
   selfCancellation?: boolean | null;
   delivery?: string | null;
   desiredDelivery?: string | null;
+  customerNumber?: string | null;
 };
 
 type PaymentInfo = {
@@ -95,6 +96,26 @@ type DocCustomer = {
   userType?: string | null;
   title?: string | null;
   salutation?: string | null;
+};
+
+type CustomerInfo = {
+  id?: number | null;
+  email?: string | null;
+  firstName?: string | null;
+  lastName?: string | null;
+  userType?: string | null;
+  title?: string | null;
+  salutation?: string | null;
+  companyName?: string | null;
+  mobileNumber?: string | null;
+  isVerified?: boolean | null;
+  verifiedOn?: number | null;
+  joinedOn?: number | null;
+  isAcknowledged?: boolean | null;
+  address?: CustomerAddress | null;
+  status?: boolean | null;
+  isNotificationEnabled?: boolean | null;
+  lexofficeNumber?: string | null;
 };
 
 type DocInfo = {
@@ -157,6 +178,7 @@ export type ApiBooking = {
   connection?: ConnectionInfo | null;
   payment?: PaymentInfo | null;
   contactSchedule?: ContactSchedule | null;
+  customer?: CustomerInfo | null;
   order?: OrderInfo | null;
 
   // ── Legacy / derived fields that may appear in older records ─────────────────
@@ -319,7 +341,7 @@ export class BookingDetailComponent implements OnInit, OnDestroy {
       deliveryId: this.booking.deliveryId,
     };
 
-    this.api.post("admin/create-order", payload).subscribe({
+    this.api.post("admin/open-order", payload).subscribe({
       next: (res: any) => {
         this.isCreatingOrder = false;
         if (res?.res) {
@@ -549,6 +571,19 @@ export class BookingDetailComponent implements OnInit, OnDestroy {
       .join(" ");
   }
 
+  customerAccountName(): string {
+    const customer = this.booking?.customer;
+    if (!customer) return "";
+    return [
+      customer.salutation,
+      customer.title,
+      customer.firstName,
+      customer.lastName,
+    ]
+      .filter(Boolean)
+      .join(" ");
+  }
+
   initials(): string {
     if (!this.booking) return "?";
     const f = this.booking.firstName?.[0] ?? "";
@@ -565,7 +600,9 @@ export class BookingDetailComponent implements OnInit, OnDestroy {
     } | null,
   ): string {
     if (!addr) return "—";
-    return `${addr.street ?? ""} ${addr.houseNumber ?? ""}, ${addr.zip ?? ""} ${addr.city ?? ""}`.trim();
+    const street = [addr.street, addr.houseNumber].filter(Boolean).join(" ");
+    const city = [addr.zip, addr.city].filter(Boolean).join(" ");
+    return [street, city].filter(Boolean).join(", ") || "—";
   }
 
   dayLabel(key?: string | null): string {
@@ -605,6 +642,32 @@ export class BookingDetailComponent implements OnInit, OnDestroy {
       hour: "2-digit",
       minute: "2-digit",
     }).format(new Date(ms));
+  }
+
+  formatValue(value?: string | number | boolean | null): string {
+    if (value === null || value === undefined || value === "") return "—";
+    if (typeof value === "boolean") return this.formatBoolean(value);
+    return String(value);
+  }
+
+  formatBoolean(value?: boolean | null): string {
+    if (value === null || value === undefined) return "—";
+    return value ? "Ja" : "Nein";
+  }
+
+  formatMoney(value?: number | null): string {
+    if (value === null || value === undefined) return "—";
+    return `${value.toFixed(2)} €`;
+  }
+
+  formatNumber(value?: number | null, suffix = ""): string {
+    if (value === null || value === undefined) return "—";
+    return `${value}${suffix}`;
+  }
+
+  formatWorkPrice(value?: number | null): string {
+    if (value === null || value === undefined) return "—";
+    return `${value.toFixed(4)} ct/kWh`;
   }
 
   private extractBooking(response: any): ApiBooking | null {

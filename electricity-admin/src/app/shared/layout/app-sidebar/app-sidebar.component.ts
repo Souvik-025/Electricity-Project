@@ -124,7 +124,7 @@ export class AppSidebarComponent implements OnInit, OnDestroy {
     {
       name: "Callback Requests",
       icon: `<svg width="1em" height="1em" viewBox="0 0 24 24" fill="none">
-        <path 
+        <path
           d="M5 4H9L11 9L8.5 10.5C10 13.5 12.5 16 15.5 17.5L17 15L22 17V21C22 21.55 21.55 22 21 22C10.51 22 2 13.49 2 3C2 2.45 2.45 2 3 2H7L5 4Z"
           stroke="currentColor"
           stroke-width="2"
@@ -151,7 +151,7 @@ export class AppSidebarComponent implements OnInit, OnDestroy {
             stroke-width="2"
             stroke-linejoin="round"
           />
-          
+
           <path
             d="M8 8H16"
             stroke="currentColor"
@@ -178,6 +178,32 @@ export class AppSidebarComponent implements OnInit, OnDestroy {
         {
           name: "Content Pdf",
           path: "/content",
+        },
+      ],
+    },
+    {
+      name: "Credentials",
+      icon: `
+        <svg
+          xmlns="http://www.w3.org/2000/svg"
+          width="1em"
+          height="1em"
+          viewBox="0 0 24 24"
+          fill="none"
+        >
+          <path
+            d="M12 2C6.47715 2 2 6.47715 2 12C2 17.5228 6.47715 22 12 22C17.5228 22 22 17.5228 22 12C22 6.47715 17.5228 2 12 2Z"
+            stroke="currentColor"
+            stroke-width="2"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+          />
+        </svg>
+      `,
+      subItems: [
+        {
+          name: "Admin Signature",
+          path: "/credentials/admin-signature",
         },
       ],
     },

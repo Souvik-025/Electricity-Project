@@ -29,6 +29,7 @@ import { EmailRequestsComponent } from "./pages/email/email-requests/email-reque
 import { EmailCategoryComponent } from "./pages/email/email-category/email-category.component";
 import { EmailTemplateViewComponent } from "./pages/email-template-view/email-template-view.component";
 import { ContentPDFsComponent } from "./pages/contents/content-pdfs/content-pdfs.component";
+import { AdminSignatureComponent } from "./pages/credentials/admin-signature/admin-signature.component";
 
 export const routes: Routes = [
   {
@@ -197,7 +198,12 @@ export const routes: Routes = [
       {
         path: "content",
         component: ContentPDFsComponent,
-        title: "content",
+        title: "Contents",
+      },
+      {
+        path: "credentials/admin-signature",
+        component: AdminSignatureComponent,
+        title: "Admin Signature",
       },
     ],
   },

@@ -5,6 +5,10 @@ import java.time.Instant;
 import java.util.List;
 import java.util.Map;
 
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
@@ -379,6 +383,7 @@ public class AdminAssetService {
 	public Map<String, Object> addAdminDocument(ManageAdminDocumentDto documentDto, MultipartFile file) {
 
 		if (documentDto == null)
+		if (documentDto == null)
 			throw new InternalServerException("Insufficient data", HttpStatus.OK);
 
 		if (documentDto.getAdminId() == null || documentDto.getAdminId() <= 0)
@@ -394,24 +399,30 @@ public class AdminAssetService {
 					.orElseThrow(() -> new InternalServerException("Admin document not found with this credentials",
 							HttpStatus.OK));
 
-			String relativePath = existingDoc.getFilePath();
-			String newPath = "";
-			if (file != null && !file.isEmpty()) {
-				newPath = fileUtil.saveFilePdf(file, "documents");
-				addNewFile = true;
+			if (file != null) {
+				String relativePath = existingDoc.getFilePath();
+				String newPath = fileUtil.saveFilePdf(file, "documents");
+
+				if (newPath == null || newPath.isEmpty())
+					throw new InternalServerException("Error saving file", HttpStatus.OK);
+
 				existingDoc.setFilePath(newPath);
-			}
+				existingDoc.setOriginalFileName(file.getOriginalFilename());
 
-			existingDoc.setDocumentCategory(documentDto.getDocumentCategory());
-			existingDoc.setOriginalFileName(file.getOriginalFilename());
+				existingDoc = manageAdminDocumentRepo.save(existingDoc);
 
-			existingDoc = manageAdminDocumentRepo.save(existingDoc);
-
-			if (addNewFile)
+				if (addNewFile)
 				fileUtil.deleteFile(relativePath);
+			} else {
+				existingDoc.setDocumentCategory(documentDto.getDocumentCategory());
+				existingDoc = manageAdminDocumentRepo.save(existingDoc);
+			}
 
 			return Map.of("res", true, "adminDocId", existingDoc.getId());
 		}
+
+		if (file == null)
+			throw new InternalServerException("File missing", HttpStatus.OK);
 
 		if (file == null)
 			throw new InternalServerException("Document missing", HttpStatus.OK);
@@ -428,6 +439,25 @@ public class AdminAssetService {
 		newDoc = manageAdminDocumentRepo.save(newDoc);
 
 		return Map.of("res", true, "adminDocId", newDoc.getId());
+	}
+
+	public Map<String, Object> fetchAdminDocuments(Integer adminId, Integer page, Integer size) {
+		if (adminId == null || adminId <= 0)
+			throw new InternalServerException("Admin id missing", HttpStatus.OK);
+
+		if (page == null || page <= 0)
+			page = 1;
+
+		if (size == null || size <= 0)
+			size = 5;
+
+		Pageable pageable = PageRequest.of(page - 1, size, Sort.by("addedOn").descending());
+		Page<ManageAdminDocument> documentPage = manageAdminDocumentRepo.findAllByAdminAdminId(adminId, pageable);
+
+		List<ManageAdminDocumentDto.ManageAdminDocumentResDto> documents = documentPage.getContent().stream()
+				.map(ManageAdminDocumentDto::mapForAdmin).toList();
+
+		return Map.of("res", true, "data", documents, "page", page, "totalPage", documentPage.getTotalPages());
 	}
 
 	@Transactional

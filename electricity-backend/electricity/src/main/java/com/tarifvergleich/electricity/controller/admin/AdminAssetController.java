@@ -98,7 +98,7 @@ public class AdminAssetController {
 
 	@PostMapping("/add-doc")
 	public ResponseEntity<?> addSuperAdminDoc(@RequestPart("data") String jsonData,
-			@RequestPart("file") MultipartFile file) {
+			@RequestPart(name = "file", required = false) MultipartFile file) {
 		ManageAdminDocumentDto adminDocumentDto = objectMapper.readValue(jsonData, ManageAdminDocumentDto.class);
 		return ResponseEntity.ok(adminAssetService.addAdminDocument(adminDocumentDto, file));
 	}

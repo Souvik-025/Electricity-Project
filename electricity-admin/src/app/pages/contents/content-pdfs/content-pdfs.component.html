@@ -38,101 +38,44 @@
                         </tr>
                     </thead>
                     <tbody>
-                        <!-- @for (customer of customers; track customer.id) { -->
+                        @for (doc of customers; track doc.adminDocId) {
                         <tr
-                            class="border-t border-gray-100 dark:border-gray-700/60 hover:bg-brand-50/50 dark:hover:bg-gray-800/50 transition-colors cursor-pointer">
+                            class="border-t border-gray-100 dark:border-gray-700/60 hover:bg-brand-50/50 transition-colors">
                             <!-- ID -->
-                            <!-- <td class="px-4 py-3.5">
-                <span class="text-gray-400 text-xs font-mono">#{{ customer.uniqueCustomerId }}</span>
-                <div class="text-[10px] text-gray-300 dark:text-gray-600 mt-0.5">ID: {{ customer.id }}</div>
-              </td> -->
+                            <td class="px-4 py-3.5">
+                                <span class="text-gray-500 font-medium">
+                                    #{{ doc.adminDocId }}
+                                </span>
+                            </td>
 
                             <!-- Name -->
-                            <!-- <td class="px-4 py-3.5">
-                <div class="font-medium text-gray-900 dark:text-white">
-                  {{ customer.title }} {{ customer.firstName }} {{ customer.lastName }}
-                </div>
-                <div class="text-xs text-gray-400 mt-0.5">
-                  {{ customer.salutation }} ·
-                  {{ customer.userType === 'BUSINESS' ? 'Geschäftlich' : 'Privat' }}
-                  @if (customer.companyName) { · {{ customer.companyName }} }
-                </div>
-              </td> -->
+                            <td class="px-4 py-3.5">
+                                <div class="font-medium text-gray-900">
+                                    {{ doc.documentCategory }}
+                                </div>
+                                <div class="text-xs text-gray-400 mt-1">
+                                    {{ doc.originalFileName }}
+                                </div>
+                            </td>
 
-                            <!-- Email -->
-                            <!-- <td class="px-4 py-3.5 text-gray-600 dark:text-gray-400 text-xs">{{ customer.email || '—' }}</td> -->
+                            <!-- Action -->
+                            <td class="px-4 py-3.5 text-right">
+                                <div class="flex justify-end gap-2">
 
-                            <!-- Mobile -->
-                            <!-- <td class="px-4 py-3.5 text-gray-600 dark:text-gray-400 text-xs">
-                {{ customer.mobileNumber || '—' }}
-              </td> -->
+                                    <button (click)="openPdf(doc.filePath)"
+                                        class="px-3 py-1 text-sm bg-blue-500 text-white rounded-lg hover:bg-blue-600">
+                                        View
+                                    </button>
 
-                            <!-- Verified -->
-                            <!-- <td class="px-4 py-3.5">
-                @if (customer.isVerified) {
-                <span class="inline-flex items-center gap-1 text-xs text-green-700 dark:text-green-400">
-                  <svg class="w-3.5 h-3.5" fill="currentColor" viewBox="0 0 20 20">
-                    <path fill-rule="evenodd"
-                      d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z"
-                      clip-rule="evenodd" />
-                  </svg>
-                  Ja
-                </span>
-                } @else {
-                <span class="inline-flex items-center gap-1 text-xs text-red-500 dark:text-red-400">
-                  <svg class="w-3.5 h-3.5" fill="currentColor" viewBox="0 0 20 20">
-                    <path fill-rule="evenodd"
-                      d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z"
-                      clip-rule="evenodd" />
-                  </svg>
-                  Nein
-                </span>
-                }
-              </td> -->
+                                    <button (click)="openModal(doc)"
+                                        class="px-3 py-1 text-sm bg-brand-500 text-white rounded-lg hover:bg-brand-600">
+                                        Edit
+                                    </button>
 
-                            <!-- Account status -->
-                            <!-- <td class="px-4 py-3.5">
-                <span class="px-2 py-0.5 rounded-full text-xs font-medium" [class.bg-green-100]="customer.status"
-                  [class.text-green-700]="customer.status" [class.bg-red-100]="!customer.status"
-                  [class.text-red-700]="!customer.status">
-                  {{ customer.status ? 'Aktiv' : 'Inaktiv' }}
-                </span>
-              </td> -->
-
-                            <!-- Details action -->
-                            <!-- <td class="px-4 py-3.5 text-right">
-                <div class="inline-flex items-center gap-2" (click)="$event.stopPropagation()">
-                  <button (click)="openNoteModal($event, customer)"
-                    class="inline-flex items-center gap-1.5 text-xs font-medium text-gray-600 dark:text-gray-300 hover:text-gray-800 dark:hover:text-white transition-colors px-2.5 py-1.5 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700/60">
-                    <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                        d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5M18.586 2.586a2 2 0 112.828 2.828L12 14.828l-4 1 1-4 9.586-9.414z" />
-                    </svg>
-                    <span>{{ customerNotes[customer.id] ? 'Notiz bearbeiten' : 'Notiz' }}</span>
-                  </button>
-
-                  <button (click)="openLexofficeModal($event, customer)"
-                    class="inline-flex items-center gap-1.5 text-xs font-medium text-indigo-600 dark:text-indigo-400 hover:text-indigo-800 dark:hover:text-indigo-200 transition-colors px-2.5 py-1.5 rounded-lg hover:bg-indigo-50 dark:hover:bg-indigo-900/20">
-                    <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                        d="M7 7h.01M7 3h5c.512 0 1.024.195 1.414.586l7 7a2 2 0 010 2.828l-7 7a2 2 0 01-2.828 0l-7-7A1.994 1.994 0 013 12V7a4 4 0 014-4z" />
-                    </svg>
-                    <span>{{ customerLexofficeNumbers[customer.id] ? 'Lexoffice bearbeiten' : 'Lexoffice' }}</span>
-                  </button>
-
-                  <button
-                    class="inline-flex items-center gap-1.5 text-xs font-medium text-brand-500 hover:text-brand-700 transition-colors px-2.5 py-1.5 rounded-lg hover:bg-brand-50 dark:hover:bg-brand-900/20">
-                    <span>Details</span>
-                    <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 transition-transform duration-200"
-                      [class.rotate-90]="selectedCustomer?.id === customer.id" fill="none" viewBox="0 0 24 24"
-                      stroke="currentColor">
-                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
-                    </svg>
-                  </button>
-                </div>
-              </td> -->
+                                </div>
+                            </td>
                         </tr>
-                        <!-- } -->
+                        }
                     </tbody>
                 </table>
             </div>
@@ -169,7 +112,7 @@
                     <span> von {{ totalPage }}</span>
                     }
                 </div>
-                <div class="flex gap-2">
+                <!-- <div class="flex gap-2">
                     <button (click)="prevPage()" [disabled]="currentPage === 1 || isLoading"
                         class="px-3 py-1.5 text-sm font-medium rounded-lg border border-gray-300 dark:border-gray-600 hover:bg-gray-50 dark:hover:bg-gray-800 disabled:opacity-50 disabled:cursor-not-allowed transition">
                         ← Zurück
@@ -178,7 +121,7 @@
                         class="px-3 py-1.5 text-sm font-medium rounded-lg border border-gray-300 dark:border-gray-600 hover:bg-gray-50 dark:hover:bg-gray-800 disabled:opacity-50 disabled:cursor-not-allowed transition">
                         Weiter →
                     </button>
-                </div>
+                </div> -->
             </div>
             }
         </div>
@@ -196,11 +139,22 @@
                 <!-- Title -->
                 <h2 class="text-xl font-semibold text-gray-800 mb-5">PDF hochladen</h2>
 
-                <!-- Upload Section -->
+                <!-- Document Type Input -->
+                <div class="mb-4">
+                    <label class="block text-sm font-medium text-gray-700 mb-2">
+                        Dokumenttyp
+                    </label>
+
+                    <input type="text" [(ngModel)]="documentCategory"
+                        placeholder="z.B. Privacy Policy, Terms & Conditions"
+                        class="w-full border border-gray-300 rounded-lg px-4 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-brand-500" />
+                </div>
+
                 <!-- Upload Section -->
                 <div
                     class="border-2 border-dashed border-gray-300 rounded-xl p-6 text-center hover:border-brand-500 transition">
                     <input type="file" accept=".pdf" (change)="onFileSelected($event)" class="hidden" #fileInput />
+
 
                     <button type="button" (click)="fileInput.click()"
                         class="bg-gray-100 hover:bg-gray-200 text-gray-700 px-4 py-2 rounded-lg text-sm font-medium">
@@ -223,11 +177,24 @@
                     </p>
                 </div>
 
+                @if (selectedDoc && !selectedFile) {
+                <div class="flex justify-center mb-3">
+                    <p class="text-sm text-green-600">
+                        Current File: {{ selectedDoc.originalFileName }}
+                    </p>
+                </div>
+                }
+
                 <!-- Submit Button -->
                 <div class="flex justify-end mt-6">
-                    <button (click)="submitPdf()" [disabled]="!selectedFile || fileSizeError"
-                        class="bg-brand-500 hover:bg-brand-600 disabled:bg-gray-300 disabled:cursor-not-allowed text-white px-5 py-2 rounded-lg text-sm font-medium transition">
-                        Hochladen
+                    <button (click)="submitPdf()" [disabled]="fileSizeError || !documentCategory.trim()"
+                        class="bg-gray-100 hover:bg-gray-200 text-gray-700 px-4 py-2 rounded-lg text-sm font-medium">
+
+                        {{
+                        selectedDoc
+                        ? (selectedFile ? 'Update Title + PDF' : 'Update Title')
+                        : 'Upload PDF'
+                        }}
                     </button>
                 </div>
 
