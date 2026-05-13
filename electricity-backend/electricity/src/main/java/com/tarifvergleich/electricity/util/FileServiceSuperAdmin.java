@@ -11,8 +11,11 @@ import java.util.UUID;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.io.Resource;
 import org.springframework.core.io.UrlResource;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
+
+import com.tarifvergleich.electricity.exception.InternalServerException;
 
 @Service
 public class FileServiceSuperAdmin {
@@ -35,7 +38,7 @@ public class FileServiceSuperAdmin {
 
 			String folderName = contentType.toLowerCase().trim();
 			Path targetDir = this.rootLocation.resolve(folderName);
-			
+
 			String originalFileName = file.getOriginalFilename().replace(" ", "_").replaceAll("[^a-zA-Z0-9.-]", "_");
 
 			if (!Files.exists(targetDir)) {
@@ -52,27 +55,27 @@ public class FileServiceSuperAdmin {
 			throw new RuntimeException("Failed to store file", e);
 		}
 	}
-	
+
 	public String saveFilePdf(MultipartFile file, String contentType) {
 		try {
 			if (file.isEmpty())
 				throw new RuntimeException("Failed to store empty file.");
-			
+
 			String folderName = contentType.toLowerCase().trim();
 			Path targetDir = this.rootLocation.resolve(folderName);
-			
+
 			String originalFileName = file.getOriginalFilename().replace(" ", "_").replaceAll("[^a-zA-Z0-9.-]", "_");
-			
+
 			if (!Files.exists(targetDir)) {
 				Files.createDirectories(targetDir);
 			}
-			
-			String fileName = UUID.randomUUID().toString() + "_" + originalFileName + ".pdf";
-			
+
+			String fileName = originalFileName + ".pdf";
+
 			Files.copy(file.getInputStream(), targetDir.resolve(fileName), StandardCopyOption.REPLACE_EXISTING);
-			
+
 			return folderName + "/" + fileName;
-			
+
 		} catch (IOException e) {
 			throw new RuntimeException("Failed to store file", e);
 		}
@@ -90,6 +93,15 @@ public class FileServiceSuperAdmin {
 		} catch (MalformedURLException e) {
 			throw new RuntimeException("Error: " + e.getMessage());
 		}
+	}
+
+	public String getAbsolutePath(String relativePath) {
+		if (relativePath == null || relativePath.isEmpty())
+			throw new InternalServerException("Relative path not found", HttpStatus.BAD_REQUEST);
+
+		String absolutePath = rootLocation.resolve(relativePath).toString();
+
+		return absolutePath;
 	}
 
 	public void deleteFile(String relativePath) {

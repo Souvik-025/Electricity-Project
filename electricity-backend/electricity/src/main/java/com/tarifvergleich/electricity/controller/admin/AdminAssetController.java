@@ -15,6 +15,7 @@ import org.springframework.web.multipart.MultipartFile;
 import com.tarifvergleich.electricity.dto.AdminAssetDto;
 import com.tarifvergleich.electricity.dto.AdminAssetDto.AdminAssetSuffleDto;
 import com.tarifvergleich.electricity.dto.AdminServiceMenuDto;
+import com.tarifvergleich.electricity.dto.AdminSignatureDto;
 import com.tarifvergleich.electricity.dto.ManageAdminDocumentDto;
 import com.tarifvergleich.electricity.service.admin.AdminAssetService;
 import com.tarifvergleich.electricity.service.admin.ViewService;
@@ -102,11 +103,10 @@ public class AdminAssetController {
 		return ResponseEntity.ok(adminAssetService.addAdminDocument(adminDocumentDto, file));
 	}
 
-	@PostMapping("/fetch-admin-documents")
-	public ResponseEntity<?> fetchAdminDocuments(@RequestBody Map<String, Integer> payload) {
-		Integer adminId = payload.get("adminId");
-		Integer page = payload.get("page");
-		Integer size = payload.get("size");
-		return ResponseEntity.ok(adminAssetService.fetchAdminDocuments(adminId, page, size));
+	@PostMapping("/add-signature")
+	public ResponseEntity<?> addAdminSignature(@RequestPart("data") String jsonData,
+			@RequestPart("file") MultipartFile file) {
+		AdminSignatureDto signatureDto = objectMapper.readValue(jsonData, AdminSignatureDto.class);
+		return ResponseEntity.ok(adminAssetService.addAdminSignature(signatureDto, file));
 	}
 }

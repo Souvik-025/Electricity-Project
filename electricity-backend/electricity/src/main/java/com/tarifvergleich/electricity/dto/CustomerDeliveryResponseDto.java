@@ -94,7 +94,7 @@ public class CustomerDeliveryResponseDto {
 		private CustomerPaymentResponse payment;
 		private CustomerContactScheduleResponse contactSchedule;
 		private SingleCustomerAdminResponseDelivery customer;
-//		private CustomerOrderAdminResDto order;
+		private CustomerOrderAdminResDto order;
 	}
 
 	public static CustomerDeliveryResponseDto mapResponse(CustomerDelivery delivery) {
@@ -131,7 +131,7 @@ public class CustomerDeliveryResponseDto {
 				.provider(EnergyRateDto.getProviderResponse(delivery.getCustomerProvider()))
 				.connection(CustomerConnectionRequestDto.getConnectionResponse(delivery.getCustomerConnection()))
 				.payment(CustomerPaymentRequestDto.getCustomerPaymentResponse(delivery.getCustomerPayment()))
-//				.order(CustomerOrderDto.mapAdminRes(delivery.getCustomerOrder()))
+				.order(CustomerOrderDto.mapAdminRes(delivery.getCustomerOrder()))
 				.customer(CustomerDto.getAdminCustomerResponseDto(delivery.getCustomerId()))
 				.contactSchedule(
 						CustomerContactScheduleRequestDto.getContactScheduleResponse(delivery.getCustomerSchedule()))
