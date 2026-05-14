@@ -20,5 +20,4 @@ public interface ManageAdminDocumentRepository extends JpaRepository<ManageAdmin
 
 	List<ManageAdminDocument> findAllByAdminAdminIdAndDocumentCategoryLike(Integer adminId, String documentCategory);
 
-	Page<ManageAdminDocument> findAllByAdminAdminId(Integer adminId, Pageable pageable);
 }
