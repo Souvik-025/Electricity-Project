@@ -37,23 +37,29 @@
 
 <div class="container-callback" *ngIf="currentStep === 'weekday'">
   <div class="container-wishlist">
-    <span><strong>Bitte wählen Sie, an welchem Wochentag wir Sie erreichen können.</strong> </span>
+    <span>
+      <strong> Bitte wählen Sie, an welchem Wochentag wir Sie erreichen können. </strong>
+    </span>
   </div>
+
   <div class="container-days">
     <button
       class="days"
       *ngFor="let day of filteredDays; trackBy: trackByDay"
-      (click)="selectDay(day.value)"
-      [class.active]="selectedDay === day.value"
+      (click)="selectDay(day.value ?? '')"
+      [class.active]="selectedDay === (day.value ?? '')"
     >
-      {{ getDayLabelByValue(day.value) }} ({{ day.label }})
+      {{ getDayLabelByValue(day.value ?? '') }}
+      ({{ day.label }})
     </button>
   </div>
+
   <div class="item-callback">
     <button class="callback btn-time" [disabled]="!selectedDay" (click)="submitDay()">
       Wochentag festlagen
     </button>
   </div>
+
   <div class="api-message api-error" style="color: red" *ngIf="scheduleErrorMessage">
     {{ scheduleErrorMessage }}
   </div>

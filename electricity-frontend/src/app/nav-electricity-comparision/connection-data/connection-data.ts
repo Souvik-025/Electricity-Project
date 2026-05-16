@@ -216,10 +216,16 @@ export class ConnectionData implements OnInit, OnDestroy {
         errors['moveInDate'] = 'Bitte wählen Sie ein Einzugsdatum.';
       }
     }
-    // if (!this.submitLaterChecked) {
-    //   errors['submitLaterChecked'] =
-    //     ' Bitte bestätigen Sie, dass Sie die Daten später absenden werden.';
-    // }
+    if (!this.submitLaterChecked) {
+      // errors['submitLaterChecked'] =
+      //   ' Bitte bestätigen Sie, dass Sie die Daten später absenden werden.';
+
+      if (!this.customerNumber) {
+        errors['customerNumber'] =
+          'Bitte Kundennummer angeben';
+        this.cdr.detectChanges();
+      }
+    }
 
     // Meter number — required unless the user checked "Ich reiche … nach"
     // Meter number validation

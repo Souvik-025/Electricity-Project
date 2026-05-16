@@ -364,11 +364,10 @@ export class SelectProvider implements OnInit {
             },
             { emitEvent: false },
           );
+          this.isRestoring = false;
         });
         this.showCityDropdown = false;
         this.showDropdown = false;
-
-        // this.isRestoring = false;
       });
     }
     // });
@@ -526,10 +525,11 @@ export class SelectProvider implements OnInit {
         debounceTime(500),
         switchMap((zip) => {
           const isValidZip = /^\d{5}$/.test(zip);
-          // if (this.isRestoring) return of([]);
+          if (this.isRestoring) return of([]);
           this.resetCity();
           this.resetStreet();
           this.resetHouseNumber();
+
           if (!isValidZip) {
             return of([]);
           }
@@ -574,10 +574,13 @@ export class SelectProvider implements OnInit {
     this.addressForm
       .get('city')
       ?.valueChanges.pipe(debounceTime(300))
-      .subscribe((placeId) => {
+      .subscribe((city_id) => {
         const zip = this.addressForm.get('postalCode')?.value;
 
-        if (!placeId || this.isRestoring || !/^\d{5}$/.test(zip)) {
+        if (!city_id || this.isRestoring || !/^\d{5}$/.test(zip)) {
+          console.log('cityid', city_id);
+          console.log('isRestoring', this.isRestoring);
+          console.log(123);
           return;
         }
         this.streetOptions = [];
@@ -586,8 +589,10 @@ export class SelectProvider implements OnInit {
         this.isStreetLoading = true;
 
         this.addressForm.get('street')?.enable();
-        const selectedCity = this.cityOptions.find((c) => c.city_id === placeId);
-        if (!selectedCity) return;
+        const selectedCity = this.cityOptions.find((c) => c.city_id === city_id);
+        if (!selectedCity) {
+          return;
+        }
 
         this.citySearch = selectedCity.city;
 
@@ -610,6 +615,7 @@ export class SelectProvider implements OnInit {
             this.streetSearch = '';
 
             this.showDropdown = true;
+            this.isRestoring = false;
             this.cdr.detectChanges();
           });
         });
@@ -1422,15 +1428,7 @@ export class SelectProvider implements OnInit {
     this.isDropdownOpen = false;
   }
 
-  private isBrowser(): boolean {
-    return typeof window !== 'undefined' && typeof localStorage !== 'undefined';
-  }
-
   private persistViewState(): void {
-    if (!this.isBrowser()) {
-      return;
-    }
-
     const state: SelectProviderState = {
       priceDisplayMonthly: this.priceDisplayMonthly,
       kundenPrivat: this.kundenPrivat,
@@ -1454,10 +1452,6 @@ export class SelectProvider implements OnInit {
   }
 
   private restoreViewState(): void {
-    if (!this.isBrowser()) {
-      return;
-    }
-
     try {
       const raw = localStorage.getItem(this.providerStateStorageKey);
       if (!raw) {

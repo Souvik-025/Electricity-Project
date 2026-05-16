@@ -155,6 +155,7 @@ export class CheckoutPage implements OnInit {
   providerDetails: any = null;
   ngOnInit(): void {
     this.fetchFormData();
+    this.loadAvailableDays();
     this.setDefaultSelectedDay();
     const storedAddress = this.authService.getAddressData();
     this.providerDetails = {
@@ -263,6 +264,32 @@ export class CheckoutPage implements OnInit {
 
   //   return enabled;
   // }
+  availableDays: { date: string; day: string }[] = [];
+
+  loadAvailableDays(): void {
+    const payload = {
+      adminId: 1,
+    };
+
+    this.http.post<any>(`${this.API_BASE}/customer/list-of-working-days`, payload).subscribe({
+      next: (res) => {
+        if (res?.res && res?.data) {
+          this.availableDays = Object.entries(res.data).map(([date, day]) => ({
+            date,
+            day: day as string,
+          }));
+
+          // console.log('Available Days:', this.availableDays);
+
+          this.setDefaultSelectedDay();
+        }
+      },
+
+      error: (err) => {
+        console.error('Working days fetch error:', err);
+      },
+    });
+  }
 
   get enabledDays(): Set<string> {
     const now = new Date();
@@ -296,42 +323,23 @@ export class CheckoutPage implements OnInit {
   }
 
   get filteredDays() {
-    const now = new Date();
+    return this.availableDays
+      .map((item) => {
+        const found = this.daysOfWeek.find((d) => d.value === item.day);
 
-    let todayJs: number;
-
-    if (this.overrideStartDay) {
-      todayJs = this.dayValueToJsDay[this.overrideStartDay];
-    } else {
-      todayJs = now.getDay();
-      if (todayJs === 0) todayJs = 1;
-    }
-
-    const result: any[] = [];
-
-    for (let i = 0; i < 3; i++) {
-      let day = todayJs + i;
-
-      if (day > 6) {
-        day = day - 6;
-      }
-
-      const found = this.daysOfWeek.find((d) => this.dayValueToJsDay[d.value] === day);
-
-      if (found) {
-        result.push(found);
-      }
-    }
-
-    return result;
+        return {
+          ...found,
+          date: item.date,
+        };
+      })
+      .filter(Boolean);
   }
-
   isDayEnabled(dayValue: string): boolean {
-    return this.enabledDays.has(dayValue);
+    return this.availableDays.some((d) => d.day === dayValue);
   }
   private setDefaultSelectedDay(): void {
     if (this.filteredDays.length > 0) {
-      this.selectedDay = this.filteredDays[0].value;
+      this.selectedDay = this.filteredDays[0].value ?? '';
     }
   }
   /**

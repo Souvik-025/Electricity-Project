@@ -1,0 +1,322 @@
+.contact-berich {
+  background-color: #fc770aee;
+  /* margin-bottom: 20px; */
+  color: #fff;
+  font-weight: 600;
+  font-size: 16px;
+  align-items: center;
+  gap: 6px;
+  display: flex;
+  justify-content: center;
+  padding: 10px 0;
+}
+
+.contact-section {
+  border: 1px solid #fc770aee;
+  border-radius: 0 0 8px 8px;
+  overflow: hidden;
+  background: #f5f5f5;
+  margin-bottom: 20px;
+}
+
+.contact-section-header {
+  background: #fc770aee;
+  color: #fff;
+  padding: 10px 18px;
+  font-size: 20px;
+  align-items: center;
+  justify-content: center;
+  display: flex;
+  font-weight: 600;
+}
+
+.contact-wrapper {
+  padding: 16px;
+  display: flex;
+  gap: 16px;
+  flex-wrap: wrap;
+}
+/* ══════════════════════════════════════════════
+   MOBILE ≤768px
+══════════════════════════════════════════════ */
+@media (max-width: 768px) {
+  .page-layout {
+    flex-direction: column !important;
+    gap: 12px;
+    padding: 8px !important;
+  }
+
+  /* Sidebar becomes an order-container; children will be ordered individually */
+  .sidebar {
+    width: 100% !important;
+    max-width: 100% !important;
+    display: contents; /* flatten sidebar children into page-layout flow */
+  }
+
+  /* Main also flattens so filter-banner can be ordered between sidebar items */
+  .main {
+    width: 100% !important;
+    display: contents;
+  }
+
+  .main-content {
+    order: 1;
+    width: 100%;
+  }
+  /* contact-person: fifth */
+  app-contact-person {
+    order: 2;
+    width: 100%;
+    display: block;
+  }
+
+  /* need-support: sixth */
+  app-need-support {
+    order: 3;
+    width: 100%;
+    display: block;
+  }
+
+  /* ── 1. FIX: Cards only take space they need — no excess height ── */
+
+  .opts-grid {
+    grid-template-columns: auto auto;
+    gap: 4px 12px;
+  }
+
+  /* Footer button: full width */
+  .filter-banner__footer {
+    padding: 0 12px 12px;
+  }
+
+  .btn-weiter {
+    width: 100%;
+    padding: 10px 20px;
+  }
+
+  /* ── COMPARISON NAVBAR ── */
+  .comp-navbar {
+    flex-direction: column;
+    gap: 0;
+    align-items: flex-start;
+  }
+
+  .comp-navbar__left,
+  .comp-navbar__right {
+    padding: 6px 12px;
+    font-size: 14px;
+  }
+
+  /* ── VERGLEICH BAR: provider grid → stacked ── */
+  .vergleich-bar__provider {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    padding: 10px 12px 12px;
+  }
+
+  .provider-price {
+    text-align: left;
+  }
+
+  .provider-price__sub {
+    justify-content: flex-start;
+    margin-top: 4px;
+  }
+
+  /* vergleich bar text wrap */
+  .vergleich-bar {
+    flex-wrap: wrap;
+    gap: 6px;
+    font-size: 13px;
+  }
+
+  .anpassen {
+    float: none;
+    margin-left: 0;
+  }
+
+  /* ── TARIFF COUNT BAR ── */
+  .tariff-count-bar {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 8px;
+    padding: 8px 12px;
+    font-size: 14px;
+  }
+
+  .container-button {
+    width: 100%;
+    justify-content: flex-start;
+  }
+
+  /* ── 3. PROVIDER CARDS: readable on mobile ── */
+  .tariff-card__body {
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+    padding: 14px 14px 14px;
+  }
+
+  /* Logo section */
+  .tc-logo__name {
+    font-size: 20px;
+  }
+
+  .tc-logo__tarif {
+    font-size: 14px;
+  }
+
+  /* Details section: comfortable reading size */
+  .tc-details {
+    font-size: 15px;
+    line-height: 1.7;
+  }
+
+  .tc-details .arbeits {
+    font-size: 14px;
+    margin-bottom: 12px;
+  }
+
+  .tc-check-list li {
+    font-size: 14px;
+    gap: 8px;
+    margin-bottom: 4px;
+  }
+
+  .icon-check {
+    width: 18px;
+    height: 18px;
+    flex-shrink: 0;
+  }
+
+  .bonus-tag {
+    font-size: 14px;
+    padding: 3px 10px;
+  }
+
+  .toggle-detail {
+    font-size: 14px;
+    margin-top: 4px;
+  }
+
+  /* Price section: left-aligned, prominent */
+  .tc-price {
+    text-align: left;
+    border-top: 1px solid #e5e9ee;
+    padding-top: 12px;
+  }
+
+  .tc-price__amount {
+    font-size: 30px;
+    padding-bottom: 6px;
+  }
+
+  .tc-price__sub {
+    justify-content: flex-start;
+    font-size: 14px;
+  }
+
+  .tc-price__savings {
+    font-size: 15px;
+    margin-top: 4px;
+  }
+
+  .tc-price__vergleich .label {
+    justify-content: flex-start;
+  }
+
+  /* Weiter button: full width, prominent */
+  .btn-weiter-card {
+    width: 100%;
+    padding: 12px 20px;
+    margin-left: 0;
+    margin-top: 14px;
+    font-size: 16px;
+  }
+
+  /* Badge */
+  .tariff-card__badge {
+    margin: 8px 12px 0;
+    font-size: 14px;
+  }
+
+  /* ── EXPANDED CARD DETAIL TABS: horizontal scroll ── */
+  .detail-tabs {
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    flex-wrap: nowrap;
+    gap: 0;
+    padding-bottom: 2px;
+    scrollbar-width: none;
+  }
+
+  .detail-tabs::-webkit-scrollbar {
+    display: none;
+  }
+
+  .detail-tab {
+    font-size: 13px;
+    white-space: nowrap;
+  }
+
+  /* Tables: horizontal scroll container */
+  .tab-content {
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  .detail-table,
+  .price-detail {
+    font-size: 14px;
+  }
+
+  .detail-table td:first-child {
+    width: auto;
+    min-width: 130px;
+  }
+
+  .table-monthly td:first-child {
+    width: auto;
+    min-width: 150px;
+  }
+
+  .price-detail td {
+    padding: 3px 6px;
+  }
+
+  /* ── MODAL: full width on mobile ── */
+  .modal {
+    width: 95vw;
+    left: 50%;
+    transform: translate(-50%, -50%);
+  }
+
+  .modal-content {
+    width: 100%;
+    max-width: 100%;
+    padding: 16px;
+    box-sizing: border-box;
+  }
+
+  /* Edit tabs: tighter gap */
+  .edit-tabs {
+    gap: 24px;
+  }
+
+  /* Address edit column */
+  .edit-column {
+    gap: 8px;
+  }
+
+  /* consum-row wrap */
+  .consum-row {
+    flex-wrap: wrap;
+  }
+
+  /* Sorting button */
+  .btn-sortieren {
+    width: auto;
+    min-width: 0;
+  }
+}

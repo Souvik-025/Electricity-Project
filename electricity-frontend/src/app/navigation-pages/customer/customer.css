@@ -804,7 +804,9 @@
   padding: 10px 0;
   width: 100%;
 }
-
+.service-input {
+  width: 50%;
+}
 .service-tab {
   padding: 10px 20px;
   border-radius: 10px;
@@ -1149,10 +1151,10 @@
   cursor: pointer;
   color: black;
 }
-.no-padding-child {
+/* .no-padding-child {
   margin-left: -20px;
   margin-right: -20px;
-}
+} */
 
 .chat-history {
   margin-top: 10px;
@@ -1467,11 +1469,6 @@
 /* Document Archive End */
 
 /* responsive section */
-@media (max-width: 768px) {
-  .sidebar {
-    display: none !important;
-  }
-}
 
 @media (max-width: 768px) {
   .page-layout {
@@ -1480,7 +1477,7 @@
 
   .main-content {
     width: 100% !important;
-    padding: 10px;
+    /* padding: 10px; */
   }
 }
 
@@ -1719,10 +1716,6 @@
   .meter-card {
     width: 100%;
   }
-
-  .meter-body {
-    flex-direction: column;
-  }
 }
 
 @media (max-width: 600px) {
@@ -1731,7 +1724,9 @@
     align-items: center;
     text-align: center;
   }
-
+  .meter-body {
+    flex-direction: column;
+  }
   .meter-provider-badge {
     width: 100%;
     text-align: center;
@@ -2297,7 +2292,6 @@
   }
 }
 
-
 .upload-photo-wrapper {
   display: flex;
   gap: 14px;
@@ -2363,5 +2357,505 @@
 @media (max-width: 768px) {
   .upload-photo-wrapper {
     flex-direction: column;
+  }
+}
+
+
+/* ══════════════════════════════════════════════
+   MOBILE ≤768px
+══════════════════════════════════════════════ */
+@media (max-width: 768px) {
+  /* ── 1. PAGE LAYOUT
+     Order on mobile:
+       [0] address-card          (sidebar > address-card)
+       [1] filter-banner         (main > filter-banner — "Filtereinstellungen")
+       [2] sidebar filter-boxes  (Preisanzeige only, rest hidden)
+       [3] comp-container        (provider cards)
+       [4] app-contact-person
+       [5] app-need-support
+     Achieved by making page-layout a flat flex column and assigning order
+     to sidebar and main, then using inner order on sidebar children.
+  ── */
+  .page-layout {
+    flex-direction: column !important;
+    gap: 12px;
+    padding: 8px !important;
+  }
+
+  /* Sidebar becomes an order-container; children will be ordered individually */
+  .sidebar {
+    width: 100% !important;
+    max-width: 100% !important;
+    display: contents; /* flatten sidebar children into page-layout flow */
+  }
+
+  /* Main also flattens so filter-banner can be ordered between sidebar items */
+  .main {
+    width: 100% !important;
+    display: contents;
+  }
+
+  /* comp-container (provider cards): fourth */
+  .comp-container {
+    order: 3;
+    width: 100%;
+  }
+  .main-content {
+    order: 1;
+    width: 100%;
+  }
+  /* contact-person: fifth */
+  app-contact-person {
+    order: 2;
+    width: 100%;
+    display: block;
+  }
+
+  /* need-support: sixth */
+  app-need-support {
+    order: 3;
+    width: 100%;
+    display: block;
+  }
+
+  /* ── 1. FIX: Cards only take space they need — no excess height ── */
+
+  .opts-grid {
+    grid-template-columns: auto auto;
+    gap: 4px 12px;
+  }
+
+  /* Footer button: full width */
+  .filter-banner__footer {
+    padding: 0 12px 12px;
+  }
+
+  .btn-weiter {
+    width: 100%;
+    padding: 10px 20px;
+  }
+
+  /* ── COMPARISON NAVBAR ── */
+  .comp-navbar {
+    flex-direction: column;
+    gap: 0;
+    align-items: flex-start;
+  }
+
+  .comp-navbar__left,
+  .comp-navbar__right {
+    padding: 6px 12px;
+    font-size: 14px;
+  }
+
+  /* ── VERGLEICH BAR: provider grid → stacked ── */
+  .vergleich-bar__provider {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    padding: 10px 12px 12px;
+  }
+
+  .provider-price {
+    text-align: left;
+  }
+
+  .provider-price__sub {
+    justify-content: flex-start;
+    margin-top: 4px;
+  }
+
+  /* vergleich bar text wrap */
+  .vergleich-bar {
+    flex-wrap: wrap;
+    gap: 6px;
+    font-size: 13px;
+  }
+
+  .anpassen {
+    float: none;
+    margin-left: 0;
+  }
+
+  /* ── TARIFF COUNT BAR ── */
+  .tariff-count-bar {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 8px;
+    padding: 8px 12px;
+    font-size: 14px;
+  }
+
+  .container-button {
+    width: 100%;
+    justify-content: flex-start;
+  }
+
+  /* ── 3. PROVIDER CARDS: readable on mobile ── */
+  .tariff-card__body {
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+    padding: 14px 14px 14px;
+  }
+
+  /* Logo section */
+  .tc-logo__name {
+    font-size: 20px;
+  }
+
+  .tc-logo__tarif {
+    font-size: 14px;
+  }
+
+  /* Details section: comfortable reading size */
+  .tc-details {
+    font-size: 15px;
+    line-height: 1.7;
+  }
+
+  .tc-details .arbeits {
+    font-size: 14px;
+    margin-bottom: 12px;
+  }
+
+  .tc-check-list li {
+    font-size: 14px;
+    gap: 8px;
+    margin-bottom: 4px;
+  }
+
+  .icon-check {
+    width: 18px;
+    height: 18px;
+    flex-shrink: 0;
+  }
+
+  .bonus-tag {
+    font-size: 14px;
+    padding: 3px 10px;
+  }
+
+  .toggle-detail {
+    font-size: 14px;
+    margin-top: 4px;
+  }
+
+  /* Price section: left-aligned, prominent */
+  .tc-price {
+    text-align: left;
+    border-top: 1px solid #e5e9ee;
+    padding-top: 12px;
+  }
+
+  .tc-price__amount {
+    font-size: 30px;
+    padding-bottom: 6px;
+  }
+
+  .tc-price__sub {
+    justify-content: flex-start;
+    font-size: 14px;
+  }
+
+  .tc-price__savings {
+    font-size: 15px;
+    margin-top: 4px;
+  }
+
+  .tc-price__vergleich .label {
+    justify-content: flex-start;
+  }
+
+  /* Weiter button: full width, prominent */
+  .btn-weiter-card {
+    width: 100%;
+    padding: 12px 20px;
+    margin-left: 0;
+    margin-top: 14px;
+    font-size: 16px;
+  }
+
+  /* Badge */
+  .tariff-card__badge {
+    margin: 8px 12px 0;
+    font-size: 14px;
+  }
+
+  /* ── EXPANDED CARD DETAIL TABS: horizontal scroll ── */
+  .detail-tabs {
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    flex-wrap: nowrap;
+    gap: 0;
+    padding-bottom: 2px;
+    scrollbar-width: none;
+  }
+
+  .detail-tabs::-webkit-scrollbar {
+    display: none;
+  }
+
+  .detail-tab {
+    font-size: 13px;
+    white-space: nowrap;
+  }
+
+  /* Tables: horizontal scroll container */
+  .tab-content {
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  .detail-table,
+  .price-detail {
+    font-size: 14px;
+  }
+
+  .detail-table td:first-child {
+    width: auto;
+    min-width: 130px;
+  }
+
+  .table-monthly td:first-child {
+    width: auto;
+    min-width: 150px;
+  }
+
+  .price-detail td {
+    padding: 3px 6px;
+  }
+
+  /* ── MODAL: full width on mobile ── */
+  .modal {
+    width: 95vw;
+    left: 50%;
+    transform: translate(-50%, -50%);
+  }
+
+  .modal-content {
+    width: 100%;
+    max-width: 100%;
+    padding: 16px;
+    box-sizing: border-box;
+  }
+
+  /* Edit tabs: tighter gap */
+  .edit-tabs {
+    gap: 24px;
+  }
+
+  /* Address edit column */
+  .edit-column {
+    gap: 8px;
+  }
+
+  /* consum-row wrap */
+  .consum-row {
+    flex-wrap: wrap;
+  }
+
+  /* Sorting button */
+  .btn-sortieren {
+    width: auto;
+    min-width: 0;
+  }
+}
+/* =========================
+   MOBILE RESPONSIVE
+========================= */
+
+@media screen and (max-width: 768px) {
+  .tab-row {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+  }
+
+  .contract-card {
+    display: flex;
+    flex-direction: column;
+
+    width: 100%;
+    padding: 16px;
+
+    gap: 16px;
+
+    border-radius: 12px;
+    box-sizing: border-box;
+  }
+
+  /* LEFT */
+  .card-left {
+    width: 100%;
+    text-align: center;
+  }
+
+  .company-logo {
+    max-width: 120px;
+    height: auto;
+    margin: 0 auto 10px;
+    display: block;
+  }
+
+  .badge {
+    justify-content: center;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+
+    margin-bottom: 12px;
+  }
+
+  .badge-icon {
+    width: 18px;
+    height: 18px;
+  }
+
+  .address {
+    text-align: left;
+    font-size: 13px;
+    word-break: break-word;
+  }
+
+  /* MIDDLE */
+  .card-middle {
+    width: 100%;
+
+    font-size: 13px;
+    line-height: 1.6;
+    padding: 0;
+  }
+
+  .card-middle p {
+    margin-bottom: 8px;
+
+    display: flex;
+    flex-direction: column;
+
+    gap: 2px;
+  }
+
+  /* RIGHT */
+  .card-actions {
+    width: 100%;
+
+    display: flex;
+    flex-direction: column;
+
+    align-items: stretch;
+
+    gap: 14px;
+  }
+
+  .toggle-wrap {
+    display: flex;
+    justify-content: flex-end;
+  }
+
+  .action-buttons {
+    display: flex;
+    flex-direction: column;
+
+    gap: 10px;
+    width: 100%;
+  }
+
+  .cancel-btn,
+  .compare-btn {
+    width: 100%;
+    min-height: 44px;
+
+    font-size: 14px;
+
+    text-align: center;
+  }
+
+  /* HEADER */
+  .attorney-berich-green {
+    font-size: 14px !important;
+    padding: 12px !important;
+    line-height: 1.4;
+  }
+
+  .login-berich {
+    font-size: 18px;
+    text-align: center;
+  }
+
+  /* TOGGLE */
+  .toggle-row {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 12px;
+  }
+
+  .toggle-box {
+    width: 100%;
+
+    display: flex;
+    gap: 10px;
+  }
+
+  .toggle-opt {
+    flex: 1;
+
+    justify-content: center;
+    text-align: center;
+  }
+
+  /* Prevent overflow */
+  * {
+    box-sizing: border-box;
+  }
+  .service-input {
+    width: auto;
+  }
+}
+
+/* TABLE SCROLL */
+.table-scroll {
+  width: 100%;
+  overflow-x: auto;
+
+  -webkit-overflow-scrolling: touch;
+}
+
+/* KEEP TABLE WIDTH */
+.request-list {
+  min-width: 700px;
+}
+
+/* HEADER */
+.list-header,
+.list-row {
+  display: grid;
+
+  grid-template-columns:
+    220px
+    140px
+    160px
+    220px
+    120px;
+
+  align-items: center;
+
+  gap: 12px;
+}
+
+/* MOBILE */
+@media (max-width: 768px) {
+  .request-list {
+    min-width: 850px;
+  }
+  .no-padding-child {
+    margin: 0;
+  }
+  .details {
+    gap: 0;
+  }
+  .list-header,
+  .list-row {
+    font-size: 13px;
   }
 }

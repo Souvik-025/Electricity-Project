@@ -20,6 +20,7 @@ import { QRCodeComponent } from 'angularx-qrcode';
 import { isPlatformBrowser } from '@angular/common';
 import { ActivatedRoute } from '@angular/router';
 import { Router } from '@angular/router';
+import { NeedSupport } from '../../layout/need-support/need-support';
 
 const API_BASE = 'http://192.168.0.155:8080';
 interface Card {
@@ -44,6 +45,8 @@ interface Card {
     FormsModule,
     CountdownModule,
     QRCodeComponent,
+    ContactPerson,
+    NeedSupport,
   ],
   templateUrl: './customer.html',
   styleUrl: './customer.css',
@@ -126,6 +129,7 @@ export class Customer {
 
     if (this.activeTab == 3) {
       this.fetchServiceCount();
+      this.fetchAllRequests();
     }
     if (this.activeTab == 4) {
       this.checkAttorneyStatus();
@@ -1385,7 +1389,15 @@ export class Customer {
     this.showList = true;
     this.showDetails = false;
     this.confirmationList = false;
+    if (
+      this.activeTab === 3 &&
+      (step === 2 || step === 3 || step == 4)
+    ) {
+      this.fetchServiceCount();
+      this.fetchAllRequests();
+    }
     this.resetForm();
+    this.cdr.detectChanges();
   }
 
   backToList() {

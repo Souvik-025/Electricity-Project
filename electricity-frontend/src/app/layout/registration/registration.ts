@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { ChangeDetectorRef, Component, Inject } from '@angular/core';
+import { ChangeDetectorRef, Component, Inject, OnInit } from '@angular/core';
 import { Environment, ENVIRONMENT } from '../../environment.token';
 import { Router } from '@angular/router';
 import { HttpClient } from '@angular/common/http';
@@ -12,7 +12,7 @@ import { FormsModule } from '@angular/forms';
   templateUrl: './registration.html',
   styleUrl: './registration.css',
 })
-export class Registration {
+export class Registration implements OnInit {
   private API_BASE: string;
   private readonly LOCAL_API_BASE = 'http://192.168.0.155:8080';
   currentStep: 'callback' | 'telefon' | 'weekday' | 'time' | 'others' = 'callback';
@@ -66,6 +66,36 @@ export class Registration {
     FRIDAY: 5,
     SATURDAY: 6,
   };
+  availableDays: { date: string; day: string }[] = [];
+
+  ngOnInit(): void {
+    this.loadAvailableDays();
+  }
+
+  loadAvailableDays(): void {
+    const payload = {
+      adminId: 1,
+    };
+
+    this.http.post<any>(`${this.API_BASE}/customer/list-of-working-days`, payload).subscribe({
+      next: (res) => {
+        if (res?.res && res?.data) {
+          this.availableDays = Object.entries(res.data).map(([date, day]) => ({
+            date,
+            day: day as string,
+          }));
+
+          // console.log('Available Days:', this.availableDays);
+
+          this.setDefaultSelectedDay();
+        }
+      },
+
+      error: (err) => {
+        console.error('Working days fetch error:', err);
+      },
+    });
+  }
 
   get enabledDays(): Set<string> {
     const now = new Date();
@@ -99,34 +129,26 @@ export class Registration {
   }
 
   get filteredDays() {
-    const now = new Date();
+    return this.availableDays
+      .map((item) => {
+        const found = this.daysOfWeek.find((d) => d.value === item.day);
 
-    let todayJs: number;
+        return {
+          ...found,
+          date: item.date,
+        };
+      })
+      .filter(Boolean);
+  }
 
-    if (this.overrideStartDay) {
-      todayJs = this.dayValueToJsDay[this.overrideStartDay];
-    } else {
-      todayJs = now.getDay();
-      if (todayJs === 0) todayJs = 1;
+  isDayEnabled(dayValue: string): boolean {
+    return this.availableDays.some((d) => d.day === dayValue);
+  }
+
+  private setDefaultSelectedDay(): void {
+    if (this.filteredDays.length > 0) {
+      this.selectedDay = this.filteredDays[0].value ?? '';
     }
-
-    const result: any[] = [];
-
-    for (let i = 0; i < 3; i++) {
-      let day = todayJs + i;
-
-      if (day > 6) {
-        day = day - 6;
-      }
-
-      const found = this.daysOfWeek.find((d) => this.dayValueToJsDay[d.value] === day);
-
-      if (found) {
-        result.push(found);
-      }
-    }
-
-    return result;
   }
 
   getDayLabelByValue(dayValue: string): string {
@@ -158,9 +180,6 @@ export class Registration {
   }
   trackByDay(index: number, item: any) {
     return item.value;
-  }
-  isDayEnabled(dayValue: string): boolean {
-    return this.enabledDays.has(dayValue);
   }
 
   getSlotTime(slotValue: string): { start: number; end: number } | null {

@@ -67,12 +67,15 @@
 }
 /* Left Labels */
 .label {
-  width: 270px;
+  width: 300px;
   font-weight: 600;
   color: black;
-  white-space: nowrap;
+  /* white-space: nowrap; */
   padding-right: 25px;
   font-size: 15px;
+  white-space: normal;
+  word-break: break-word;
+  overflow-wrap: break-word;
 }
 /* ================= MOBILE ================= */
 
@@ -107,6 +110,9 @@
     padding-right: 0;
     padding-bottom: 6px;
     font-size: 14px;
+    white-space: normal;
+    word-break: break-word;
+    overflow-wrap: break-word;
   }
 
   .right {

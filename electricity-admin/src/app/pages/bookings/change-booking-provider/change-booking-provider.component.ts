@@ -7,10 +7,10 @@ import { AuthService } from "../../../shared/services/auth.service";
 import { ApiBooking } from "../booking-list/booking-list.component";
 
 type CustomerAddress = {
-  zip?: string;
-  city?: string;
-  street?: string;
-  houseNumber?: string;
+  zip?: string | null;
+  city?: string | null;
+  street?: string | null;
+  houseNumber?: string | null;
 };
 
 export type EgonRate = {

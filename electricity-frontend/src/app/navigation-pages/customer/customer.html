@@ -1,89 +1,10 @@
 <div class="page-layout">
   <!-- ══════════ SIDEBAR ══════════ -->
-  <div class="sidebar">
+  <aside class="sidebar">
     <!-- Ansprechpartner -->
-    <div class="card" style="border: 1px solid #003366">
-      <div class="card-header" style="background-color: #003366; text-align: center">
-        Ihr persönlicher Ansprechpartner
-      </div>
-      <div class="partner-photo-wrap">
-        <img src="assets/images/MM.png" alt="Familienbetrieb" />
-      </div>
-      <div class="partner-info">
-        <div class="partner-name">Manuel Markovic</div>
-        <div class="container-main-btn">
-          <button class="main-btn partner-btn">
-            <span class="container-services">
-              <img
-                src="assets/icons/Telefonhörer_Weiss.png"
-                class="icon-telephone"
-                alt="telephone"
-              />
-            </span>
-            <span class="btn-text">08157 / 999 42-0</span>
-          </button>
-          <button class="main-btn partner-btn">
-            <span class="container-services">
-              <img src="assets/icons/Mail.png" class="icon-email" alt="email" />
-            </span>
-            <span class="btn-text">mm@energiehandel.bayern</span>
-          </button>
-        </div>
-      </div>
-    </div>
-
-    <div class="card" style="border: 1px solid #003366">
-      <div class="container-contact-us">
-        <div class="main-container-service">
-          <div class="card-header" style="background-color: #003366">
-            Benötigen Sie Unterstützung?
-          </div>
-          <div class="container-contact">
-            <div class="contact-us">
-              <button class="main-btn">
-                <span class="container-services">
-                  <img
-                    src="assets/icons/Telefonhörer_Weiss.png"
-                    class="icon-telephone"
-                    alt="telephone"
-                  />
-                </span>
-                <span class="btn-text">08157 / 999 42-0</span>
-              </button>
-              <button class="main-btn">
-                <span class="container-services">
-                  <img src="assets/icons/Lice-Chat_weiss.png" class="icon-wechat" alt="wechat" />
-                </span>
-                <span class="btn-text">per Live-Chat</span>
-              </button>
-              <button class="main-btn">
-                <span class="container-services">
-                  <img src="assets/icons/WhatsApp_weiss.png" class="icon-whatsapp" alt="whatsapp" />
-                </span>
-                <span class="btn-text">per WhatsApp</span>
-              </button>
-              <button class="main-btn">
-                <span class="container-services">
-                  <img src="assets/icons/Mail.png" class="icon-email" alt="email" />
-                </span>
-                <span class="btn-text">E-Mail</span>
-              </button>
-              <button class="main-btn">
-                <span class="container-services">
-                  <img
-                    src="assets/icons/Kontaktformular.png"
-                    class="icon-transport"
-                    alt="transport"
-                  />
-                </span>
-                <span class="btn-text">Kontaktformular</span>
-              </button>
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>
-  </div>
+    <app-contact-person></app-contact-person>
+    <app-need-support></app-need-support>
+  </aside>
   <!-- /sidebar -->
 
   <!-- ══════════ MAIN CONTENT ══════════ -->
@@ -1354,7 +1275,7 @@
               <div class="tab-heading">Titel</div>
             </div>
 
-            <div class="form-group" style="width: 50%">
+            <div class="form-group service-input">
               <div class="field-wrap" style="padding: 4px 12px 4px 12px">
                 <!-- <span class="field-label">Titel</span> -->
                 <input matInput [(ngModel)]="title" placeholder="Bitte Betreff eingeben" />
@@ -1368,7 +1289,7 @@
               <div class="tab-heading">Kategorie</div>
             </div>
 
-            <div #dropdownContainer class="form-group" style="width: 50%">
+            <div #dropdownContainer class="form-group service-input">
               <div class="field-wrap dropdown-wrap" (click)="toggleDropdown($event)">
                 <!-- Selected value -->
                 <input
@@ -1451,44 +1372,48 @@
                 In der Übersicht können Sie Ihre Anfragen einsehen und verwalten
               </div>
             </div>
-            <div class="request-list no-padding-child">
-              <!-- Header Row -->
-              <div class="list-header">
-                <div>Status</div>
-                <div>erstellt am</div>
-                <div>Kategorie</div>
-                <div>Betreff</div>
-                <div>Details</div>
-              </div>
+            <div class="table-scroll">
+              <div class="request-list no-padding-child">
+                <!-- Header Row -->
+                <div class="list-header">
+                  <div>Status</div>
+                  <div>erstellt am</div>
+                  <div>Kategorie</div>
+                  <div>Betreff</div>
+                  <div>Details</div>
+                </div>
 
-              <div *ngIf="(openRequests?.length || 0) > 0; else noOpenReq">
-                <!-- Dynamic Rows -->
-                <div class="list-row" *ngFor="let req of openRequests">
-                  <div class="status">Warten auf Antwort vom Berater</div>
+                <div *ngIf="(openRequests?.length || 0) > 0; else noOpenReq">
+                  <!-- Dynamic Rows -->
+                  <div class="list-row" *ngFor="let req of openRequests">
+                    <div class="status">Warten auf Antwort vom Berater</div>
 
-                  <div>{{ formatDate(req.createdOn) }}</div>
+                    <div>{{ formatDate(req.createdOn) }}</div>
 
-                  <div>{{ req.category }}</div>
+                    <div>{{ req.category }}</div>
 
-                  <div>{{ req.title }}</div>
+                    <div>{{ req.title }}</div>
 
-                  <div class="details">
-                    <span class="link" (click)="openDetails(req.serviceRequestId)"> anzeigen </span>
+                    <div class="details">
+                      <span class="link" (click)="openDetails(req.serviceRequestId)">
+                        anzeigen
+                      </span>
 
-                    <span
-                      class="material-symbols-outlined edit-icon"
-                      (click)="openDetails(req.serviceRequestId)"
-                    >
-                      edit_square
-                    </span>
+                      <span
+                        class="material-symbols-outlined edit-icon"
+                        (click)="openDetails(req.serviceRequestId)"
+                      >
+                        edit_square
+                      </span>
+                    </div>
                   </div>
                 </div>
-              </div>
 
-              <!-- Empty state -->
-              <ng-template #noOpenReq>
-                <div class="empty-state">Keine offenen Anfragen vorhanden</div>
-              </ng-template>
+                <!-- Empty state -->
+                <ng-template #noOpenReq>
+                  <div class="empty-state">Keine offenen Anfragen vorhanden</div>
+                </ng-template>
+              </div>
             </div>
           </div>
         </div>
@@ -1504,6 +1429,7 @@
                 Klicken Sie einfach die Anfrage an, die Sie einsehen möchten
               </div>
             </div>
+             <div class="table-scroll">
             <div class="request-list no-padding-child">
               <!-- Header Row -->
               <div class="list-header">
@@ -1541,6 +1467,7 @@
               <ng-template #noProgress>
                 <div class="empty-state">Keine Anfragen in Bearbeitung vorhanden</div>
               </ng-template>
+            </div>
             </div>
           </div>
         </div>
@@ -1648,6 +1575,7 @@
                 dann in „Offene Anfragen“ angezeigt.
               </div>
             </div>
+             <div class="table-scroll">
             <div class="request-list no-padding-child">
               <!-- Header Row -->
               <div class="list-header">
@@ -1685,6 +1613,7 @@
               <ng-template #noClosed>
                 <div class="empty-state">Es sind keine abgeschlossenen Anfragen vorhanden</div>
               </ng-template>
+            </div>
             </div>
           </div>
 
@@ -2790,4 +2719,3 @@
     <!--══════════ Reset Password End ══════════-->
   </div>
 </div>
-

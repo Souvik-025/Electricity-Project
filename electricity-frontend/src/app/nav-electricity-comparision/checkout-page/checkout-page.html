@@ -477,11 +477,11 @@
               *ngFor="let day of filteredDays"
               [ngClass]="[
                 'field-wrap-days',
-                selectedDay === day.value ? 'active' : '',
-                !isDayEnabled(day.value) ? 'disabled' : '',
+                selectedDay === (day.value ?? '') ? 'active' : '',
+                !isDayEnabled(day.value ?? '') ? 'disabled' : '',
               ]"
-              [style.cursor]="isDayEnabled(day.value) ? 'pointer' : 'not-allowed'"
-              (click)="selectDay(day.value)"
+              [style.cursor]="isDayEnabled(day.value ?? '') ? 'pointer' : 'not-allowed'"
+              (click)="selectDay(day.value ?? '')"
             >
               {{ day.label }}
             </div>

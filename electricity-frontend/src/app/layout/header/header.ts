@@ -67,6 +67,7 @@ export class Header {
   }
 
   redirect() {
+    this.isMenuOpen = false;
     if (this.isLoggedIn()) {
       this.router.navigate(['/customer'], { relativeTo: this.route });
     } else {
