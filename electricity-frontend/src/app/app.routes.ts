@@ -23,6 +23,7 @@ import { Imprint } from './navigation-pages/imprint/imprint';
 import { DataProtection } from './navigation-pages/data-protection/data-protection';
 import { TermsConditions } from './navigation-pages/terms-conditions/terms-conditions';
 import { Contact } from './navigation-pages/contact/contact';
+import { OrderSignature } from './navigation-pages/order-signature/order-signature';
 
 export const routes: Routes = [
   { path: '', redirectTo: 'home', pathMatch: 'full' },
@@ -56,6 +57,7 @@ export const routes: Routes = [
   { path: 'customer', component: Customer },
   { path: 'imprint', component: Imprint },
   { path: 'contact', component: Contact },
+  { path: 'order-signature', component: OrderSignature },
   { path: 'data-protection', component: DataProtection },
   { path: 'terms-conditions', component: TermsConditions },
   { path: 'gas-comparision', component: GasComparision },
