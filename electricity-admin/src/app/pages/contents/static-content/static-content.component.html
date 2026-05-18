@@ -1,7 +1,7 @@
 <div class="flex justify-end gap-3 mt-4 mb-4">
     <button (click)="openContentModal()"
         class="bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded-lg text-sm font-medium transition shadow-sm active:scale-95">
-        Inhalte hinzuzufügen
+        Inhalt hinzufügen
     </button>
 </div>
 
@@ -9,7 +9,7 @@
     <!-- Header & Filters -->
     <div class="flex flex-col lg:flex-row lg:items-center justify-between mb-6 gap-4">
         <h2 class="text-xl font-semibold text-gray-800 dark:text-white shrink-0">
-            Inhaltsverzeichnis (PDF & Templates)
+            Statische Inhalte
         </h2>
     </div>
 
@@ -20,7 +20,7 @@
             @if (isLoading) {
             <div class="flex items-center gap-2 text-gray-500 text-sm py-4">
                 <div class="animate-spin rounded-full h-4 w-4 border-b-2 border-brand-500"></div>
-                <span>Dokumente werden geladen...</span>
+                <span>Statische Inhalte werden geladen...</span>
             </div>
             }
 
@@ -313,20 +313,20 @@
                     </div>
                 </div>
 
-                <!-- Image Title Input -->
+                <!-- Banner Title Input -->
                 <div class="mb-4">
                     <label class="block text-sm font-medium text-gray-700 mb-2">
-                        Image Title
+                        Banner Title
                     </label>
                     <input type="text" [(ngModel)]="imageTitle"
-                        placeholder="Enter image title"
+                        placeholder="Enter banner title"
                         class="w-full border border-gray-300 rounded-lg px-4 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-brand-500" />
                 </div>
 
                 <!-- CKEditor Section -->
                 <div class="mb-4">
                     <label class="block text-sm font-medium text-gray-700 mb-2">
-                        Popup-Inhalt (optional)
+                        Inhaltsbeschreibung
                     </label>
                     <div class="min-h-[250px]">
                         <ckeditor [editor]="Editor" [(ngModel)]="popupContent" name="popupContent"

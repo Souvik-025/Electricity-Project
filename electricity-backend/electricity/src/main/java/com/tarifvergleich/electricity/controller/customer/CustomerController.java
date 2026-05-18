@@ -177,4 +177,9 @@ public class CustomerController {
 				.ok(customerDetailService.sendMailToCustomer(customerDto.getId(), customerDto.getAdminId()));
 	}
 
+	@PostMapping("/fetch-profile-info")
+	public ResponseEntity<?> fetchCustomerProfileInfo(@RequestBody CustomerDto customerDto) {
+		return ResponseEntity.ok(customerDetailService.fetchCustomerProfile(customerDto));
+	}
+
 }

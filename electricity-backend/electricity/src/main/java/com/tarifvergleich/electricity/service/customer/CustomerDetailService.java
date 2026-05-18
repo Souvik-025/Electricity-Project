@@ -18,6 +18,7 @@ import com.tarifvergleich.electricity.dto.CustomerAttornyDto;
 import com.tarifvergleich.electricity.dto.CustomerDeliveryResponseDto;
 import com.tarifvergleich.electricity.dto.CustomerDeliveryResponseDto.CustomerDeliveryResponseAll;
 import com.tarifvergleich.electricity.dto.CustomerDto;
+import com.tarifvergleich.electricity.dto.CustomerDto.CustomerInfoForProfile;
 import com.tarifvergleich.electricity.dto.CustomerDto.CustomerShortDetail;
 import com.tarifvergleich.electricity.dto.CustomerServiceRequestDto;
 import com.tarifvergleich.electricity.dto.CustomerServiceRequestDto.CustomerServiceRequestResDtoForListing;
@@ -661,7 +662,9 @@ public class CustomerDetailService {
 				.orElseThrow(
 						() -> new InternalServerException("Customer not found with this credential", HttpStatus.OK));
 
-		return Map.of();
+		CustomerInfoForProfile customerProfileInfo = CustomerDto.mapCustomerInfoForProfile(customer);
+
+		return Map.of("res", true, "data", customerProfileInfo);
 	}
 
 }
