@@ -58,6 +58,7 @@ export const routes: Routes = [
   { path: 'create-accounts', component: CreateBusinessAccount },
   { path: 'imprint', component: Imprint },
   { path: 'contact', component: Contact },
+  { path: 'order-signature', component: OrderSignature },
   { path: 'data-protection', component: DataProtection },
   { path: 'terms-conditions', component: TermsConditions },
   { path: 'gas-comparision', component: GasComparision },
