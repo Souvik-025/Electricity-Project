@@ -8,7 +8,7 @@
     <div class="profile-section">
       <img src="/images/electricity/Login.png" alt="user" class="profile-img" />
 
-      <span class="profile-name">Maria Mustermann</span>
+      <span class="profile-name">{{ emailData?.createdBy }}</span>
     </div>
   </div>
 
@@ -28,30 +28,17 @@
   </div>
 
   <!-- TITLE -->
-  <h1 class="main-title">Sie haben Ihr Passwort erfolgreich zurückgesetzt!</h1>
+  <h1 class="main-title">{{ emailData?.title }}</h1>
 
   <!-- CONTENT -->
   <div class="mail-content">
-    <p>Sehr geehrte Frau Mustermann,</p>
 
-    <p>
-      Sie haben Ihr Passwort für die Mailadresse
-      <span class="blue-link">marie@mustermann.de</span>
-      am 28. März und 18:17 Uhr (MEZ) erfolgreich zurückgesetzt.
-    </p>
+    <!-- SUBTITLE -->
+      <h3 class="subtitle">{{ emailData?.subtitle }}</h3>
+  
+    <!-- TEXT AREA -->
+      <div [innerHTML]="emailData?.emailContent"></div>
 
-    <p>
-      Falls Sie Ihr Passwort selbst geändert haben, brauchen Sie nichts weiter
-      zu tun.
-    </p>
-
-    <p>
-      Sie haben diese Aktion nicht selbst ausgeführt?
-      <br />
-      <span class="blue-link">
-        Setzen Sie in diesem Fall bitte Ihr Passwort zurück.
-      </span>
-    </p>
   </div>
 
   <!-- ORANGE TITLE -->

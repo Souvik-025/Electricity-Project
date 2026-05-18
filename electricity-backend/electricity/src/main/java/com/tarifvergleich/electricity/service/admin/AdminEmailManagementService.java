@@ -73,6 +73,7 @@ public class AdminEmailManagementService {
         savedEmail = repository.save(savedEmail);
         System.out.println("FULL REQUEST = " + request);
         System.out.println("PDF IDS = " + request.getPdfIds());
+        System.err.println(documents);
 
         
         return savedEmail;
@@ -81,5 +82,10 @@ public class AdminEmailManagementService {
     public List<AdminEmailManagement> getAllEmails() {
 
         return repository.findAll();
+    }
+    
+    public AdminEmailManagement getById(Long id) {
+
+        return repository.findById(id).orElse(null);
     }
 }

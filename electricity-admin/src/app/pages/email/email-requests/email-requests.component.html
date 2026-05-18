@@ -62,8 +62,55 @@
       <label class="block text-sm font-medium mb-2 text-gray-700 dark:text-gray-300">
         E-Mail Inhalte *
       </label>
+      <!-- INFO BOX -->
+        <div
+          class="mt-3 mb-1 flex items-start gap-3 rounded-xl border border-blue-200 bg-blue-50 px-4 py-3"
+        >
 
-      <div class="border rounded-xl overflow-hidden">
+          <!-- ICON -->
+          <div class="mt-0.5">
+
+            <svg
+              class="w-5 h-5 text-blue-600"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+            >
+
+              <path
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                stroke-width="2"
+                d="M13 16h-1v-4h-1m1-4h.01M12 22C6.477 22 2 17.523 2 12S6.477 2 12 2s10 4.477 10 10-4.477 10-10 10z"
+              >
+              </path>
+
+            </svg>
+
+          </div>
+
+          <!-- TEXT -->
+          <div>
+
+            <h4 class="text-[11px] font-semibold text-blue-800">
+              Hinweis
+            </h4>
+
+            <p class="text-[10px] text-blue-700 mt-0.5">
+              Following key words we have used : </p>
+              <ul class="list-disc pl-4 mt-3 space-y-1">
+                <li class="leading-4 text-[10px] text-blue-700" > {{ `{` }}OTP{{ `}` }} - Diese Variable wird durch den tatsächlichen Verifizierungscode ersetzt.</li>
+                <li class="leading-4 text-[10px] text-blue-700"> {{ `{` }}BENUTZERNAME{{ `}` }} - Diese Variable wird durch den tatsächlichen Benutzernamen ersetzt.</li>
+                <li class="leading-4 text-[10px] text-blue-700"> {{ `{` }}EMAIL{{ `}` }} - Diese Variable wird durch die tatsächliche E-Mail-Adresse des Benutzers ersetzt.</li> 
+                <li class="leading-4 text-[10px] text-blue-700"> {{ `{` }}AUFTRAGSNUMMER{{ `}` }} - Diese Variable wird durch die tatsächliche Bestellnummer ersetzt..</li> 
+
+              </ul>
+
+          </div>
+
+        </div>
+
+      <div class="border overflow-hidden">
 
         <!-- Toolbar -->
         <div class="border-b px-4 py-3 flex gap-4 bg-gray-50">

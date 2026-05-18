@@ -15,6 +15,8 @@ export class EmailTemplateListComponent implements OnInit {
   emailList: any[] = [];
   isLoading = false;
   errorMessage = '';
+  selectedDocuments: any[] = [];
+  showPdfPopup: boolean = false;
   constructor(private http: HttpClient) {}
 
   ngOnInit(): void {
@@ -40,5 +42,17 @@ export class EmailTemplateListComponent implements OnInit {
       }
 
     });
+  }
+
+  openPdfPopup(email: any) {
+
+    this.selectedDocuments = email.documents || [];
+    this.showPdfPopup = true;
+    console.log(this.selectedDocuments);
+  }
+
+  closePdfPopup() {
+    
+    this.showPdfPopup = false;
   }
 }

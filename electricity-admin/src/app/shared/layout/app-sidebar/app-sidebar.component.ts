@@ -232,6 +232,10 @@ export class AppSidebarComponent implements OnInit, OnDestroy {
           name: "Admin Signature",
           path: "/credentials/admin-signature",
         },
+        {
+          name: "Tax Management",
+          path: "/credentials/tax-management",
+        },
       ],
     },
   ];

@@ -26,11 +26,12 @@ import { CustomerCallbackComponent } from "./pages/customer-callback/customer-ca
 import { BookingDetailComponent } from "./pages/bookings/booking-details/booking-details.component";
 import { EmailRequestsComponent } from "./pages/email/email-requests/email-requests.component";
 import { EmailCategoryComponent } from "./pages/email/email-category/email-category.component";
-import { EmailTemplateViewComponent } from "./pages/email-template-view/email-template-view.component";
+import { EmailTemplateViewComponent } from "./pages/email/email-template-view/email-template-view.component";
 import { ContentPDFsComponent } from "./pages/contents/content-pdfs/content-pdfs.component";
 import { AdminSignatureComponent } from "./pages/credentials/admin-signature/admin-signature.component";
-import { StaticContentComponent } from "./pages/static-content/static-content.component";
+import { StaticContentComponent } from "./pages/contents/static-content/static-content.component";
 import { EmailTemplateListComponent } from "./pages/email/email-template-list/email-template-list.component";
+import { TaxManagementComponent } from "./pages/credentials/tax-management/tax-management.component";
 
 export const routes: Routes = [
   {
@@ -194,7 +195,7 @@ export const routes: Routes = [
         title: "E-Mail Kategorie",
       },
       {
-        path: "email-template-view",
+        path: "email-template-view/:id",
         component: EmailTemplateViewComponent,
         title: "E-Mail-Vorlage",
       },
@@ -212,6 +213,11 @@ export const routes: Routes = [
         path: "credentials/admin-signature",
         component: AdminSignatureComponent,
         title: "Admin Signature",
+      },
+      {
+        path: "credentials/tax-management",
+        component: TaxManagementComponent,
+        title: "Tax Management",
       },
     ],
   },
