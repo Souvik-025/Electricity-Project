@@ -151,7 +151,7 @@ export class AppSidebarComponent implements OnInit, OnDestroy {
       </svg>`,
       subItems: [
         {
-          name: "Email Requests", path: "/email-requests"
+          name: "Email Template", path: "/email-template"
         },
         {
           name: "Email Category", path: "/email-category"

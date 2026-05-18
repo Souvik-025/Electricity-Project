@@ -15,39 +15,39 @@ import { HttpClient, HttpHeaders } from "@angular/common/http";
   styleUrl: "./static-content.component.css",
 })
 export class StaticContentComponent implements OnInit {
-  customers: any[] = [];
-  customContents: any[] = [];
-  editingDocId: number | null = null;
+//   customers: any[] = [];
+//   customContents: any[] = [];
+//   editingDocId: number | null = null;
 
-  fileSizeError: boolean = false;
-  isLoading = false;
-  errorMessage = "";
-  hasMoreData = true;
+//   fileSizeError: boolean = false;
+//   isLoading = false;
+//   errorMessage = "";
+//   hasMoreData = true;
 
-  private readonly PAGE_LIMIT = 5;
+//   private readonly PAGE_LIMIT = 5;
 
-  currentPage = 1;
-  totalPage: number | null = null;
+//   currentPage = 1;
+//   totalPage: number | null = null;
 
-  isModalOpen = false;
-  isTemplateModalOpen = false;
-  isContentModalOpen = false;
-  isPreviewModalOpen = false;
+//   isModalOpen = false;
+//   isTemplateModalOpen = false;
+//   isContentModalOpen = false;
+//   isPreviewModalOpen = false;
 
-  selectedFile: File | null = null;
-  bannerFile: File | null = null;
-  isUploading: boolean = false;
-  selectedDoc: any = null;
+//   selectedFile: File | null = null;
+//   bannerFile: File | null = null;
+//   isUploading: boolean = false;
+//   selectedDoc: any = null;
 
-  documentCategory: string = "";
-  imageTitle: string = "";
-  popupContent: string = "";
+//   documentCategory: string = "";
+//   imageTitle: string = "";
+//   popupContent: string = "";
 
-  savedBannerUrl: string | ArrayBuffer | null = null;
-  savedImageTitle: string = "";
-  savedPopupContent: string = "";
+//   savedBannerUrl: string | ArrayBuffer | null = null;
+//   savedImageTitle: string = "";
+//   savedPopupContent: string = "";
 
-  public Editor = ClassicEditor;
+//   public Editor = ClassicEditor;
 
   constructor(
     private api: ApiService,
@@ -60,41 +60,41 @@ export class StaticContentComponent implements OnInit {
     this.fetchCustomContents();
   }
 
-  /* ---------------- OPEN MODAL ---------------- */
-  openModal(doc?: any) {
-    this.selectedFile = null;
-    this.fileSizeError = false;
-    this.selectedDoc = doc || null;
-    this.documentCategory = doc?.documentCategory || "";
-    this.isModalOpen = true;
-  }
+//   /* ---------------- OPEN MODAL ---------------- */
+//   openModal(doc?: any) {
+//     this.selectedFile = null;
+//     this.fileSizeError = false;
+//     this.selectedDoc = doc || null;
+//     this.documentCategory = doc?.documentCategory || "";
+//     this.isModalOpen = true;
+//   }
 
-  /* ---------------- OPEN TEMPLATE MODAL ---------------- */
-  openTemplateModal() {
-    this.selectedFile = null;
-    this.fileSizeError = false;
-    this.selectedDoc = null;
-    this.documentCategory = "";
-    this.isTemplateModalOpen = true;
-  }
+//   /* ---------------- OPEN TEMPLATE MODAL ---------------- */
+//   openTemplateModal() {
+//     this.selectedFile = null;
+//     this.fileSizeError = false;
+//     this.selectedDoc = null;
+//     this.documentCategory = "";
+//     this.isTemplateModalOpen = true;
+//   }
 
-  /* ---------------- OPEN CONTENT MODAL ---------------- */
-  openContentModal() {
-    this.editingDocId = null;
-    this.bannerFile = null;
-    this.imageTitle = "";
-    this.popupContent = "";
-    this.isContentModalOpen = true;
-  }
+//   /* ---------------- OPEN CONTENT MODAL ---------------- */
+//   openContentModal() {
+//     this.editingDocId = null;
+//     this.bannerFile = null;
+//     this.imageTitle = "";
+//     this.popupContent = "";
+//     this.isContentModalOpen = true;
+//   }
 
-  /* ---------------- EDIT CONTENT ---------------- */
-  editContent(doc: any) {
-    this.editingDocId = doc.adminDocId;
-    this.imageTitle = doc.documentCategory;
-    this.popupContent = doc.description;
-    this.bannerFile = null;
-    this.isContentModalOpen = true;
-  }
+//   /* ---------------- EDIT CONTENT ---------------- */
+//   editContent(doc: any) {
+//     this.editingDocId = doc.adminDocId;
+//     this.imageTitle = doc.documentCategory;
+//     this.popupContent = doc.description;
+//     this.bannerFile = null;
+//     this.isContentModalOpen = true;
+//   }
 
   /* ---------------- DELETE CONTENT ---------------- */
   deleteContent(doc: any) {
@@ -131,62 +131,62 @@ export class StaticContentComponent implements OnInit {
     return plainText;
   }
 
-  /* ---------------- CLOSE MODAL ---------------- */
-  closeModal(): void {
-    this.isModalOpen = false;
-    this.isTemplateModalOpen = false;
-    this.isContentModalOpen = false;
-    this.isPreviewModalOpen = false;
+//   /* ---------------- CLOSE MODAL ---------------- */
+//   closeModal(): void {
+//     this.isModalOpen = false;
+//     this.isTemplateModalOpen = false;
+//     this.isContentModalOpen = false;
+//     this.isPreviewModalOpen = false;
 
-    this.selectedFile = null;
-    this.bannerFile = null;
-    this.selectedDoc = null;
-    this.documentCategory = "";
-    this.imageTitle = "";
-    this.popupContent = "";
-    this.editingDocId = null;
+//     this.selectedFile = null;
+//     this.bannerFile = null;
+//     this.selectedDoc = null;
+//     this.documentCategory = "";
+//     this.imageTitle = "";
+//     this.popupContent = "";
+//     this.editingDocId = null;
 
-    this.fileSizeError = false;
-    this.isUploading = false;
-  }
+//     this.fileSizeError = false;
+//     this.isUploading = false;
+//   }
 
-  /* ---------------- FILE SELECT ---------------- */
-  onFileSelected(event: any) {
-    const file = event.target.files?.[0];
+//   /* ---------------- FILE SELECT ---------------- */
+//   onFileSelected(event: any) {
+//     const file = event.target.files?.[0];
 
-    if (!file) {
-      return;
-    }
+//     if (!file) {
+//       return;
+//     }
 
-    const maxSize = 5 * 1024 * 1024;
+//     const maxSize = 5 * 1024 * 1024;
 
-    if (file.size > maxSize) {
-      this.selectedFile = null;
-      this.fileSizeError = true;
-      return;
-    }
+//     if (file.size > maxSize) {
+//       this.selectedFile = null;
+//       this.fileSizeError = true;
+//       return;
+//     }
 
-    this.fileSizeError = false;
-    this.selectedFile = file;
-  }
+//     this.fileSizeError = false;
+//     this.selectedFile = file;
+//   }
 
-  onBannerSelected(event: any) {
-    const file = event.target.files?.[0];
-    if (file) {
-      this.bannerFile = file;
-    }
-  }
+//   onBannerSelected(event: any) {
+//     const file = event.target.files?.[0];
+//     if (file) {
+//       this.bannerFile = file;
+//     }
+//   }
 
-  /* ---------------- FETCH DOCUMENTS ---------------- */
-  fetchDocuments() {
-    this.isLoading = true;
-    this.errorMessage = "";
+//   /* ---------------- FETCH DOCUMENTS ---------------- */
+//   fetchDocuments() {
+//     this.isLoading = true;
+//     this.errorMessage = "";
 
-    const payload = {
-      adminId: 1,
-      page: this.currentPage,
-      size: this.PAGE_LIMIT,
-    };
+//     const payload = {
+//       adminId: 1,
+//       page: this.currentPage,
+//       size: this.PAGE_LIMIT,
+//     };
 
     this.http.post("http://localhost:8080/admin/fetch-admin-documents", payload).subscribe({
       next: (res: any) => {
@@ -202,64 +202,64 @@ export class StaticContentComponent implements OnInit {
           this.errorMessage = "Dokumente konnten nicht geladen werden.";
         }
 
-        this.isLoading = false;
-      },
-      error: (err: any) => {
-        this.customers = [];
-        this.totalPage = 1;
-        this.hasMoreData = false;
-        this.errorMessage = "Etwas ist schiefgelaufen.";
-        this.isLoading = false;
-      },
-    });
-  }
+//         this.isLoading = false;
+//       },
+//       error: (err: any) => {
+//         this.customers = [];
+//         this.totalPage = 1;
+//         this.hasMoreData = false;
+//         this.errorMessage = "Etwas ist schiefgelaufen.";
+//         this.isLoading = false;
+//       },
+//     });
+//   }
 
-  /* ---------------- PAGINATION ---------------- */
-  nextPage() {
-    if (this.currentPage < (this.totalPage || 0)) {
-      this.currentPage++;
-      this.fetchDocuments();
-    }
-  }
+//   /* ---------------- PAGINATION ---------------- */
+//   nextPage() {
+//     if (this.currentPage < (this.totalPage || 0)) {
+//       this.currentPage++;
+//       this.fetchDocuments();
+//     }
+//   }
 
-  prevPage() {
-    if (this.currentPage > 1) {
-      this.currentPage--;
-      this.fetchDocuments();
-    }
-  }
+//   prevPage() {
+//     if (this.currentPage > 1) {
+//       this.currentPage--;
+//       this.fetchDocuments();
+//     }
+//   }
 
-  /* ---------------- CREATE / EDIT PDF OR TEMPLATE ---------------- */
-  submitPdf() {
-    if (this.fileSizeError) {
-      return;
-    }
+//   /* ---------------- CREATE / EDIT PDF OR TEMPLATE ---------------- */
+//   submitPdf() {
+//     if (this.fileSizeError) {
+//       return;
+//     }
 
-    if (!this.documentCategory.trim()) {
-      return;
-    }
+//     if (!this.documentCategory.trim()) {
+//       return;
+//     }
 
-    if (!this.selectedDoc && !this.selectedFile) {
-      return;
-    }
+//     if (!this.selectedDoc && !this.selectedFile) {
+//       return;
+//     }
 
-    const payload: any = {
-      adminId: 1,
-      documentCategory: this.documentCategory.trim(),
-    };
+//     const payload: any = {
+//       adminId: 1,
+//       documentCategory: this.documentCategory.trim(),
+//     };
 
-    if (this.selectedDoc?.adminDocId) {
-      payload.adminDocId = this.selectedDoc.adminDocId;
-    }
+//     if (this.selectedDoc?.adminDocId) {
+//       payload.adminDocId = this.selectedDoc.adminDocId;
+//     }
 
-    const formData = new FormData();
-    formData.append("data", JSON.stringify(payload));
+//     const formData = new FormData();
+//     formData.append("data", JSON.stringify(payload));
 
-    if (this.selectedFile) {
-      formData.append("file", this.selectedFile);
-    }
+//     if (this.selectedFile) {
+//       formData.append("file", this.selectedFile);
+//     }
 
-    this.isUploading = true;
+//     this.isUploading = true;
 
     this.http.post("admin/add-doc", formData).subscribe({
       next: (res: any) => {
