@@ -138,10 +138,20 @@ public class AdminUser {
 	@JsonIgnoreProperties("admin")
 	private AdminSignature adminSignatures;
 
-	@OneToOne(mappedBy = "admin", cascade = { CascadeType.PERSIST, CascadeType.REMOVE,
+	@OneToMany(mappedBy = "admin", cascade = { CascadeType.PERSIST, CascadeType.REMOVE,
 			CascadeType.MERGE }, orphanRemoval = true)
 	@JsonIgnoreProperties("admin")
 	private List<CustomerContractSignature> customerContractSignatures;
+
+	@OneToMany(mappedBy = "admin", cascade = { CascadeType.PERSIST, CascadeType.REMOVE,
+			CascadeType.MERGE }, orphanRemoval = true)
+	@JsonIgnoreProperties("admin")
+	private List<CustomerQueryContactCategory> customerQueryContactCategory;
+
+	@OneToMany(mappedBy = "admin", cascade = { CascadeType.PERSIST, CascadeType.REMOVE,
+			CascadeType.MERGE }, orphanRemoval = true)
+	@JsonIgnoreProperties("admin")
+	private List<CustomerQueryContact> customerQueryContact;
 
 	@PrePersist
 	protected void onCreate() {
@@ -266,5 +276,22 @@ public class AdminUser {
 
 		signature.setAdmin(this);
 		customerContractSignatures.add(signature);
+	}
+
+	public void addCustomerContactCategory(CustomerQueryContactCategory category) {
+		if (customerQueryContactCategory == null)
+			customerQueryContact = new LinkedList<CustomerQueryContact>();
+
+		category.setAdmin(this);
+
+		customerQueryContactCategory.add(category);
+	}
+
+	public void addCustomerQueryContact(CustomerQueryContact contact) {
+		if (customerQueryContact == null)
+			customerQueryContact = new LinkedList<CustomerQueryContact>();
+
+		contact.setAdmin(this);
+		customerQueryContact.add(contact);
 	}
 }

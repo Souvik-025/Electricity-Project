@@ -1,26 +1,26 @@
-<!-- <div class="flex justify-end gap-3 mt-4 mb-4">
+<div class="flex justify-end gap-3 mt-4 mb-4">
     <button (click)="openContentModal()"
         class="bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded-lg text-sm font-medium transition shadow-sm active:scale-95">
-        Inhalte hinzuzufügen
+        Inhalt hinzufügen
     </button>
 </div>
 
 <div class="p-6 bg-white dark:bg-gray-900 rounded-2xl shadow relative">
-    <-- Header & Filters --
+    <!-- Header & Filters -->
     <div class="flex flex-col lg:flex-row lg:items-center justify-between mb-6 gap-4">
         <h2 class="text-xl font-semibold text-gray-800 dark:text-white shrink-0">
-            Inhaltsverzeichnis (PDF & Templates)
+            Statische Inhalte
         </h2>
     </div>
 
-    <-- Main Layout: Table + Sidebar --
+    <!-- Main Layout: Table + Sidebar -->
     <div class="flex gap-6 relative">
-        <-- Table Section --
+        <!-- Table Section -->
         <div class="flex-1 min-w-0 transition-all duration-300">
             @if (isLoading) {
             <div class="flex items-center gap-2 text-gray-500 text-sm py-4">
                 <div class="animate-spin rounded-full h-4 w-4 border-b-2 border-brand-500"></div>
-                <span>Dokumente werden geladen...</span>
+                <span>Statische Inhalte werden geladen...</span>
             </div>
             }
 
@@ -29,7 +29,7 @@
                 <table class="w-full text-sm text-left border-separate border-spacing-0">
                     <thead class="text-xs uppercase bg-gray-50 dark:bg-gray-800 text-gray-500 dark:text-gray-400">
                         <tr>
-                            <th class="px-4 py-3 rounded-tl-xl font-medium w-16 text-center">Logo</th>
+                            <th class="px-4 py-3 rounded-tl-xl font-medium w-16 text-center">BANNER</th>
                             <th class="px-4 py-3 font-medium">Name</th>
                             <th class="px-4 py-3 font-medium">Description</th>
                             <th class="px-4 py-3 font-medium">Time</th>
@@ -37,41 +37,42 @@
                         </tr>
                     </thead>
                     <tbody>
-                        @for (doc of customContents; track doc.adminDocId) {
+                        @for (doc of customers; track doc.id) {
                         <tr class="border-t border-gray-100 dark:border-gray-700/60 hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors">
                             
-                            <-- Logo --
+                            <!-- Logo -->
                             <td class="px-4 py-3.5 text-center">
                                 <div class="w-10 h-10 mx-auto rounded-lg bg-gray-100 flex items-center justify-center overflow-hidden border border-gray-200">
-                                    @if (doc.logoUrl) {
-                                        <img [src]="doc.logoUrl" alt="Logo" class="w-full h-full object-cover">
+                                    @if (doc.logoPath) {
+                                        <img [src]="'http://localhost:8080/assets/super-admin/' + doc.logoPath" 
+                                            alt="Logo" class="w-full h-full object-cover">
                                     } @else {
                                         <svg class="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"></path></svg>
                                     }
                                 </div>
                             </td>
 
-                            <-- Name --
+                            <!-- Name -->
                             <td class="px-4 py-3.5">
-                                <div class="font-medium text-gray-900">{{ doc.documentCategory || 'Unbekannt' }}</div>
-                                <div class="text-xs text-gray-400 mt-1">#{{ doc.adminDocId }}</div>
+                                <div class="font-medium text-gray-900">{{ doc.title || 'Unbekannt' }}</div>
+                                <div class="text-xs text-gray-400 mt-1">#{{ doc.id }}</div>
                             </td>
 
-                            <-- Description --
+                            <!-- Description -->
                             <td class="px-4 py-3.5">
                                 <div class="text-sm text-gray-600 line-clamp-2 max-w-[250px]" [title]="doc.description || 'Keine Beschreibung'">
                                     {{ truncateWords(doc.description) }}
                                 </div>
                             </td>
 
-                            <-- Expire Time --
+                            <!-- Expire Time -->
                             <td class="px-4 py-3.5">
                                 <div class="text-sm text-gray-600">
                                     {{ doc.expireTime || 'Kein Ablaufdatum' }}
                                 </div>
                             </td>
 
-                            <-- Aktion --
+                            <!-- Aktion -->
                             <td class="px-4 py-3.5 text-right">
                                 <div class="flex justify-end gap-2">
                                     <button (click)="openPreviewModal(doc)" class="p-2 text-blue-500 hover:bg-blue-50 rounded-lg transition" title="Info">
@@ -114,7 +115,7 @@
             }
         </div>
 
-        <-- Preview Modal --
+        <!-- Preview Modal -->
         <div *ngIf="isPreviewModalOpen" class="fixed inset-0 bg-black/50 flex items-center justify-center z-[99999] p-4">
             <div class="bg-white rounded-2xl shadow-xl w-[95%] max-w-5xl p-6 md:p-8 relative animate-in fade-in zoom-in duration-200 max-h-[95vh] overflow-y-auto">
                 <button (click)="closeModal()" class="absolute top-4 right-4 text-gray-500 hover:text-black text-2xl z-10">&times;</button>
@@ -126,15 +127,12 @@
                     
                 } @else {
                     <div class="w-full">
-                        <-- Banner Image --
+                        <!-- Banner Image -->
                         @if (savedBannerUrl) {
                             <div class="w-full h-64 md:h-80 rounded-xl overflow-hidden mb-8 shadow-sm">
                                 <img [src]="savedBannerUrl" alt="Banner" class="w-full h-full object-cover" />
                             </div>
                         }
-
-
-
 
                         <!-- Title -->
                         @if (savedImageTitle) {
@@ -143,7 +141,7 @@
                             </h1>
                         }
 
-                        <-- CKEditor HTML Content --
+                        <!-- CKEditor HTML Content -->
                         @if (savedPopupContent) {
                             <div class="prose max-w-none text-sm text-gray-700" [innerHTML]="savedPopupContent"></div>
                         }
@@ -152,20 +150,20 @@
             </div>
         </div>
 
-        <-- PDF Modal Backdrop --
+        <!-- PDF Modal Backdrop -->
         <div *ngIf="isModalOpen" class="fixed inset-0 bg-black/50 flex items-center justify-center z-[99999] p-4">
-            <-- Modal --
+            <!-- Modal -->
             <div
                 class="bg-white rounded-2xl shadow-xl w-full max-w-md p-6 relative animate-in fade-in zoom-in duration-200">
-                <-- Close Button --
+                <!-- Close Button -->
                 <button (click)="closeModal()" class="absolute top-3 right-3 text-gray-500 hover:text-black text-xl">
                     ×
                 </button>
 
-                <-- Title --
+                <!-- Title -->
                 <h2 class="text-xl font-semibold text-gray-800 mb-5">PDF hochladen</h2>
 
-                <-- Document Type Input --
+                <!-- Document Type Input -->
                 <div class="mb-4">
                     <label class="block text-sm font-medium text-gray-700 mb-2">
                         Dokumenttyp
@@ -175,7 +173,7 @@
                         class="w-full border border-gray-300 rounded-lg px-4 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-brand-500" />
                 </div>
 
-                <-- Upload Section --
+                <!-- Upload Section -->
                 <div
                     class="border-2 border-dashed border-gray-300 rounded-xl p-6 text-center hover:border-brand-500 transition">
                     <input type="file" accept=".pdf" (change)="onFileSelected($event)" class="hidden" #fileInput />
@@ -185,17 +183,17 @@
                         PDF auswählen
                     </button>
 
-                    <-- Selected file name --
+                    <!-- Selected file name -->
                     <p class="text-sm text-gray-500 mt-3" *ngIf="selectedFile">
                         {{ selectedFile.name }}
                     </p>
 
-                    <-- File size error --
+                    <!-- File size error -->
                     <p class="text-sm text-red-500 mt-3" *ngIf="fileSizeError">
                         Datei darf maximal 5MB groß sein.
                     </p>
 
-                    <-- Helper text --
+                    <!-- Helper text -->
                     <p class="text-xs text-gray-400 mt-2">
                         Nur PDF-Dateien bis maximal 5MB erlaubt
                     </p>
@@ -209,7 +207,7 @@
                 </div>
                 }
 
-                <-- Submit Button --
+                <!-- Submit Button -->
                 <div class="flex justify-end mt-6">
                     <button (click)="submitPdf()" [disabled]="fileSizeError || !documentCategory.trim() || isUploading"
                         class="bg-gray-100 hover:bg-gray-200 text-gray-700 px-4 py-2 rounded-lg text-sm font-medium">
@@ -223,20 +221,20 @@
             </div>
         </div>
         
-        <-- Template Modal Backdrop --
+        <!-- Template Modal Backdrop -->
         <div *ngIf="isTemplateModalOpen" class="fixed inset-0 bg-black/50 flex items-center justify-center z-[99999] p-4">
-            <-- Modal --
+            <!-- Modal -->
             <div
                 class="bg-white rounded-2xl shadow-xl w-full max-w-md p-6 relative animate-in fade-in zoom-in duration-200">
-                <-- Close Button --
+                <!-- Close Button -->
                 <button (click)="closeModal()" class="absolute top-3 right-3 text-gray-500 hover:text-black text-xl">
                     ×
                 </button>
 
-                <-- Title --
+                <!-- Title -->
                 <h2 class="text-xl font-semibold text-gray-800 mb-5">Template hochladen</h2>
 
-                <-- Document Type Input --
+                <!-- Document Type Input -->
                 <div class="mb-4">
                     <label class="block text-sm font-medium text-gray-700 mb-2">
                         Template Name
@@ -246,7 +244,7 @@
                         class="w-full border border-gray-300 rounded-lg px-4 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-brand-500" />
                 </div>
 
-                <-- Upload Section --
+                <!-- Upload Section -->
                 <div
                     class="border-2 border-dashed border-gray-300 rounded-xl p-6 text-center hover:border-brand-500 transition">
                     <input type="file" (change)="onFileSelected($event)" class="hidden" #templateFileInput />
@@ -256,23 +254,23 @@
                         Datei auswählen
                     </button>
 
-                    <-- Selected file name --
+                    <!-- Selected file name -->
                     <p class="text-sm text-gray-500 mt-3" *ngIf="selectedFile">
                         {{ selectedFile.name }}
                     </p>
 
-                    <-- File size error --
+                    <!-- File size error -->
                     <p class="text-sm text-red-500 mt-3" *ngIf="fileSizeError">
                         Datei darf maximal 5MB groß sein.
                     </p>
 
-                    <-- Helper text --
+                    <!-- Helper text -->
                     <p class="text-xs text-gray-400 mt-2">
                         Dateien bis maximal 5MB erlaubt
                     </p>
                 </div>
 
-                <-- Submit Button --
+                <!-- Submit Button -->
                 <div class="flex justify-end mt-6">
                     <button (click)="submitPdf()" [disabled]="fileSizeError || !documentCategory.trim() || isUploading"
                         class="bg-gray-100 hover:bg-gray-200 text-gray-700 px-4 py-2 rounded-lg text-sm font-medium">
@@ -282,20 +280,20 @@
             </div>
         </div>
 
-        <-- Content Modal Backdrop --
+        <!-- Content Modal Backdrop -->
         <div *ngIf="isContentModalOpen" class="fixed inset-0 bg-black/50 flex items-center justify-center z-[99999] p-4">
-            <-- Modal --
+            <!-- Modal -->
             <div
                 class="bg-white rounded-2xl shadow-xl w-[95%] max-w-5xl p-6 relative animate-in fade-in zoom-in duration-200 max-h-[95vh] overflow-y-auto">
-                <-- Close Button --
+                <!-- Close Button -->
                 <button (click)="closeModal()" class="absolute top-3 right-3 text-gray-500 hover:text-black text-xl">
                     ×
                 </button>
 
-                <-- Title --
+                <!-- Title -->
                 <h2 class="text-xl font-semibold text-gray-800 mb-5">Inhalte hinzuzufügen</h2>
 
-                <-- Banner Image Upload Section --
+                <!-- Banner Image Upload Section -->
                 <div class="mb-4">
                     <label class="block text-sm font-medium text-gray-700 mb-2">
                         Upload Banner Image
@@ -315,20 +313,20 @@
                     </div>
                 </div>
 
-                <-- Image Title Input --
+                <!-- Banner Title Input -->
                 <div class="mb-4">
                     <label class="block text-sm font-medium text-gray-700 mb-2">
-                        Image Title
+                        Banner Title
                     </label>
                     <input type="text" [(ngModel)]="imageTitle"
-                        placeholder="Enter image title"
+                        placeholder="Enter banner title"
                         class="w-full border border-gray-300 rounded-lg px-4 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-brand-500" />
                 </div>
 
-                <-- CKEditor Section --
+                <!-- CKEditor Section -->
                 <div class="mb-4">
                     <label class="block text-sm font-medium text-gray-700 mb-2">
-                        Popup-Inhalt (optional)
+                        Inhaltsbeschreibung
                     </label>
                     <div class="min-h-[250px]">
                         <ckeditor [editor]="Editor" [(ngModel)]="popupContent" name="popupContent"
@@ -337,7 +335,7 @@
                     </div>
                 </div>
 
-                <-- Submit Button --
+                <!-- Submit Button -->
                 <div class="flex justify-end mt-6">
                     <button (click)="submitContent()" [disabled]="isUploading"
                         class="bg-brand-500 hover:bg-brand-600 text-white px-4 py-2 rounded-lg text-sm font-medium">
@@ -348,4 +346,4 @@
         </div>
 
     </div>
-</div> -->
+</div>

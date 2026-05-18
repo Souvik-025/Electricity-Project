@@ -154,9 +154,10 @@ export class AppSidebarComponent implements OnInit, OnDestroy {
           name: "Email Template", path: "/email-template"
         },
         {
-          name: "Email Category", path: "/email-category"
-        }
-      ]
+          name: "Email Category",
+          path: "/email-category",
+        },
+      ],
     },
     {
       name: "Content",

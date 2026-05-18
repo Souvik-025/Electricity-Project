@@ -292,5 +292,4 @@ public class CustomerDto {
 				.lexofficeNumber(customer.getLexofficeNumber())
 				.build();
 	}
-
 }
