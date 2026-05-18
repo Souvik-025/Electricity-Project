@@ -6,6 +6,7 @@ import com.tarifvergleich.electricity.dto.CustomerConnectionRequestDto.CustomerC
 import com.tarifvergleich.electricity.dto.CustomerContactScheduleRequestDto.CustomerContactScheduleResponse;
 import com.tarifvergleich.electricity.dto.CustomerDto.SingleCustomerAdminResponseDelivery;
 import com.tarifvergleich.electricity.dto.CustomerOrderDto.CustomerOrderAdminResDto;
+import com.tarifvergleich.electricity.dto.CustomerOrderDto.CustomerOrderDetailsForProfile;
 import com.tarifvergleich.electricity.dto.CustomerPaymentRequestDto.CustomerPaymentResponse;
 import com.tarifvergleich.electricity.model.CustomerDelivery;
 
@@ -97,6 +98,37 @@ public class CustomerDeliveryResponseDto {
 		private CustomerOrderAdminResDto order;
 	}
 
+	@Data
+	@NoArgsConstructor
+	@AllArgsConstructor
+	@Builder
+	public static class CustomerDeliveryProfileDetail {
+		private Integer deliveryId;
+		private String uniqueDeliveryId;
+		private String email;
+		private String title;
+		private String firstName;
+		private String lastName;
+		private String mobile;
+		private String telephone;
+		private BigInteger dob;
+		private Integer persons;
+		private Integer consumption;
+		private BigInteger orderPlacedOn;
+		private Boolean orderPlaced;
+		private BigInteger expiryOn;
+		private Boolean notificationEnabled;
+
+		private CustomerAddressRes customerAddress;
+		private CustomerBillingAddressRes billingAddress;
+		private EnergyRateDto provider;
+
+		private CustomerConnectionResponse connection;
+		private CustomerPaymentResponse payment;
+		private CustomerContactScheduleResponse contactSchedule;
+		private CustomerOrderDetailsForProfile order;
+	}
+
 	public static CustomerDeliveryResponseDto mapResponse(CustomerDelivery delivery) {
 		return CustomerDeliveryResponseDto.builder().deliveryId(delivery.getId())
 				.email(delivery.getCustomerId().getEmail()).title(delivery.getTitle())
@@ -114,6 +146,10 @@ public class CustomerDeliveryResponseDto {
 	}
 
 	public static CustomerDeliveryResponseAll getDeliveryResponse(CustomerDelivery delivery) {
+
+		if (delivery == null)
+			return null;
+
 		return CustomerDeliveryResponseAll.builder().deliveryId(delivery.getId())
 				.uniqueDeliveryId(delivery.getUniqueDeliveryId()).email(delivery.getCustomerId().getEmail())
 				.title(delivery.getTitle()).firstName(delivery.getFirstName()).lastName(delivery.getLastName())
@@ -135,7 +171,34 @@ public class CustomerDeliveryResponseDto {
 				.customer(CustomerDto.getAdminCustomerResponseDto(delivery.getCustomerId()))
 				.contactSchedule(
 						CustomerContactScheduleRequestDto.getContactScheduleResponse(delivery.getCustomerSchedule()))
-				.expiryOn(delivery.getExpiryOn())
-				.build();
+				.expiryOn(delivery.getExpiryOn()).build();
+	}
+
+	public static CustomerDeliveryProfileDetail getDeliveryResponseForProfile(CustomerDelivery delivery) {
+
+		if (delivery == null)
+			return null;
+
+		return CustomerDeliveryProfileDetail.builder().deliveryId(delivery.getId())
+				.uniqueDeliveryId(delivery.getUniqueDeliveryId()).email(delivery.getCustomerId().getEmail())
+				.title(delivery.getTitle()).firstName(delivery.getFirstName()).lastName(delivery.getLastName())
+				.mobile(delivery.getMobile()).persons(delivery.getNumberOfPerson())
+				.consumption(delivery.getTotalConsumption()).telephone(delivery.getTelephone()).dob(delivery.getDob())
+				.customerAddress(CustomerAddressRes.builder().zip(delivery.getAddress().getZip())
+						.city(delivery.getAddress().getCity()).street(delivery.getAddress().getStreet())
+						.houseNumber(delivery.getAddress().getHouseNumber()).build())
+				.billingAddress(CustomerBillingAddressRes.builder().zip(delivery.getBillingAddress().getZip())
+						.city(delivery.getBillingAddress().getCity()).street(delivery.getBillingAddress().getStreet())
+						.houseNumber(delivery.getBillingAddress().getHouseNumber())
+						.isDifferent(delivery.getBillingAddress().getIsDifferent()).build())
+				.orderPlaced(delivery.getOrderPlaced()).orderPlacedOn(delivery.getOrderPlacedOn())
+				.notificationEnabled(delivery.getNotificationEnabled())
+				.provider(EnergyRateDto.getProviderResponse(delivery.getCustomerProvider()))
+				.connection(CustomerConnectionRequestDto.getConnectionResponse(delivery.getCustomerConnection()))
+				.payment(CustomerPaymentRequestDto.getCustomerPaymentResponse(delivery.getCustomerPayment()))
+				.order(CustomerOrderDto.mapCustomerResForProfile(delivery.getCustomerOrder()))
+				.contactSchedule(
+						CustomerContactScheduleRequestDto.getContactScheduleResponse(delivery.getCustomerSchedule()))
+				.expiryOn(delivery.getExpiryOn()).build();
 	}
 }

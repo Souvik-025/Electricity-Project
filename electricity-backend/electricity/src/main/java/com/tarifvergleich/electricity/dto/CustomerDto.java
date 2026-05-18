@@ -8,6 +8,7 @@ import java.util.Optional;
 import com.tarifvergleich.electricity.dto.CustomerAttornyDto.CustomerAttornyForAdminCustomerList;
 import com.tarifvergleich.electricity.dto.CustomerChangePasswordHistoryDto.CustomerChangePasswordHistoryResDto;
 import com.tarifvergleich.electricity.dto.CustomerDeliveryResponseDto.CustomerAddressRes;
+import com.tarifvergleich.electricity.dto.CustomerDeliveryResponseDto.CustomerDeliveryProfileDetail;
 import com.tarifvergleich.electricity.dto.CustomerNoteDto.CustomerNoteResponseDto;
 import com.tarifvergleich.electricity.model.Customer;
 
@@ -182,14 +183,13 @@ public class CustomerDto {
 		String confirmPassword;
 		String otp;
 	}
-	
-	
+
 	@Data
 	@Builder
 	@NoArgsConstructor
 	@AllArgsConstructor
-	public static class CustomerInfoForProfile{
-		
+	public static class CustomerInfoForProfile {
+
 		private Integer customerId;
 		private String email;
 		private String firstName;
@@ -200,7 +200,7 @@ public class CustomerDto {
 		private String companyName;
 		private String mobileNumber;
 		private BigInteger joinedOn;
-		private List<CustomerDeliveryResponseDto> deliveryDetails;
+		private List<CustomerDeliveryProfileDetail> deliveryDetails;
 		private List<CustomerAddressDto> address;
 		private Boolean isNotificationEnabled;
 
@@ -270,27 +270,21 @@ public class CustomerDto {
 				.firstName(customer.getFirstName()).lastName(customer.getLastName()).title(customer.getTitle())
 				.userType(customer.getUserType()).salutation(customer.getSalutation()).build();
 	}
-	
-	public static CustomerInfoForProfile mapCustomerInfoForProfile(Customer customer){
-		if(customer == null) return null;
-		
-		return CustomerInfoForProfile.builder()
-				.customerId(customer.getCustomerId())
-				.email(customer.getEmail())
-				.firstName(customer.getFirstName())
-				.lastName(customer.getLastName())
-				.userType(customer.getUserType())
-				.title(customer.getTitle())
-				.salutation(customer.getSalutation())
-				.companyName(customer.getCompanyName())
-				.joinedOn(customer.getJoinedOn())
-				.isNotificationEnabled(customer.getIsNotificationEnabled())
-				.zip(customer.getZip())
-				.city(customer.getCity())
-				.street(customer.getStreet())
-				.houseNumber(customer.getHouseNumber())
-				.lexofficeNumber(customer.getLexofficeNumber())
-				.build();
+
+	public static CustomerInfoForProfile mapCustomerInfoForProfile(Customer customer) {
+		if (customer == null)
+			return null;
+
+		return CustomerInfoForProfile.builder().customerId(customer.getCustomerId()).email(customer.getEmail())
+				.firstName(customer.getFirstName()).lastName(customer.getLastName()).userType(customer.getUserType())
+				.title(customer.getTitle()).salutation(customer.getSalutation()).companyName(customer.getCompanyName())
+				.joinedOn(customer.getJoinedOn()).isNotificationEnabled(customer.getIsNotificationEnabled())
+				.deliveryDetails(Optional.ofNullable(customer.getCustomerDelivery()).orElse(Collections.emptyList())
+						.stream().map(CustomerDeliveryResponseDto::getDeliveryResponseForProfile).toList())
+				.address(Optional.ofNullable(customer.getCustomerAddresses()).orElseGet(Collections::emptyList).stream()
+						.map(CustomerAddressDto::getCustomerAddressResponseDto).toList())
+				.zip(customer.getZip()).city(customer.getCity()).street(customer.getStreet())
+				.houseNumber(customer.getHouseNumber()).lexofficeNumber(customer.getLexofficeNumber()).build();
 	}
 
 }

@@ -98,7 +98,7 @@ public class Customer {
 
 	@Column(name = "customer_unique_id")
 	private String customerUniqueId;
-	
+
 	@Column(name = "lexoffice_number")
 	private String lexofficeNumber;
 
@@ -147,11 +147,14 @@ public class Customer {
 	@OneToMany(mappedBy = "customer", cascade = { CascadeType.PERSIST, CascadeType.MERGE })
 	@JsonIgnoreProperties("customer")
 	private List<CustomerOrder> customerOrders;
-	
-	
+
 	@OneToMany(mappedBy = "customer", cascade = { CascadeType.PERSIST, CascadeType.MERGE })
 	@JsonIgnoreProperties("customer")
 	private List<CustomerContractSignature> customerContractSignatures;
+
+	@OneToMany(mappedBy = "customer", cascade = { CascadeType.PERSIST, CascadeType.MERGE })
+	@JsonIgnoreProperties("customer")
+	private List<CustomerQueryContact> customerQueryContact;
 
 	@ManyToOne
 	@JoinColumn(name = "admin_id")
@@ -239,12 +242,21 @@ public class Customer {
 		order.setCustomer(this);
 		customerOrders.add(order);
 	}
-	
+
 	public void addCustomerContractSignature(CustomerContractSignature signature) {
-		if(customerContractSignatures == null)
+		if (customerContractSignatures == null)
 			customerContractSignatures = new LinkedList<CustomerContractSignature>();
 		signature.setCustomer(this);
 		customerContractSignatures.add(signature);
+	}
+
+	public void addCustomerQueryContact(CustomerQueryContact contact) {
+		if (customerQueryContact == null)
+			customerQueryContact = new LinkedList<CustomerQueryContact>();
+
+		contact.setCustomer(this);
+
+		customerQueryContact.add(contact);
 	}
 
 	public void setUserAdmin(AdminUser admin) {

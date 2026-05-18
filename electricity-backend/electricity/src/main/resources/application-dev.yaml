@@ -2,7 +2,7 @@ spring:
   application:
     name: electricity
   datasource:
-    url: jdbc:postgresql://localhost:5432/ElectricDB
+    url: jdbc:postgresql://localhost:5432/electricity
     username: postgres
     password: root
     driver-class-name: org.postgresql.Driver

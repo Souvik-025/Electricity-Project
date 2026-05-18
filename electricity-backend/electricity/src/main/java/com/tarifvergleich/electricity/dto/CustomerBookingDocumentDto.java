@@ -41,6 +41,20 @@ public class CustomerBookingDocumentDto {
 		private CustomerShortDetail customer;
 	}
 
+	@AllArgsConstructor
+	@NoArgsConstructor
+	@Builder
+	@Data
+	public static class CustomerBookingDocumentForProfile {
+
+		private Integer bookingDocId;
+		private String signedOriginalFileName;
+		private String signedFileUrl;
+		private Boolean signedDocumentSubmitted;
+		private BigInteger addedOn;
+		private Integer deliveryId;
+	}
+
 	public static CustomerBookingDocumentAdminResDto mapAdminBookingDocRes(CustomerBookingDocument document) {
 		if (document == null)
 			return null;
@@ -50,5 +64,15 @@ public class CustomerBookingDocumentDto {
 				.signedDocumentSubmitted(document.getSignedDocumentSubmitted()).addedOn(document.getAddedOn())
 				.deliveryId(document.getCustomerDelivery().getId())
 				.customer(CustomerDto.customerShortResponse(document.getCustomer())).build();
+	}
+
+	public static CustomerBookingDocumentForProfile mapBookingDocumentForProfile(CustomerBookingDocument document) {
+		if (document == null)
+			return null;
+
+		return CustomerBookingDocumentForProfile.builder().bookingDocId(document.getId())
+				.signedOriginalFileName(document.getSignedOriginalFileName()).signedFileUrl(document.getSignedFileUrl())
+				.signedDocumentSubmitted(document.getSignedDocumentSubmitted()).addedOn(document.getAddedOn())
+				.deliveryId(document.getCustomerDelivery().getId()).build();
 	}
 }
