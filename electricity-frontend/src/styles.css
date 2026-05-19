@@ -171,14 +171,14 @@ h6 {
   color: #f8f9fa;
   background-color: #0085e0;
   transition: background-color 0.2s ease;
-  padding: 0.3rem 0.2rem 0.5rem 0.2rem;
+  padding: 0.5rem 1rem 0.5rem 1rem;
   cursor: pointer;
   border-radius: 8px;
   width: 24.5rem;
 }
 
 .compare:hover {
-  background-color: #1976d2;
+  background-color: #176ec5;
 }
 
 /* =========================
@@ -645,6 +645,20 @@ button[mat-icon-button] {
 .container-contact {
   display: inline-block;
   padding: 0.5rem 1rem;
+}
+
+@media screen and (max-width: 768px) {
+  .container-contact .contact-us {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 0.5rem;
+    width: 100%;
+  }
+
+  .container-contact .main-btn {
+    width: 100%;
+    justify-content: center;
+  }
 }
 
 .container-services-left,

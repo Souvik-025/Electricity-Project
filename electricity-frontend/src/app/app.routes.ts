@@ -24,6 +24,7 @@ import { DataProtection } from './navigation-pages/data-protection/data-protecti
 import { TermsConditions } from './navigation-pages/terms-conditions/terms-conditions';
 import { Contact } from './navigation-pages/contact/contact';
 import { CreateBusinessAccount } from './navigation-pages/create-account-business/create-account-business';
+import { OrderSignature } from './navigation-pages/order-signature/order-signature';
 
 export const routes: Routes = [
   { path: '', redirectTo: 'home', pathMatch: 'full' },

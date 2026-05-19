@@ -90,6 +90,13 @@
     box-sizing: border-box;
 }
 
+.readonly-field,
+.readonly-field input {
+    background-color: #f0f0f0;
+    color: #444;
+    cursor: not-allowed;
+}
+
 .field-wrap .material-symbols-outlined {
     position: absolute;
     right: 10px;
