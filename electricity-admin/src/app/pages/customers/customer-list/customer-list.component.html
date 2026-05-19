@@ -190,12 +190,19 @@
               <td class="px-4 py-3.5 text-right">
                 <div class="inline-flex items-center gap-2" (click)="$event.stopPropagation()">
                   <button (click)="openNoteModal($event, customer)"
-                    class="inline-flex items-center gap-1.5 text-xs font-medium text-gray-600 dark:text-gray-300 hover:text-gray-800 dark:hover:text-white transition-colors px-2.5 py-1.5 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700/60">
+                    class="inline-flex items-center gap-2 text-xs font-medium text-gray-600 dark:text-gray-300 hover:text-gray-800 dark:hover:text-white transition-colors px-2.5 py-1.5 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700/60">
                     <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                       <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                         d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5M18.586 2.586a2 2 0 112.828 2.828L12 14.828l-4 1 1-4 9.586-9.414z" />
                     </svg>
-                    <span>{{ customerNotes[customer.id] ? 'Notiz bearbeiten' : 'Notiz' }}</span>
+                    <span>
+                      Notiz
+                      <!-- {{
+                        customerNotes[customer.id] &&
+                        customerNotes[customer.id].length > 0
+                          ? 'Notiz edit' : 'Notiz'
+                      }} -->
+                    </span>
                   </button>
 
                   <button (click)="openLexofficeModal($event, customer)"
@@ -208,8 +215,10 @@
                   </button>
 
                   <button
+                    (click)="openCustomerDetails(customer.id)"
                     class="inline-flex items-center gap-1.5 text-xs font-medium text-brand-500 hover:text-brand-700 transition-colors px-2.5 py-1.5 rounded-lg hover:bg-brand-50 dark:hover:bg-brand-900/20">
                     <span>Details</span>
+                    
                     <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 transition-transform duration-200"
                       [class.rotate-90]="selectedCustomer?.id === customer.id" fill="none" viewBox="0 0 24 24"
                       stroke="currentColor">
@@ -785,13 +794,49 @@
       </button>
     </div>
 
+    <!-- NOTIZ -->
     <div class="px-5 py-4">
       <label for="customer-note" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
         Notiz eingeben
       </label>
-      <textarea id="customer-note" [(ngModel)]="noteText" rows="6" placeholder="Notiz fur diesen Kunden eingeben..."
-        class="w-full rounded-xl border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 text-sm text-gray-800 dark:text-gray-100 px-3 py-2.5 outline-none focus:ring-2 focus:ring-brand-500 resize-y">
-      </textarea>
+
+      <!-- TEXT AND CHAT FIELD -->
+      <div
+        class="h-52 overflow-y-auto border border-gray-200 dark:border-gray-700 rounded-xl p-3 bg-gray-50 dark:bg-gray-800 space-y-3"
+      >
+        @if(currentCustomerNotes.length === 0) {
+
+          <p class="text-sm text-gray-400 text-center mt-20">
+            Keine Notizen vorhanden
+          </p>
+        }
+
+        @for(note of currentCustomerNotes; track $index) {
+
+          <div class="flex justify-end">
+
+            <div
+              class="w-full border border-gray-200 dark:border-gray-700 rounded-xl bg-white dark:bg-gray-600 px-4 py-3 shadow-sm">
+              
+              <p class="text-sm text-gray-800 dark:text-white break-words">{{ note.note }}</p>
+
+              <p class="text-[10px] text-gray/70 mt-1 text-right">
+                {{ note.addedOn }}
+              </p>
+
+            </div>
+
+          </div>
+        }
+      </div>
+
+      <input
+        type="text"
+        [(ngModel)]="noteText"
+        placeholder="Notiz fur diesen Kunden eingeben..."
+        class="w-full mt-4 rounded-xl border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 text-sm text-gray-800 dark:text-gray-100 px-3 py-2.5 outline-none focus:ring-2 focus:ring-brand-500"
+      />
+
       <p class="text-[11px] text-gray-400 mt-2">
         Diese Notiz wird dem gewahlten Kundenprofil zugeordnet.
       </p>

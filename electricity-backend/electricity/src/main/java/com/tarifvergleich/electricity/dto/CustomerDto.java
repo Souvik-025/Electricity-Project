@@ -11,6 +11,7 @@ import com.tarifvergleich.electricity.dto.CustomerDeliveryResponseDto.CustomerAd
 import com.tarifvergleich.electricity.dto.CustomerDeliveryResponseDto.CustomerDeliveryProfileDetail;
 import com.tarifvergleich.electricity.dto.CustomerNoteDto.CustomerNoteResponseDto;
 import com.tarifvergleich.electricity.model.Customer;
+//import com.tarifvergleich.electricity.dto.CustomerNoteDto;
 
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.AllArgsConstructor;

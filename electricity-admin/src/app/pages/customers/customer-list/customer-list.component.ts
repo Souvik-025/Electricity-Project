@@ -4,6 +4,7 @@ import { ApiService } from "../../../shared/services/api.service";
 import { AuthService } from "../../../shared/services/auth.service";
 import { FormsModule } from "@angular/forms";
 import { RouterModule } from "@angular/router";
+import { Router } from "@angular/router";
 
 export interface PasswordHistory {
   email: string;
@@ -70,6 +71,7 @@ export type AdminCustomer = {
     customerId?: number | null;
   } | null;
   attornies: Attorney[];
+  notes?: any[];
   /** Lexoffice number — admin-only field */
   lexofficeNumber: string | null;
 };
@@ -91,8 +93,8 @@ export class CustomerListComponent implements OnInit {
   noteText = "";
   isSavingNote = false;
 
-  /** Stores one admin note per customer id */
-  customerNotes: Record<string | number, string> = {};
+  /** Stores multiple admin note per customer id */
+  customerNotes: Record<string | number, any[]> = {};
 
   isLexofficeModalOpen = false;
   lexofficeCustomer: AdminCustomer | null = null;
@@ -129,7 +131,8 @@ export class CustomerListComponent implements OnInit {
   constructor(
     private api: ApiService,
     private authService: AuthService,
-  ) {}
+    private router:Router,
+  ) { }
 
   ngOnInit(): void {
     this.fetchCustomers();
@@ -154,7 +157,10 @@ export class CustomerListComponent implements OnInit {
   openNoteModal(event: Event, customer: AdminCustomer): void {
     event.stopPropagation();
     this.noteCustomer = customer;
-    this.noteText = this.customerNotes[customer.id] ?? "";
+    if (!this.customerNotes[customer.id]) {
+      this.customerNotes[customer.id] = [];
+    }
+    this.noteText = "";
     this.isNoteModalOpen = true;
   }
 
@@ -164,6 +170,15 @@ export class CustomerListComponent implements OnInit {
     this.noteCustomer = null;
     this.noteText = "";
     this.isSavingNote = false;
+  }
+
+  /**  FOR NOTIZ SECTION */
+  get currentCustomerNotes() {
+    if (!this.noteCustomer) {
+
+      return [];
+    }
+    return this.customerNotes[this.noteCustomer.id] || [];
   }
 
   /** Save note for current customer */
@@ -183,8 +198,13 @@ export class CustomerListComponent implements OnInit {
 
     this.api.post("admin/add-note", payload).subscribe({
       next: () => {
-        this.customerNotes[this.noteCustomer!.id] = trimmedNote;
-        this.closeNoteModal();
+        this.customerNotes[this.noteCustomer!.id].push({
+          note: trimmedNote,
+          addedOn: new Date().toLocaleString()
+        });
+
+        this.noteText = "";
+        this.isSavingNote = false;
       },
       error: () => {
         // Keep modal open so admin can retry without losing note text.
@@ -264,7 +284,8 @@ export class CustomerListComponent implements OnInit {
           }
 
           if (!(c.id in this.customerNotes)) {
-            this.customerNotes[c.id] = "";
+
+            this.customerNotes[c.id] = c.notes || [];
           }
 
           // Seed Lexoffice number from API response (prefer existing local edit)
@@ -290,6 +311,10 @@ export class CustomerListComponent implements OnInit {
     if (this.currentPage > 1) {
       this.fetchCustomers(this.currentPage - 1);
     }
+  }
+
+  openCustomerDetails(id: number | string): void{
+    this.router.navigate(['/customers/details', id])
   }
 
   /**
@@ -407,6 +432,8 @@ export class CustomerListComponent implements OnInit {
       attornies: Array.isArray(item.attornies)
         ? item.attornies.map((a: any) => ({ ...a, isProcessing: false }))
         : [],
+
+      notes: item.notes ?? [],
       lexofficeNumber: item.lexofficeNumber ?? null,
     }));
   }
