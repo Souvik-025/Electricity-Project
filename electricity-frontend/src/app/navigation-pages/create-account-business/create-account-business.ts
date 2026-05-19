@@ -31,6 +31,7 @@ export class CreateBusinessAccount implements OnInit, OnDestroy {
   // ── Form fields ──────────────────────────────────────────────
   salutation: string = '';
   title: string = ''; // optional title toggle (Dr. / Prof. / Prof. Dr.)
+  companyName: string = '';
   firstName: string = '';
   lastName: string = '';
   emailBusiness: string = ''; // E-Mail 1 – geschäftlich (required)
@@ -72,6 +73,7 @@ export class CreateBusinessAccount implements OnInit, OnDestroy {
 
   // ── Lifecycle ────────────────────────────────────────────────
   ngOnInit(): void {
+    this.initPrefillData();
 
   }
 
@@ -82,6 +84,7 @@ export class CreateBusinessAccount implements OnInit, OnDestroy {
   private resetFields(): void {
     this.salutation = '';
     this.title = '';
+    this.companyName = '';
     this.firstName = '';
     this.lastName = '';
     this.emailBusiness = '';
@@ -97,9 +100,10 @@ export class CreateBusinessAccount implements OnInit, OnDestroy {
   private prefillForm(data: any): void {
     this.salutation = data.salutation ?? '';
     this.title = (data.title ?? '').trim();
+    this.companyName = data.companyName ?? data.businessName ?? data.company ?? this.companyName;
     this.firstName = data.firstName ?? '';
     this.lastName = data.lastName ?? '';
-    this.emailBusiness = data.emailBusiness ?? data.email ?? '';
+    this.emailBusiness = data.emailBusiness ?? data.email ?? this.emailBusiness;
     this.emailPrivate = data.emailPrivate ?? '';
     this.phone = data.telephone ?? data.phone ?? '';
     this.mobile = data.mobile ?? '';
@@ -112,6 +116,57 @@ export class CreateBusinessAccount implements OnInit, OnDestroy {
     }
 
     this.cdr.detectChanges();
+  }
+
+  private initPrefillData(): void {
+    this.prefillFromAuthState();
+    this.prefillFromQueryParams();
+    this.fetchStoredFormData();
+  }
+
+  private prefillFromAuthState(): void {
+    const user = this.authService.getCurrentUser();
+    if (!user) {
+      return;
+    }
+
+    this.emailBusiness = this.emailBusiness || user.email || '';
+  }
+
+  private prefillFromQueryParams(): void {
+    const params = this.route.snapshot.queryParamMap;
+    this.emailBusiness = params.get('email') ?? this.emailBusiness;
+    this.companyName =
+      params.get('companyName') ??
+      params.get('businessName') ??
+      params.get('company') ??
+      this.companyName;
+  }
+
+  private fetchStoredFormData(): void {
+    const userId = this.authService.getUserId();
+    const deliveryId = this.authService.getDeliveryId();
+
+    if (!userId || !deliveryId) {
+      return;
+    }
+
+    const payload = {
+      customerId: parseInt(userId, 10),
+      deliveryId: parseInt(deliveryId, 10),
+      step: 0,
+    };
+
+    this.http.post<any>(`${API_BASE}/customer/fetch-form`, payload).subscribe({
+      next: (res) => {
+        if (res?.res === true && res.data) {
+          this.prefillForm(res.data);
+        }
+      },
+      error: () => {
+        // Keep the page usable even when stored form data cannot be loaded.
+      },
+    });
   }
 
   // ── Title toggle helpers ─────────────────────────────────────
@@ -141,6 +196,10 @@ export class CreateBusinessAccount implements OnInit, OnDestroy {
     }
     if (!this.lastName?.trim()) {
       this.validationErrors['lastName'] = 'Bitte geben Sie Ihren Nachnamen ein.';
+    }
+
+    if (!this.companyName?.trim()) {
+      this.validationErrors['companyName'] = 'Bitte geben Sie den Unternehmensnamen ein.';
     }
 
     // E-Mail 1 – business (required)
@@ -206,6 +265,7 @@ export class CreateBusinessAccount implements OnInit, OnDestroy {
       accountType: 'business',
       salutation: this.salutation,
       title: this.title,
+      companyName: this.companyName.trim(),
       firstName: this.firstName,
       lastName: this.lastName,
       emailBusiness: this.emailBusiness.trim(),

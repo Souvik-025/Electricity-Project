@@ -25,6 +25,20 @@
                         (click)="selectTitle('Prof. Dr.')">Prof. Dr.</button>
                 </div>
 
+                <!-- Unternehmensname -->
+                <div class="form-row" style="align-items: center">
+                    <div class="form-group">
+                        <div class="field-wrap" [class.field-error]="validationErrors['companyName']">
+                            <span class="field-label">Firma *</span>
+                            <input name="companyName" type="text" [(ngModel)]="companyName" />
+                        </div>
+                        <span *ngIf="validationErrors['companyName']" class="error-hint">
+                            {{ validationErrors['companyName'] }}
+                        </span>
+                    </div>
+                    <span class="info-base info-icon" style="flex-shrink: 0">i</span>
+                </div>
+
                 <!-- Anrede (Salutation) -->
                 <div class="form-group" style="padding-right: 20px; gap: 10px; margin-bottom: 10px">
                     <div class="input-field select-wrap" [class.field-error]="validationErrors['salutation']"
@@ -75,9 +89,9 @@
                 <!-- E-Mail 1 (Business) / E-Mail 2 (Privat) -->
                 <div class="form-row" style="align-items: center">
                     <div class="form-group">
-                        <div class="field-wrap" [class.field-error]="validationErrors['emailBusiness']">
+                        <div class="field-wrap readonly-field" [class.field-error]="validationErrors['emailBusiness']">
                             <span class="field-label">E-Mail-Adresse 1 (geschäftlich) *</span>
-                            <input name="emailBusiness" type="email" autocomplete="email" [(ngModel)]="emailBusiness" />
+                            <input name="emailBusiness" type="email" autocomplete="email" [(ngModel)]="emailBusiness" readonly />
                         </div>
                         <span *ngIf="validationErrors['emailBusiness']" class="error-hint">
                             {{ validationErrors['emailBusiness'] }}

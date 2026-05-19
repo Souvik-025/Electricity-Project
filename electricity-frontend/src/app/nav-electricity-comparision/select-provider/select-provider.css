@@ -449,6 +449,21 @@
   margin-top: 4px;
 }
 
+/* Base styles: Mobile devices */
+.tc-logo__img {
+  max-height: 50px;
+  width: auto;
+  object-fit: contain;
+  display: block; /* Helps with clean spacing and centering */
+}
+
+/* Desktop styles: Applies when the screen is 1024px or wider */
+@media (min-width: 1024px) {
+  .tc-logo__img {
+    max-height: 80px;
+  }
+}
+
 .tc-details {
   font-size: 14px;
   line-height: 1.6;
