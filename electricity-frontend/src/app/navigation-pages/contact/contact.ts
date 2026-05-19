@@ -1,4 +1,12 @@
-import { ChangeDetectorRef, Component, ElementRef, Inject, PLATFORM_ID } from '@angular/core';
+import {
+  ChangeDetectorRef,
+  Component,
+  computed,
+  ElementRef,
+  Inject,
+  OnInit,
+  PLATFORM_ID,
+} from '@angular/core';
 import { ContactPerson } from '../../layout/contact-person/contact-person';
 import { NeedSupport } from '../../layout/need-support/need-support';
 import { CommonModule } from '@angular/common';
@@ -25,7 +33,7 @@ import { MatIconModule } from '@angular/material/icon';
   templateUrl: './contact.html',
   styleUrl: './contact.css',
 })
-export class Contact {
+export class Contact implements OnInit {
   constructor(
     private http: HttpClient,
     private cdr: ChangeDetectorRef,
@@ -38,12 +46,13 @@ export class Contact {
 
   showDropdown = false;
 
-  categories = [
-    { serviceName: 'Allgemeine Frage' },
-    { serviceName: 'Tarifvergleich / Anbieter' },
-    { serviceName: 'Kooperation / Partnerschaft' },
-    { serviceName: 'Sonstiges' },
-  ];
+  // categories = [
+  //   { serviceName: 'Allgemeine Frage' },
+  //   { serviceName: 'Tarifvergleich / Anbieter' },
+  //   { serviceName: 'Kooperation / Partnerschaft' },
+  //   { serviceName: 'Sonstiges' },
+  // ];
+  categories: any[] = [];
   selectedCategory: any = null;
 
   toggleDropdown(event: Event) {
@@ -63,12 +72,45 @@ export class Contact {
     firstName: '',
     lastName: '',
     email: '',
-    contactNumber: '',
     customerId: '',
     inquiry: '',
   };
 
   fieldErrors: any = {};
+  isLoggedIn = computed(() => !!this.authService.currentUser()?.user_id);
+
+  ngOnInit() {
+    this.fetchCategories();
+    if (this.isLoggedIn()) {
+      this.authService.fetchCustomer();
+    }
+
+    this.authService.getCustomerData().subscribe((data) => {
+      if (!data) return;
+
+      this.formData.firstName = data.firstName || '';
+      this.formData.lastName = data.lastName || '';
+      this.formData.email = data.email || '';
+      this.formData.salutation = data.salutation || '';
+      this.formData.title = data.title || '';
+
+      console.log('Customer data:', data);
+
+      this.cdr.detectChanges();
+      console.log('Customer data updated in DeliveryAddress:', data);
+    });
+  }
+
+  fetchCategories(): void {
+    this.http.post<any>('http://192.168.0.155:8080/fetch-contact-category', {}).subscribe({
+      next: (res) => {
+        this.categories = res || [];
+      },
+      error: (err) => {
+        console.error('Error fetching categories:', err);
+      },
+    });
+  }
 
   validate(): boolean {
     this.fieldErrors = {};
@@ -91,13 +133,13 @@ export class Contact {
       this.fieldErrors['email'] = 'Ungültige E-Mail-Adresse';
     }
 
-    if (!this.formData.contactNumber.trim()) {
-      this.fieldErrors['contactNumber'] = 'Bitte Telefonnummer eingeben';
-    }
+    // if (!this.formData.contactNumber.trim()) {
+    //   this.fieldErrors['contactNumber'] = 'Bitte Telefonnummer eingeben';
+    // }
 
-    if (!this.formData.customerId.trim()) {
-      this.fieldErrors['customerId'] = 'Bitte Kundennummer eingeben';
-    }
+    // if (!this.formData.customerId.trim()) {
+    //   this.fieldErrors['customerId'] = 'Bitte Kundennummer eingeben';
+    // }
 
     if (!this.selectedCategory) {
       this.fieldErrors['category'] = 'Bitte Betreff auswählen';
@@ -109,9 +151,17 @@ export class Contact {
 
     return Object.keys(this.fieldErrors).length === 0;
   }
+  
+  successMessage: string = '';
+  errorMessage: string = '';
+  isSubmitting: boolean = false;
 
   submitForm() {
     if (!this.validate()) return;
+
+    this.successMessage = '';
+    this.errorMessage = '';
+    this.isSubmitting = true;
 
     const payload = {
       salutation: this.formData.salutation,
@@ -119,14 +169,44 @@ export class Contact {
       firstName: this.formData.firstName,
       lastName: this.formData.lastName,
       email: this.formData.email,
-      contactNumber: this.formData.contactNumber,
-      customerId: this.authService.getUserId(),
+      customerId: Number(this.authService.getUserId()),
       inquiry: this.formData.inquiry,
       categoryId: this.selectedCategory?.id,
+      adminId: 1,
     };
 
     console.log('Contact Form Payload:', payload);
 
-    // API call later
+    this.http.post<any>('http://192.168.0.155:8080/save-customer-contact', payload).subscribe({
+      next: (res) => {
+        console.log('Contact form submitted successfully:', res);
+
+        this.isSubmitting = false;
+
+        if (res) {
+          this.successMessage = 'Ihre Anfrage wurde erfolgreich gesendet.';
+
+          this.formData = {
+            salutation: '',
+            title: '',
+            firstName: '',
+            lastName: '',
+            email: '',
+            inquiry: '',
+            customerId: this.authService.getUserId()?.toString() ?? '',
+          };
+
+          this.selectedCategory = null;
+        }
+
+        this.cdr.detectChanges();
+      },
+      error: (err) => {
+        this.isSubmitting = false;
+        this.errorMessage = 'Beim Senden der Anfrage ist ein Fehler aufgetreten.';
+
+        console.error('Error submitting contact form:', err);
+      },
+    });
   }
 }

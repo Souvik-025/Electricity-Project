@@ -97,6 +97,7 @@ export interface RatesResponse {
       }[];
     }[];
   };
+  tax: number;
   res: boolean;
 }
 
@@ -175,6 +176,7 @@ export class SelectProvider implements OnInit {
   selectedPersons = 2;
   // consumption = 2510;
 
+  tax = 1.19;
   showCustomInput = false;
 
   customPersons: number | null = null;
@@ -702,6 +704,7 @@ export class SelectProvider implements OnInit {
         const rates = res.rates?.result || [];
         const total = res.rates?.total || rates.length;
         const baseProviderData = res.baseProvider?.result?.[0] || null;
+        this.tax = res.tax?? 1.19 ;
 
         this.allRates = rates
           .map((rate: Rate) => ({
@@ -804,7 +807,7 @@ export class SelectProvider implements OnInit {
     if (this.isGrossPrice) {
       this.baseRate.workPrice = Number(this.editableWorkPrice.toFixed(2));
     } else {
-      this.baseRate.workPrice = Number((this.editableWorkPrice * 1.19).toFixed(2));
+      this.baseRate.workPrice = Number((this.editableWorkPrice * this.tax).toFixed(2));
     }
 
     // BASE PRICE
@@ -878,7 +881,7 @@ export class SelectProvider implements OnInit {
 
     // netto -> brutto
     if (!this.isGrossPrice) {
-      bruttoWorkPrice = this.editableWorkPrice * 1.19;
+      bruttoWorkPrice = this.editableWorkPrice * this.tax;
     }
 
     const yearlyWorkPrice = (this.consum * bruttoWorkPrice) / 100;
@@ -907,12 +910,12 @@ export class SelectProvider implements OnInit {
 
     // brutto -> netto
     if (!isGross && this.isGrossPrice) {
-      currentPrice = currentPrice / 1.19;
+      currentPrice = currentPrice / this.tax;
     }
 
     // netto -> brutto
     if (isGross && !this.isGrossPrice) {
-      currentPrice = currentPrice * 1.19;
+      currentPrice = currentPrice * this.tax;
     }
 
     this.isGrossPrice = isGross;
@@ -952,7 +955,7 @@ export class SelectProvider implements OnInit {
       this.editableWorkPrice = this.selectedRate.workPrice;
     } else {
       // brutto -> netto
-      this.editableWorkPrice = this.selectedRate.workPrice / 1.19;
+      this.editableWorkPrice = this.selectedRate.workPrice / this.tax;
     }
 
     // base price
@@ -979,7 +982,7 @@ export class SelectProvider implements OnInit {
 
     // netto -> brutto
     if (!this.isGrossPrice) {
-      bruttoWorkPrice = this.editableWorkPrice * 1.19;
+      bruttoWorkPrice = this.editableWorkPrice * this.tax;
     }
 
     // yearly work price

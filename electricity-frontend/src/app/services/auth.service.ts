@@ -513,6 +513,7 @@ export class AuthService {
             salutation: data.salutation,
             deliveryDetails: data.deliveryDetails || [],
             address: data.address || null,
+            title: data.title || null,
           };
 
           this.customerData$.next(formattedData);

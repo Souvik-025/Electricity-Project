@@ -260,7 +260,7 @@ export class BookingDetailComponent implements OnInit {
   fetchBooking(deliveryId: number): void {
     this.isLoading = true;
     this.errorMessage = "";
-    const payload = { adminId: this.authService.getUserId(), deliveryId };
+    const payload = { adminId: 1, deliveryId };
     this.api.post("admin/fetch-deliveries", payload).subscribe({
       next: (res: any) => {
         this.isLoading = false;
@@ -402,7 +402,7 @@ export class BookingDetailComponent implements OnInit {
     this.createOrderMessage = "";
 
     const payload = {
-      adminId: this.authService.getUserId(),
+      adminId: 1,
       deliveryId: this.booking.deliveryId,
     };
 
@@ -437,7 +437,7 @@ export class BookingDetailComponent implements OnInit {
 
     const payload = {
       customerOrderId: this.booking.order.customerOrderId,
-      adminId: this.authService.getUserId(),
+      adminId: 1,
     };
 
     this.api.post("admin/place-order", payload).subscribe({
@@ -480,11 +480,11 @@ export class BookingDetailComponent implements OnInit {
     this.generateDocMessage = "";
 
     const payload = {
-      orderId: this.booking.order.orderId,
-      adminId: this.authService.getUserId(),
+      customerOrderId: this.booking.order.customerOrderId,
+      adminId: 1,
     };
 
-    this.api.post("admin/generate-booking-doc", payload).subscribe({
+    this.api.post("admin/fetch-signed-contract", payload).subscribe({
       next: (res: any) => {
         this.isGeneratingDoc = false;
         if (res?.res) {
@@ -494,7 +494,7 @@ export class BookingDetailComponent implements OnInit {
           this.fetchBooking(this.booking!.deliveryId ?? 0);
         } else {
           this.generateDocError =
-            res?.message ?? "Unbekannter Fehler beim Hochladen des Dokuments.";
+            res?.errMessage ?? "Unbekannter Fehler beim Hochladen des Dokuments.";
         }
       },
       error: (err) => {
@@ -569,7 +569,7 @@ export class BookingDetailComponent implements OnInit {
     const formData = new FormData();
     formData.append("file", this.selectedFile);
     formData.append("orderId", String(this.booking.order.orderId));
-    formData.append("adminId", String(this.authService.getUserId()));
+    formData.append("adminId", String(1));
 
     this.api.post("admin/upload-booking-doc", formData).subscribe({
       next: (res: any) => {
