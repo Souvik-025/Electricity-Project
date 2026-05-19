@@ -119,6 +119,7 @@ export class AppSidebarComponent implements OnInit, OnDestroy {
       subItems: [
         { name: "Query Categories", path: "/customer-query/categories" },
         { name: "Customer Queries", path: "/customer-query/customer-queries" },
+        { name: "Contact Queries", path: "/contact-query/list" },
       ],
     },
     {
@@ -151,7 +152,8 @@ export class AppSidebarComponent implements OnInit, OnDestroy {
       </svg>`,
       subItems: [
         {
-          name: "Email Template", path: "/email-template"
+          name: "Email Template",
+          path: "/email-template",
         },
         {
           name: "Email Category",

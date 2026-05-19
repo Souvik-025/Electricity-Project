@@ -16,7 +16,10 @@ import com.tarifvergleich.electricity.util.Helper;
 import jakarta.persistence.EntityNotFoundException;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 
 import java.util.HashMap;
 import java.util.List;
@@ -40,7 +43,6 @@ public class CommonService {
     }
 
     public Map<String, Object> getAllCustomers() {
-
         List<CustomerQueryContactResponseDTO> collect = queryContactRepository.findAll()
                 .stream()
                 .map(this::mapToCustomerQueryContactDto)
@@ -49,7 +51,6 @@ public class CommonService {
         map.put("res", true);
         map.put("data", collect);
         return map;
-
     }
 
     public Map<String, Object> saveQuery(CustomerQueryContactRequestDTO dto) {
@@ -58,9 +59,11 @@ public class CommonService {
                 .orElseThrow(() -> new EntityNotFoundException(
                         "Category not found with id: " + dto.getCategoryId()));
 
-        Customer customer = customerRepository
-                .findById(dto.getCustomerId())
-                .orElse(null);
+        Customer customer = null;
+        if (dto.getCustomerId() != null && dto.getCustomerId() > 0)
+            customer = customerRepository
+                    .findById(dto.getCustomerId())
+                    .orElse(null);
 
         AdminUser adminUser = adminUserRepository.findById(dto.getAdminId())
                 .orElseThrow(() -> new EntityNotFoundException(
@@ -82,12 +85,9 @@ public class CommonService {
                 .build();
 
         CustomerQueryContact saved = queryContactRepository.save(contact);
-
         Map<String, Object> response = new HashMap<>();
         response.put("res", true);
         response.put("data", mapToCustomerQueryContactDto(saved));
-
-
         return response;
     }
 
@@ -123,5 +123,20 @@ public class CommonService {
                         contact.getQueryCategory().getId() : null)
                 .customer(contact.getCustomer() != null ? CustomerDto.customerShortResponse(contact.getCustomer()) : null)
                 .build();
+    }
+
+    public Object linkCustomersToQuery(Integer adminId, Integer queryId, List<Integer> customerIds) {
+        CustomerQueryContact query = queryContactRepository.findById(customerIds.getFirst())
+                .orElseThrow(() -> new EntityNotFoundException("Query not found with id: " + customerIds.getFirst()));
+        if (!customerIds.isEmpty()) {
+            if (!(adminId == null) || !(queryId == null)) {
+                String idsStr = customerIds.stream().map(String::valueOf).collect(Collectors.joining(","));
+                query.setCustomerIds(idsStr);
+            }
+        }
+        Map<String, Object> map = new HashMap<>();
+        map.put("res", true);
+        map.put("data", query);
+        return map;
     }
 }

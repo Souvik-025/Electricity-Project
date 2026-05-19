@@ -8,8 +8,9 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
 import java.util.Map;
-
+@CrossOrigin(origins = "*")
 @RestController
 @RequiredArgsConstructor
 @RequestMapping
@@ -31,5 +32,10 @@ public class commonController {
     @PostMapping("/fetch-customer-queries")
     public ResponseEntity<?> fetchCustomerQueries() {
         return ResponseEntity.ok(commonService.getAllCustomers());
+    }
+
+    @PostMapping("/link-customer-query")
+    public ResponseEntity<?> linkCustomerQuery(@RequestBody Map<String, Object> payload) {
+        return ResponseEntity.ok(commonService.saveQuery((CustomerQueryContactRequestDTO) payload));
     }
 }

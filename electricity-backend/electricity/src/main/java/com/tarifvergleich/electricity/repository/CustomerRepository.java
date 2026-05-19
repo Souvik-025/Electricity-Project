@@ -69,4 +69,10 @@ public interface CustomerRepository extends JpaRepository<Customer, Integer> {
 			@Param("search") String search, @Param("userType") String userType, @Param("isVerified") Boolean isVerified,
 			Pageable pageable);
 
+
+	@Query("SELECT c FROM Customer c WHERE " +
+			"(:search IS NULL OR LOWER(c.firstName) LIKE LOWER(CONCAT('%', :search, '%')) " +
+			"OR LOWER(c.lastName) LIKE LOWER(CONCAT('%', :search, '%')) " +
+			"OR LOWER(c.email) LIKE LOWER(CONCAT('%', :search, '%')))")
+	Page<Customer> searchCustomers(@Param("search") String search, Pageable pageable);
 }

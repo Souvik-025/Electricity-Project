@@ -62,6 +62,9 @@ public class CustomerQueryContact {
     @JsonIgnore
     private Customer customer;
 
+    @Column(name="customer_ids", columnDefinition = "TEXT")
+    private String customerIds;
+
     @PrePersist
     protected void onCreate() {
         isResolved = false;

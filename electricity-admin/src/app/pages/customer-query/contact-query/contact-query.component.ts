@@ -1,0 +1,510 @@
+import { CommonModule } from "@angular/common";
+import {
+  Component,
+  OnInit,
+  OnDestroy,
+  ViewChild,
+  ElementRef,
+} from "@angular/core";
+import { FormsModule } from "@angular/forms";
+import {
+  debounceTime,
+  distinctUntilChanged,
+  Subject,
+  Subscription,
+} from "rxjs";
+import { ApiService } from "../../../shared/services/api.service";
+import { AuthService } from "../../../shared/services/auth.service";
+import { Router } from "@angular/router";
+import { HttpClient } from "@angular/common/http";
+
+// ── Types ────────────────────────────────────────────────────────
+
+export type Customer = {
+  id: number;
+  email: string;
+  firstName: string;
+  lastName: string;
+  userType: string;
+  title: string;
+  salutation: string;
+};
+
+export type ContactQuery = {
+  customerQueryContactId: number;
+  salutation: string;
+  title: string;
+  firstName: string;
+  lastName: string;
+  email: string;
+  contactNumber: string;
+  inquiry: string;
+  createdOn: number;
+  isResolved: boolean;
+  resolvedOn: number | null;
+  categoryName: string;
+  CategoryId: number;
+  customer: Customer | null;
+};
+
+@Component({
+  selector: "app-contact-query",
+  standalone: true,
+  imports: [CommonModule, FormsModule],
+  templateUrl: "./contact-query.component.html",
+  styleUrl: "./contact-query.component.css",
+})
+export class ContactQueryComponent implements OnInit, OnDestroy {
+  @ViewChild("searchInput") searchInputRef!: ElementRef<HTMLInputElement>;
+
+  queries: ContactQuery[] = [];
+  isLoading = false;
+  errorMessage = "";
+  selectedEntry: ContactQuery | null = null;
+  isSidebarOpen = false;
+
+  // ── Pagination ───────────────────────────────────────────────
+  hasMoreData = true;
+  currentPage = 1;
+  totalCount = 0;
+  totalPages = 1;
+  private readonly PAGE_LIMIT = 10;
+
+  // ── Search ───────────────────────────────────────────────────
+  searchTerm = "";
+  searchSuggestions: Customer[] = [];
+  selectedSearchCustomers: Customer[] = [];
+  isSearchDropdownOpen = false;
+  isSearchingSuggestions = false;
+  private searchTerm$ = new Subject<string>();
+  private searchSub!: Subscription;
+
+  @ViewChild("mainSearchInput") mainSearchInputRef!: ElementRef<HTMLInputElement>;
+
+  // ── Link Customer Modal ──────────────────────────────────────
+  isModalOpen = false;
+  modalEntry: ContactQuery | null = null;
+
+  // Multi-select: list of chosen customers
+  selectedCustomers: Customer[] = [];
+
+  // Search inside modal
+  customerSearchTerm = "";
+  customerSearchResults: Customer[] = [];
+  isSearchingCustomers = false;
+  isDropdownOpen = false;
+
+  isLinking = false;
+  linkSuccessMessage = "";
+  linkErrorMessage = "";
+
+  private customerSearch$ = new Subject<string>();
+  private customerSearchSub!: Subscription;
+
+  constructor(
+    private api: ApiService,
+    private authService: AuthService,
+    private router: Router,
+    private http: HttpClient,
+  ) {}
+
+  ngOnInit(): void {
+    this.searchSub = this.searchTerm$
+      .pipe(debounceTime(350), distinctUntilChanged())
+      .subscribe((term) => {
+        this.fetchQueries(1);
+        this.fetchSearchSuggestions(term);
+      });
+
+    this.fetchSearchSuggestions("");
+
+    this.customerSearchSub = this.customerSearch$
+      .pipe(debounceTime(400), distinctUntilChanged())
+      .subscribe((term) => this.searchCustomers(term));
+
+    this.fetchQueries();
+  }
+
+  ngOnDestroy(): void {
+    this.searchSub?.unsubscribe();
+    this.customerSearchSub?.unsubscribe();
+  }
+
+  onSearchInput(value: string): void {
+    this.searchTerm = value;
+    this.isSearchDropdownOpen = true;
+    this.searchTerm$.next(value);
+  }
+
+  clearSearch(): void {
+    this.searchTerm = "";
+    this.selectedSearchCustomers = [];
+    this.searchTerm$.next("");
+  }
+
+  // ── Main Search Multi-Select Logic ────────────────────────────
+
+  onMainSearchBlur(): void {
+    setTimeout(() => {
+      this.isSearchDropdownOpen = false;
+    }, 200);
+  }
+
+  toggleSearchDropdown(event: Event): void {
+    event.stopPropagation();
+    this.isSearchDropdownOpen = !this.isSearchDropdownOpen;
+    if (this.isSearchDropdownOpen) {
+      setTimeout(() => this.mainSearchInputRef?.nativeElement.focus(), 50);
+    }
+  }
+
+  fetchSearchSuggestions(term: string): void {
+    this.isSearchingSuggestions = true;
+    const payload = {
+      adminId: this.authService.getUserId(),
+      search: term.trim() || undefined,
+      page: 1,
+      limit: 10,
+    };
+    this.http
+      .post("http://192.168.0.234:8080/admin/fetch-customer-details", payload)
+      .subscribe({
+        next: (res: any) => {
+          this.isSearchingSuggestions = false;
+          this.searchSuggestions = this.extractCustomerList(res);
+        },
+        error: () => {
+          this.isSearchingSuggestions = false;
+          this.searchSuggestions = [];
+        },
+      });
+  }
+
+  isSearchCustomerSelected(id: number): boolean {
+    return this.selectedSearchCustomers.some((c) => c.id === id);
+  }
+
+  addSearchCustomer(customer: Customer): void {
+    if (!this.isSearchCustomerSelected(customer.id)) {
+      this.selectedSearchCustomers = [...this.selectedSearchCustomers, customer];
+    }
+    this.searchTerm = "";
+    this.isSearchDropdownOpen = false;
+    this.searchTerm$.next("");
+  }
+
+  onMainSearchFocus(): void {
+    this.isSearchDropdownOpen = true;
+    if (!this.searchTerm && this.searchSuggestions.length === 0) {
+      this.searchTerm$.next("");
+    }
+  }
+
+  removeSearchCustomer(id: number): void {
+    this.selectedSearchCustomers = this.selectedSearchCustomers.filter((c) => c.id !== id);
+    this.fetchQueries(1);
+  }
+
+  // ── Data fetching ─────────────────────────────────────────────
+
+  fetchQueries(page: number = 1): void {
+    this.currentPage = page;
+    const searchTerms = [
+      ...this.selectedSearchCustomers.map((c) => `${c.firstName} ${c.lastName}`),
+      this.searchTerm.trim()
+    ].filter(Boolean).join(" ");
+
+    const payload = {
+      adminId: this.authService.getUserId(),
+      page: this.currentPage,
+      limit: this.PAGE_LIMIT,
+      search: searchTerms || undefined,
+    };
+    this.isLoading = true;
+    this.errorMessage = "";
+    this.closeSidebar();
+
+    this.http
+      .post("http://192.168.0.234:8080/fetch-customer-queries", payload)
+      .subscribe({
+        next: (res: any) => {
+          this.isLoading = false;
+          const newData = this.extractList(res);
+          this.queries = newData;
+          this.hasMoreData = newData.length === this.PAGE_LIMIT;
+
+          const total = res?.total ?? res?.data?.total ?? res?.totalElements ?? res?.data?.totalElements ?? res?.totalRecords ?? res?.data?.totalRecords ?? res?.count ?? res?.data?.count;
+          
+          if (typeof total === "number") {
+            this.totalCount = total;
+          } else {
+            this.totalCount = this.hasMoreData
+              ? this.currentPage * this.PAGE_LIMIT + 1
+              : (this.currentPage - 1) * this.PAGE_LIMIT + newData.length;
+          }
+          this.totalPages = Math.max(
+            1,
+            Math.ceil(this.totalCount / this.PAGE_LIMIT),
+          );
+        },
+        error: (err) => {
+          this.isLoading = false;
+          this.errorMessage = "Fehler beim Laden der Kontaktanfragen.";
+          console.error("Kontaktanfragen fetch error:", err);
+        },
+      });
+  }
+
+  nextPage(): void {
+    if (this.hasMoreData && this.currentPage < this.totalPages) {
+      this.fetchQueries(this.currentPage + 1);
+    }
+  }
+
+  prevPage(): void {
+    if (this.currentPage > 1) this.fetchQueries(this.currentPage - 1);
+  }
+
+  get pageRangeFrom(): number {
+    return (this.currentPage - 1) * this.PAGE_LIMIT + 1;
+  }
+
+  get pageRangeTo(): number {
+    return Math.min(this.currentPage * this.PAGE_LIMIT, this.totalCount);
+  }
+
+  // Multiple Search Selection
+  onSearchSelect(customer: Customer): void {
+    this.selectedCustomers = [customer];
+    this.isDropdownOpen = false;
+    this.customerSearchTerm = "";
+    this.customerSearchResults = [];
+    setTimeout(() => this.searchInputRef?.nativeElement.blur(), 50);
+    
+    
+  }
+  // ── Sidebar ───────────────────────────────────────────────────
+
+  openSidebar(entry: ContactQuery): void {
+    if (
+      this.selectedEntry?.customerQueryContactId ===
+      entry.customerQueryContactId
+    ) {
+      this.closeSidebar();
+      return;
+    }
+    this.selectedEntry = entry;
+    this.isSidebarOpen = true;
+  }
+
+  closeSidebar(): void {
+    this.isSidebarOpen = false;
+    this.selectedEntry = null;
+  }
+
+  isSelected(entry: ContactQuery): boolean {
+    return (
+      this.selectedEntry?.customerQueryContactId ===
+      entry.customerQueryContactId
+    );
+  }
+
+  // ── Link Customer Modal ───────────────────────────────────────
+
+  openLinkModal(event: Event, entry: ContactQuery): void {
+    event.stopPropagation();
+    this.modalEntry = entry;
+    this.isModalOpen = true;
+    this.selectedCustomers = entry.customer ? [entry.customer] : [];
+    this.customerSearchTerm = "";
+    this.customerSearchResults = [];
+    this.isDropdownOpen = false;
+    this.linkSuccessMessage = "";
+    this.linkErrorMessage = "";
+    this.searchCustomers("");
+  }
+
+  closeLinkModal(): void {
+    this.isModalOpen = false;
+    this.modalEntry = null;
+    this.selectedCustomers = [];
+    this.customerSearchTerm = "";
+    this.customerSearchResults = [];
+    this.isDropdownOpen = false;
+    this.linkSuccessMessage = "";
+    this.linkErrorMessage = "";
+  }
+
+  // Focus the hidden input when clicking the tag box
+  focusSearch(): void {
+    this.searchInputRef?.nativeElement.focus();
+  }
+
+  onCustomerSearchFocus(): void {
+    this.isDropdownOpen = true;
+    if (!this.customerSearchTerm && this.customerSearchResults.length === 0) {
+      this.customerSearch$.next("");
+    }
+  }
+
+  toggleCustomerSearchDropdown(event: Event): void {
+    event.stopPropagation();
+    this.isDropdownOpen = !this.isDropdownOpen;
+    if (this.isDropdownOpen) {
+      setTimeout(() => this.searchInputRef?.nativeElement.focus(), 50);
+    }
+  }
+
+  clearCustomerSearch(): void {
+    this.customerSearchTerm = "";
+    this.selectedCustomers = [];
+    this.customerSearch$.next("");
+  }
+
+  // ── Multi-select helpers ──────────────────────────────────────
+
+  isCustomerSelected(id: number): boolean {
+    return this.selectedCustomers.some((c) => c.id === id);
+  }
+
+  addCustomer(customer: Customer): void {
+    if (!this.isCustomerSelected(customer.id)) {
+      this.selectedCustomers = [...this.selectedCustomers, customer];
+    }
+    this.customerSearchTerm = "";
+    this.isDropdownOpen = false;
+    this.customerSearch$.next("");
+  }
+
+  removeCustomer(id: number): void {
+    this.selectedCustomers = this.selectedCustomers.filter((c) => c.id !== id);
+  }
+
+  // ── Customer search inside modal ──────────────────────────────
+
+  onCustomerSearchInput(value: string): void {
+    this.customerSearchTerm = value;
+    this.isDropdownOpen = true;
+    this.customerSearch$.next(value);
+  }
+
+  onSearchBlur(): void {
+    // Delay so click on dropdown item fires first
+    setTimeout(() => {
+      this.isDropdownOpen = false;
+    }, 200);
+  }
+
+  searchCustomers(term: string): void {
+    this.isSearchingCustomers = true;
+    const payload = {
+      adminId: this.authService.getUserId(),
+      search: term.trim(),
+      page: 1,
+      limit: 10,
+    };
+
+    this.http
+      .post("http://192.168.0.234:8080/admin/fetch-customer-details", payload)
+      .subscribe({
+        next: (res: any) => {
+          this.isSearchingCustomers = false;
+          this.customerSearchResults = this.extractCustomerList(res);
+        },
+        error: () => {
+          this.isSearchingCustomers = false;
+          this.customerSearchResults = [];
+        },
+      });
+  }
+
+  // ── Link (submit) ─────────────────────────────────────────────
+
+  linkCustomers(): void {
+    if (!this.modalEntry || this.selectedCustomers.length === 0) return;
+    this.isLinking = true;
+    this.linkSuccessMessage = "";
+    this.linkErrorMessage = "";
+
+    const payload = {
+      adminId: this.authService.getUserId(),
+      customerQueryContactId: this.modalEntry.customerQueryContactId,
+      // Send array of customer IDs for multi-select
+      customerIds: this.selectedCustomers.map((c) => c.id),
+    };
+
+    this.http
+      .post("http://192.168.0.234:8080/admin/fetch-customer-details", payload)
+      .subscribe({
+        next: () => {
+          this.isLinking = false;
+          this.linkSuccessMessage = `${this.selectedCustomers.length} Kunde${this.selectedCustomers.length !== 1 ? "n" : ""} erfolgreich verknüpft!`;
+          // Update the row locally — store first selected as primary customer
+          const idx = this.queries.findIndex(
+            (q) =>
+              q.customerQueryContactId ===
+              this.modalEntry!.customerQueryContactId,
+          );
+          if (idx !== -1) {
+            this.queries[idx] = {
+              ...this.queries[idx],
+              customer: this.selectedCustomers[0],
+            };
+          }
+          setTimeout(() => this.closeLinkModal(), 1500);
+        },
+        error: (err) => {
+          this.isLinking = false;
+          this.linkErrorMessage = "Fehler beim Verknüpfen des Kunden.";
+          console.error("Link customer error:", err);
+        },
+      });
+  }
+
+  // ── Customer helpers ──────────────────────────────────────────
+
+  isLoggedIn(entry: ContactQuery): boolean {
+    return !!entry.customer?.id && entry.customer.id !== 0;
+  }
+
+  queryFullName(entry: ContactQuery): string {
+    return (
+      [entry.title, entry.firstName, entry.lastName]
+        .filter(Boolean)
+        .join(" ")
+        .trim() || "—"
+    );
+  }
+
+  queryInitials(entry: ContactQuery): string {
+    const f = entry.firstName?.[0] ?? "";
+    const l = entry.lastName?.[0] ?? "";
+    return (f + l).toUpperCase() || "?";
+  }
+
+  formatDateTime(value?: number | string | null): string {
+    if (value === null || value === undefined || value === "") return "—";
+    const num = typeof value === "number" ? value : Number(value);
+    if (Number.isNaN(num)) return String(value);
+    const ms = num < 1_000_000_000_000 ? num * 1000 : num;
+    return new Intl.DateTimeFormat("de-DE", {
+      day: "2-digit",
+      month: "2-digit",
+      year: "numeric",
+      hour: "2-digit",
+      minute: "2-digit",
+    }).format(new Date(ms));
+  }
+
+  private extractList(response: any): ContactQuery[] {
+    if (Array.isArray(response?.data)) return response.data;
+    if (Array.isArray(response)) return response;
+    return [];
+  }
+
+  private extractCustomerList(response: any): Customer[] {
+    if (Array.isArray(response?.data)) return response.data;
+    if (Array.isArray(response)) return response;
+    return [];
+  }
+}
