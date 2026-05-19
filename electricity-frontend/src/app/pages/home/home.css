@@ -396,6 +396,10 @@
 ========================================= */
 
 @media screen and (max-width: 768px) {
+  .electricity {
+    cursor: grab;
+    user-select: none;
+  }
   /* ---------- MAIN LAYOUT ---------- */
 
   .home-container {
@@ -476,14 +480,14 @@
     transform: translateY(-50%);
     width: 36px;
     height: calc(100% - 20px);
-    background: linear-gradient(to right, transparent 0%, rgba(245, 245, 245, 0.92) 55%);
+    background: transparent; /* ← was the white gradient, now gone */
     display: flex;
     align-items: center;
     justify-content: flex-end;
     padding-right: 4px;
     font-size: 22px;
     font-weight: 700;
-    color: #003366;
+    color: #00a651; /* ← was #003366 (dark blue), now green */
     pointer-events: none;
     border-radius: 0 8px 8px 0;
     z-index: 2;
@@ -505,7 +509,7 @@
 
     /* Always-visible thin scrollbar so users know it's scrollable */
     scrollbar-width: thin;
-    scrollbar-color: #003366 rgba(0, 51, 102, 0.15);
+    scrollbar-color: #00a651 rgba(0, 51, 102, 0.15);
   }
 
   /* Webkit scrollbar styling */
@@ -948,4 +952,21 @@
   .container-provider.mobile {
     display: flex;
   }
+}
+
+.contact-us {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 8px;
+  width: 100%;
+}
+
+.contact-us .main-btn {
+  width: 100%;
+  justify-content: center;
+}
+
+.contact-us .main-btn {
+  width: auto !important;
+  justify-content: center;
 }

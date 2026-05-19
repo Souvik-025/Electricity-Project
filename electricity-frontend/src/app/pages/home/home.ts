@@ -1,4 +1,11 @@
-import { Component, OnInit, ChangeDetectorRef } from '@angular/core';
+import {
+  Component,
+  OnInit,
+  AfterViewInit,
+  ElementRef,
+  ViewChild,
+  ChangeDetectorRef,
+} from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterModule } from '@angular/router';
 import { MatIconModule } from '@angular/material/icon';
@@ -8,6 +15,7 @@ import { NeedSupport } from '../../layout/need-support/need-support';
 import { ContentService } from '../../services/content.service';
 import { MatDialog } from '@angular/material/dialog';
 import { Registration } from '../../layout/registration/registration';
+
 @Component({
   selector: 'app-home',
   standalone: true,
@@ -15,7 +23,9 @@ import { Registration } from '../../layout/registration/registration';
   templateUrl: './home.html',
   styleUrl: './home.css',
 })
-export class Home implements OnInit {
+export class Home implements OnInit, AfterViewInit {
+  @ViewChild('electricityRow') electricityRow!: ElementRef<HTMLElement>;
+
   sidebarItems: any[] = [];
   freeServices: any[] = [];
   otherServices: any[] = [];
@@ -51,6 +61,7 @@ export class Home implements OnInit {
     private cdr: ChangeDetectorRef,
     private dialog: MatDialog,
   ) {}
+
   openRegistrationPopup() {
     this.dialog.open(Registration, {
       width: '92vw',
@@ -59,19 +70,18 @@ export class Home implements OnInit {
       autoFocus: false,
     });
   }
+
   ngOnInit(): void {
     this.contentService.getData().subscribe({
       next: (data) => {
         if (data?.res && data?.menu?.sidebar) {
           this.sidebarItems = [...data.menu.sidebar].sort((a, b) => a.order - b.order);
         }
-
         if (data.service?.['free-service']) {
           this.freeServices = data.service['free-service']
             .filter((s: any) => s.highlight === 0)
             .sort((a: any, b: any) => a.order - b.order);
         }
-
         if (data.service?.['other-service']) {
           const seen = new Set<string>();
           this.otherServices = data.service['other-service']
@@ -82,11 +92,9 @@ export class Home implements OnInit {
               return true;
             });
         }
-
         if (data.menu?.about) {
           this.aboutItems = [...data.menu.about].sort((a, b) => a.order - b.order);
         }
-
         this.isLoading = false;
         this.cdr.detectChanges();
       },
@@ -96,6 +104,58 @@ export class Home implements OnInit {
         this.cdr.detectChanges();
       },
     });
+  }
+
+  ngAfterViewInit(): void {
+    if (this.electricityRow?.nativeElement) {
+      this.addDragScroll(this.electricityRow.nativeElement);
+    }
+  }
+
+  private addDragScroll(el: HTMLElement): void {
+    let isDown = false;
+    let startX = 0;
+    let scrollLeft = 0;
+    let moved = false;
+
+    el.addEventListener('mousedown', (e) => {
+      isDown = true;
+      moved = false;
+      startX = e.pageX - el.offsetLeft;
+      scrollLeft = el.scrollLeft;
+      el.style.cursor = 'grabbing';
+    });
+
+    el.addEventListener('mouseleave', () => {
+      isDown = false;
+      el.style.cursor = 'grab';
+    });
+
+    el.addEventListener('mouseup', () => {
+      isDown = false;
+      el.style.cursor = 'grab';
+    });
+
+    el.addEventListener('mousemove', (e) => {
+      if (!isDown) return;
+      e.preventDefault();
+      const x = e.pageX - el.offsetLeft;
+      if (Math.abs(x - startX) > 4) moved = true;
+      el.scrollLeft = scrollLeft - (x - startX);
+    });
+
+    // Block routerLink navigation if the user was dragging, not clicking
+    el.addEventListener(
+      'click',
+      (e) => {
+        if (moved) {
+          e.stopPropagation();
+          e.preventDefault();
+          moved = false;
+        }
+      },
+      true,
+    );
   }
 
   getImageUrl(contentUrl: string): string {
