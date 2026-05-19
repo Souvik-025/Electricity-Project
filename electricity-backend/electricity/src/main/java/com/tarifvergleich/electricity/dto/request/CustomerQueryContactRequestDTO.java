@@ -16,7 +16,7 @@ public class CustomerQueryContactRequestDTO {
     private String lastName;
     private String email;
     private String contactNumber;
-    private Integer CategoryId;
+    private Integer categoryId;
     private String inquiry;
     private Integer customerId;
     public Integer adminId;

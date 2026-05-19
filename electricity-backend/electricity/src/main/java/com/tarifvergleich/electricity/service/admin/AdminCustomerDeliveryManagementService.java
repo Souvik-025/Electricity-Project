@@ -7,6 +7,8 @@ import java.util.Map;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.support.TransactionSynchronization;
+import org.springframework.transaction.support.TransactionSynchronizationManager;
 import org.springframework.web.multipart.MultipartFile;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -61,6 +63,7 @@ public class AdminCustomerDeliveryManagementService {
 	private final CustomerOrderRepository customerOrderRepo;
 	private final CustomerBookingDocumentRepository customerBookingDocumentRepo;
 	private final AdminSignatureRepository adminSignatureRepo;
+	private final AsyncServiceAdmin asyncServiceAdmin;
 
 	@Transactional
 	public Map<String, Object> editDeliveryDetailsByAdmin(AdminEditCustomerDeliveryRelated deliveryDetails) {
@@ -367,12 +370,13 @@ public class AdminCustomerDeliveryManagementService {
 
 		customerOrderDto.setOrderId(orderNo);
 
-//		TransactionSynchronizationManager.registerSynchronization(new TransactionSynchronization() {
-//			@Override
-//			public void afterCommit() {
-//				asyncServiceAdmin.downloadUnsignedPdf(customerOrderDto);
-//			}
-//		});
+		TransactionSynchronizationManager.registerSynchronization(new TransactionSynchronization() {
+			@Override
+			public void afterCommit() {
+				asyncServiceAdmin.sendMailToCustomerForSignatures(customerOrderDto.getCustomerOrderId());
+				;
+			}
+		});
 
 		return Map.of("res", true, "message", "Order placed successfully", "Order no", orderNo);
 	}

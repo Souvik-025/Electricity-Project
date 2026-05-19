@@ -28,21 +28,13 @@ public class CustomerPublicController {
 
 	private final CustomerDetailService customerDetailService;
 	private final CustomerGeneralService customerGeneralService;
-	private final ObjectMapper objectMapper;
 
-	@PostMapping("add-contract-signature")
+	@PostMapping("/add-contract-signature")
 	public ResponseEntity<?> addCustomerContractSignatures(@RequestPart("data") String token,
 			@RequestPart(value = "signature", required = true) MultipartFile signature,
 			@RequestPart("signatureBank") MultipartFile signatureBank,
 			@RequestPart("signatureCustomer") MultipartFile signatureCustomer,
 			@RequestPart("signatureDataProtection") MultipartFile signatureDataProtection) {
-
-		try {
-			token = objectMapper.readValue(token, String.class);
-		} catch (JsonProcessingException e) {
-			e.printStackTrace();
-			throw new RuntimeException();
-		}
 
 		Map<String, MultipartFile> files = new HashMap<String, MultipartFile>();
 		if (signature != null)

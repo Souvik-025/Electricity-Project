@@ -11,9 +11,11 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.tarifvergleich.electricity.exception.EnergyApiUnavailableException;
 import com.tarifvergleich.electricity.exception.InternalServerException;
+import com.tarifvergleich.electricity.model.AdminTaxManagement;
 import com.tarifvergleich.electricity.model.AdminUser;
 import com.tarifvergleich.electricity.model.Customer;
 import com.tarifvergleich.electricity.model.CustomerComparingEnergy;
+import com.tarifvergleich.electricity.repository.AdminTaxManagementRepository;
 import com.tarifvergleich.electricity.repository.AdminUserRepository;
 import com.tarifvergleich.electricity.repository.CustomerComparingEnergyRepository;
 import com.tarifvergleich.electricity.repository.CustomerRepository;
@@ -33,6 +35,7 @@ public class ElectricityComparisonService {
 	private final Helper helper;
 	private final ObjectMapper objectMapper;
 	private final AdminUserRepository adminUserRepo;
+//	private final AdminTaxManagementRepository taxRepo;
 
 	@Transactional
 	public Map<String, Object> getElectricityComparison(Map<String, Object> filters, String userAgentString,
@@ -76,10 +79,10 @@ public class ElectricityComparisonService {
 				filters.remove("isSave");
 				filters.remove("customerId");
 			}
-			
+
 			filters.put("houseNumber", Integer.parseInt(filters.get("houseNumber").toString()));
 			filters.put("showCommission", true);
-			
+
 			CompletableFuture<Object> ratesFuture = CompletableFuture
 					.supplyAsync(() -> energyService.getRates(filters));
 
@@ -117,6 +120,8 @@ public class ElectricityComparisonService {
 
 			}
 
+//			AdminTaxManagement fetchedTax = taxRepo.findByAdminAdminId(adminId).orElse(null);
+
 			return Map.of("res", true, "rates", ratesFuture.get(), "baseProvider", providersFuture.get());
 		} catch (InterruptedException e) {
 			e.printStackTrace();
@@ -131,13 +136,13 @@ public class ElectricityComparisonService {
 		CompletableFuture<Object> ibanResponse = CompletableFuture.supplyAsync(() -> energyService.checkIban(iban));
 		Object ibanGetData = null;
 		try {
-		    ibanGetData = ibanResponse.get();
+			ibanGetData = ibanResponse.get();
 		} catch (InterruptedException e) {
-		    Thread.currentThread().interrupt();
+			Thread.currentThread().interrupt();
 		} catch (ExecutionException e) {
-		    if (e.getCause() instanceof EnergyApiUnavailableException) {
-		        throw (EnergyApiUnavailableException) e.getCause();
-		    }
+			if (e.getCause() instanceof EnergyApiUnavailableException) {
+				throw (EnergyApiUnavailableException) e.getCause();
+			}
 		}
 		return Map.of("res", true, "response", ibanGetData);
 	}

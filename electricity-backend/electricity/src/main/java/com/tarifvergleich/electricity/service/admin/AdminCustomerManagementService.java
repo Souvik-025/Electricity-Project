@@ -133,11 +133,16 @@ public class AdminCustomerManagementService {
 
 			CustomerDelivery delivery = customerDeliveryRepo.findById(deliveryReq.getDeliveryId()).orElseThrow(
 					() -> new InternalServerException("Resource not found with this credential", HttpStatus.OK));
+			
+			Boolean isCustomerSignedContract = false;
+			
+			if(delivery.getCustomerOrder() != null && delivery.getCustomerOrder().getCustomerBookingDocument() != null)
+				isCustomerSignedContract = true;
 
 			CustomerDeliveryResponseAll customerDeliveryResponse = CustomerDeliveryResponseDto
 					.getDeliveryResponse(delivery);
 
-			return Map.of("res", true, "data", customerDeliveryResponse);
+			return Map.of("res", true, "data", customerDeliveryResponse, "customerSignedContract", isCustomerSignedContract);
 
 		}
 

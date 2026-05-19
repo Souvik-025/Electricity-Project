@@ -53,6 +53,8 @@ public class CustomerAddress {
 	
 	@Column(name = "is_register_address")
 	private Boolean isRegisterAddress;
+	
+	private String label;
 		
 	private BigInteger createdOn;
 	

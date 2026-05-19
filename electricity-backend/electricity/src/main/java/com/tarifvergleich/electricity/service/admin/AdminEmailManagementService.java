@@ -34,10 +34,10 @@ public class AdminEmailManagementService {
             throw new InternalServerException("Title cannot be empty", HttpStatus.OK);
         }
 
-        if (request.getSubtitle() == null || request.getSubtitle().trim().isEmpty()) {
-
-            throw new InternalServerException("Subtitle cannot be empty", HttpStatus.OK);
-        }
+//        if (request.getSubtitle() == null || request.getSubtitle().trim().isEmpty()) {
+//
+//            throw new InternalServerException("Subtitle cannot be empty", HttpStatus.OK);
+//        }
 
         if (request.getEmailContent() == null || request.getEmailContent().trim().isEmpty()) {
 
