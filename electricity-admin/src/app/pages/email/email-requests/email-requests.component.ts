@@ -2,9 +2,11 @@ import { Component } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { FormsModule } from '@angular/forms';
 import { CommonModule } from '@angular/common';
+import { CKEditorModule } from '@ckeditor/ckeditor5-angular';
+import ClassicEditor from '@ckeditor/ckeditor5-build-classic';
 @Component({
   selector: 'app-email-requests',
-  imports: [FormsModule, CommonModule],
+  imports: [FormsModule, CommonModule, CKEditorModule],
   standalone: true,
   templateUrl: './email-requests.component.html',
   styleUrl: './email-requests.component.css',
@@ -15,6 +17,7 @@ export class EmailRequestsComponent {
   title: string = '';
   subtitle: string = '';
   emailContent: string = '';
+  Editor = ClassicEditor;
 
   pdfList: any[] = [];
   selectedPdfs: any[] = [];

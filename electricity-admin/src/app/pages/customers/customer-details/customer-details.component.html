@@ -1,0 +1,450 @@
+<div class="min-h-screen bg-gray-50 dark:bg-gray-950 px-4 py-8">
+
+    @if (isLoading) {
+    <div class="flex items-center justify-center py-24 gap-3 text-gray-500">
+        <div class="animate-spin rounded-full h-5 w-5 border-b-2 border-brand-500"></div>
+        <span class="text-sm">Kundendetails werden geladen...</span>
+    </div>
+    }
+
+    @if (!isLoading && errorMessage) {
+    <div class="max-w-xl mx-auto mt-12 text-center">
+        <div class="text-red-500 text-sm mb-4">{{ errorMessage }}</div>
+
+        <button
+            (click)="goBack()"
+            class="px-4 py-2 text-sm bg-brand-500 text-white rounded-lg hover:bg-brand-600 transition">
+            Zurueck zur Liste
+        </button>
+    </div>
+    }
+
+    @if (!isLoading && !errorMessage && customer) {
+
+    <div class="max-w-6xl mx-auto space-y-6">
+
+        <!-- Top Header -->
+        <div class="flex items-center justify-between">
+
+            <button
+                (click)="goBack()"
+                class="inline-flex items-center gap-1.5 text-sm text-gray-500 hover:text-gray-800 transition">
+
+                <svg xmlns="http://www.w3.org/2000/svg"
+                     class="h-4 w-4"
+                     fill="none"
+                     viewBox="0 0 24 24"
+                     stroke="currentColor">
+
+                    <path stroke-linecap="round"
+                          stroke-linejoin="round"
+                          stroke-width="2"
+                          d="M15 19l-7-7 7-7"/>
+                </svg>
+
+                Zurueck zur Liste
+            </button>
+
+        </div>
+
+        <!-- Customer Header Card -->
+        <div class="bg-white dark:bg-gray-900 rounded-2xl shadow p-6">
+
+            <div class="flex items-start gap-5 flex-wrap">
+
+                <!-- Avatar -->
+                <div
+                    class="h-14 w-14 rounded-xl bg-brand-100 text-brand-600 flex items-center justify-center text-lg font-bold">
+
+                    {{ customer.firstName?.charAt(0) }}{{ customer.lastName?.charAt(0) }}
+
+                </div>
+
+                <!-- Customer Info -->
+                <div class="flex-1">
+
+                    <div class="flex items-center gap-3 flex-wrap">
+
+                        <h1 class="text-xl font-semibold text-gray-900 dark:text-white">
+
+                            {{ customer.firstName }} {{ customer.lastName }}
+
+                        </h1>
+
+                        <span
+                            class="px-2.5 py-0.5 rounded-full text-xs font-medium"
+                            [ngClass]="customer.status
+                                ? 'bg-green-100 text-green-700'
+                                : 'bg-red-100 text-red-700'">
+
+                            {{ customer.status ? 'Aktiv' : 'Inaktiv' }}
+
+                        </span>
+
+                            <!-- GDPR -->
+                            <div class="flex items-center justify-between">
+
+                                <div class="flex items-center gap-3">
+
+                                    @if (customer.gdprContactAllowed) {
+
+                                    <button
+                                        class="px-4 py-1.5 rounded-xl border border-teal-200
+                                            bg-teal-50 text-teal-700 text-xs font-semibold">
+                                        GDPR: Aktiv
+                                    </button>
+
+                                    } @else {
+
+                                    <button
+                                        class="px-4 py-1.5 rounded-xl border border-red-200
+                                            bg-red-50 text-red-600 text-xs font-semibold">
+                                        GDPR: Inaktiv
+                                    </button>
+
+                                    }
+
+                                </div>
+
+                            </div>
+
+                    </div>
+
+                    <p class="text-sm text-gray-500 mt-1">
+                        {{ customer.email }}
+                    </p>
+
+                    <p class="text-xs font-mono text-gray-400 mt-2">
+                        Customer ID : {{ customer.uniqueCustomerId }}
+                    </p>
+
+                </div>
+
+            </div>
+
+        </div>
+
+        <!-- GRID -->
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+
+            <!-- Customer Information -->
+            <div class="bg-white dark:bg-gray-900 rounded-2xl shadow p-6 space-y-4">
+
+                <h2
+                    class="text-sm font-semibold uppercase tracking-wider text-gray-400">
+                    Kundeninformation
+                </h2>
+
+                <div class="divide-y divide-gray-100 rounded-xl bg-gray-50">
+
+                    <div class="flex justify-between px-4 py-2.5">
+                        <span class="text-xs text-gray-500">Vorname</span>
+
+                        <span class="text-xs font-medium">
+                            {{ customer.firstName || '—' }}
+                        </span>
+                    </div>
+
+                    <div class="flex justify-between px-4 py-2.5">
+                        <span class="text-xs text-gray-500">Nachname</span>
+
+                        <span class="text-xs font-medium">
+                            {{ customer.lastName || '—' }}
+                        </span>
+                    </div>
+
+                    <div class="flex justify-between px-4 py-2.5">
+                        <span class="text-xs text-gray-500">E-Mail</span>
+
+                        <span class="text-xs font-medium">
+                            {{ customer.email || '—' }}
+                        </span>
+                    </div>
+
+                    <div class="flex justify-between px-4 py-2.5">
+                        <span class="text-xs text-gray-500">Mobilnummer</span>
+
+                        <span class="text-xs font-medium">
+                            {{ customer.mobileNumber || '—' }}
+                        </span>
+                    </div>
+
+                    <div class="flex justify-between px-4 py-2.5">
+                        <span class="text-xs text-gray-500">Benutzertyp</span>
+
+                        <span class="text-xs font-medium">
+                            {{ customer.userType || '—' }}
+                        </span>
+                    </div>
+
+                    <div class="flex justify-between px-4 py-2.5">
+                        <span class="text-xs text-gray-500">Firma</span>
+
+                        <span class="text-xs font-medium">
+                            {{ customer.companyName || '—' }}
+                        </span>
+                    </div>
+
+                    <div class="flex justify-between px-4 py-2.5">
+                        <span class="text-xs text-gray-500">Lexoffice Nummer</span>
+
+                        <span class="text-xs font-medium">
+                            {{ customer.lexofficeNumber || '—' }}
+                        </span>
+                    </div>
+
+                </div>
+
+            </div>
+
+            <!-- Account Information -->
+            <div class="bg-white dark:bg-gray-900 rounded-2xl shadow p-6 space-y-4">
+
+                <h2
+                    class="text-sm font-semibold uppercase tracking-wider text-gray-400">
+                    Kontoinformation
+                </h2>
+
+                <div class="divide-y divide-gray-100 rounded-xl bg-gray-50">
+
+                    <div class="flex justify-between px-4 py-2.5">
+                        <span class="text-xs text-gray-500">Verifiziert</span>
+                            @if (customer.isVerified) {
+                                <span class="px-3 py-1 rounded-full text-xs font-medium bg-green-100 text-green-700">
+                                    Ja
+                                </span>
+                                } @else {
+                                <span class="px-3 py-1 rounded-full text-xs font-medium bg-red-100 text-red-600">
+                                    Nein
+                                </span>
+                                }
+                    </div>
+
+                    <div class="flex justify-between px-4 py-2.5">
+                        <span class="text-xs text-gray-500">Bestaetigt</span>
+
+                        <span class="text-xs font-medium">
+                            {{ customer.isAcknowledged ? 'Ja' : 'Nein' }}
+                        </span>
+                    </div>
+
+                    <div class="flex justify-between px-4 py-2.5">
+                        <span class="text-xs text-gray-500">Status</span>
+
+                        <span class="text-xs font-medium">
+                            {{ customer.status ? 'Aktiv' : 'Inaktiv' }}
+                        </span>
+                    </div>
+
+                    <div class="flex justify-between px-4 py-2.5">
+                        <span class="text-xs text-gray-500">Beigetreten am</span>
+
+                        <span class="text-xs font-medium">
+                            {{ customer.joinedOn * 1000 | date:'dd.MM.yyyy HH:mm' }}
+                        </span>
+                    </div>
+
+                </div>
+
+            </div>
+
+            <!-- Address -->
+            <div class="bg-white dark:bg-gray-900 rounded-2xl shadow p-6 space-y-4">
+
+                <h2
+                    class="text-sm font-semibold uppercase tracking-wider text-gray-400">
+                    Adresse
+                </h2>
+
+                <div class="divide-y divide-gray-100 rounded-xl bg-gray-50">
+
+                    <div class="flex justify-between px-4 py-2.5">
+                        <span class="text-xs text-gray-500">PLZ</span>
+
+                        <span class="text-xs font-medium">
+                            {{ customer.address?.zip || '—' }}
+                        </span>
+                    </div>
+
+                    <div class="flex justify-between px-4 py-2.5">
+                        <span class="text-xs text-gray-500">Stadt</span>
+
+                        <span class="text-xs font-medium">
+                            {{ customer.address?.city || '—' }}
+                        </span>
+                    </div>
+
+                    <div class="flex justify-between px-4 py-2.5">
+                        <span class="text-xs text-gray-500">Strasse</span>
+
+                        <span class="text-xs font-medium">
+                            {{ customer.address?.street || '—' }}
+                        </span>
+                    </div>
+
+                    <div class="flex justify-between px-4 py-2.5">
+                        <span class="text-xs text-gray-500">Hausnummer</span>
+
+                        <span class="text-xs font-medium">
+                            {{ customer.address?.houseNumber || '—' }}
+                        </span>
+                    </div>
+
+                </div>
+
+            </div>
+
+            <!-- NOTES CARD -->
+            <div
+                class="bg-white dark:bg-gray-900 rounded-2xl border border-gray-200 dark:border-gray-700 p-6">
+
+                <h3 class="text-sm font-semibold text-gray-700 dark:text-gray-200 uppercase mb-5">
+                Notizen
+                </h3>
+
+                @if (customer.notes?.length > 0) {
+
+                <div class="space-y-3">
+
+                    @for (note of customer.notes; track note.noteId) {
+
+                    <div
+                        class="border border-gray-200 dark:border-gray-700 rounded-xl p-3 bg-gray-50 dark:bg-gray-800">
+
+                        <p class="text-sm text-gray-700 dark:text-gray-200">
+                        {{ note.note }}
+                        </p>
+
+                        <p class="text-xs text-gray-400 mt-2">
+                        {{ note.addedOn }}
+                        </p>
+
+                    </div>
+                    }
+
+                </div>
+
+                } @else {
+
+                <div class="text-sm text-gray-400 italic">
+                    Keine Notizen vorhanden
+                </div>
+
+                }
+
+            </div>
+
+            <!-- Password History -->
+            <div class="bg-white dark:bg-gray-900 rounded-2xl shadow p-6 space-y-4">
+
+                <h2
+                    class="text-sm font-semibold uppercase tracking-wider text-gray-400">
+                    Passwort Historie
+                </h2>
+
+                @if (customer.changePasswordHistory?.length) {
+
+                <div class="divide-y divide-gray-100 rounded-xl bg-gray-50">
+
+                    @for (history of customer.changePasswordHistory; track history) {
+
+                    <div class="px-4 py-3 space-y-1">
+
+                        <p class="text-xs text-gray-500">
+                            Email : {{ history.email }}
+                        </p>
+
+                        <p class="text-xs text-gray-500">
+                            Passwort geaendert :
+                            {{ history.passwordChangedOn * 1000 | date:'dd.MM.yyyy HH:mm' }}
+                        </p>
+
+                    </div>
+
+                    }
+
+                </div>
+
+                } @else {
+
+                <div class="rounded-xl bg-gray-50 px-4 py-3 text-xs text-gray-400 italic">
+                    Keine Passwort Historie vorhanden.
+                </div>
+
+                }
+
+            </div>
+
+        </div>
+
+        <!-- Attorneys -->
+        <div class="bg-white dark:bg-gray-900 rounded-2xl shadow p-6 space-y-4">
+
+            <h2
+                class="text-sm font-semibold uppercase tracking-wider text-gray-400">
+                Vollmachten
+            </h2>
+
+            @if (customer.attornies?.length) {
+
+            <div class="divide-y divide-gray-100 rounded-xl bg-gray-50">
+
+                @for (attorney of customer.attornies; track attorney) {
+
+                <div class="px-4 py-3">
+
+                    <div class="flex justify-between">
+
+                        <div>
+
+                            <p class="text-sm font-medium">
+                                {{ attorney.firstName }} {{ attorney.lastName }}
+                            </p>
+
+                            <p class="text-xs text-gray-500">
+                                {{ attorney.email }}
+                            </p>
+
+                        </div>
+
+                        <span
+                            class="text-xs font-medium"
+                            [ngClass]="{
+                                'text-yellow-600': attorney.approvalStatus === 0,
+                                'text-green-600': attorney.approvalStatus === 1,
+                                'text-red-600': attorney.approvalStatus === 2
+                            }">
+
+                            {{
+                                attorney.approvalStatus === 0
+                                    ? 'Pending'
+                                    : attorney.approvalStatus === 1
+                                    ? 'Approved'
+                                    : 'Rejected'
+                            }}
+
+                        </span>
+
+                    </div>
+
+                </div>
+
+                }
+
+            </div>
+
+            } @else {
+
+            <div class="rounded-xl bg-gray-50 px-4 py-3 text-xs text-gray-400 italic">
+                Keine Vollmachten vorhanden.
+            </div>
+
+            }
+
+        </div>
+
+    </div>
+
+    }
+
+</div>

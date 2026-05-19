@@ -110,29 +110,22 @@
 
         </div>
 
-      <div class="border overflow-hidden">
+      <div class="border overflow-hidden rounded-xl">
 
-        <!-- Toolbar -->
-        <div class="border-b px-4 py-3 flex gap-4 bg-gray-50">
-
-          <button type="button"><b>B</b></button>
-
-          <button type="button"><i>I</i></button>
-
-          <button type="button">🔗</button>
-
-          <button type="button">❝ ❞</button>
-
-        </div>
-
-        <!-- Textarea -->
-        <textarea
-          name="emailContent"
+        <!-- Toolbar + Editor -->
+        <ckeditor
+          [editor]="Editor"
           [(ngModel)]="emailContent"
-          rows="1"
-          placeholder="E-Mail-Inhalte schreiben..."
-          class="w-full p-4 outline-none"
-        ></textarea>
+          name="emailContent"
+          [config]="{
+            placeholder: 'E-Mail-Inhalte schreiben...',
+            toolbar: [
+              'bold', 'italic', 'link', 'blockQuote', '|', 'undo', 'redo'
+            ]
+          }"
+          class="block min-h-[80px]"
+        >
+        </ckeditor>
 
       </div>
     </div>
