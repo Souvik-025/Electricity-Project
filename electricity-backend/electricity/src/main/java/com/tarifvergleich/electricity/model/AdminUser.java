@@ -4,6 +4,7 @@ import java.math.BigInteger;
 import java.util.LinkedList;
 import java.util.List;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.tarifvergleich.electricity.util.Helper;
 
@@ -152,6 +153,10 @@ public class AdminUser {
 			CascadeType.MERGE }, orphanRemoval = true)
 	@JsonIgnoreProperties("admin")
 	private List<CustomerQueryContact> customerQueryContact;
+
+	@OneToOne(mappedBy = "admin", cascade = { CascadeType.PERSIST, CascadeType.MERGE })
+	@JsonIgnore
+	private AdminTaxManagement adminTax;
 
 	@PrePersist
 	protected void onCreate() {

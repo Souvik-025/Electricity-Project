@@ -1,6 +1,7 @@
 package com.tarifvergleich.electricity.service;
 
 import java.nio.ByteBuffer;
+import java.nio.charset.StandardCharsets;
 import java.security.SecureRandom;
 import java.util.Base64;
 
@@ -24,7 +25,7 @@ public class AesEncryptionService {
 
 	public String encrypt(String plainText) throws Exception {
 
-		byte[] decodedKey = base64SecretKey.getBytes();
+		byte[] decodedKey = base64SecretKey.getBytes(StandardCharsets.UTF_8);
 		SecretKey key = new SecretKeySpec(decodedKey, 0, decodedKey.length, "AES");
 
 		byte[] iv = new byte[IV_LENGTH_BYTE];
@@ -34,19 +35,19 @@ public class AesEncryptionService {
 		GCMParameterSpec spec = new GCMParameterSpec(TAG_LENGTH_BIT, iv);
 		cipher.init(Cipher.ENCRYPT_MODE, key, spec);
 
-		byte[] cipherText = cipher.doFinal(plainText.getBytes());
+		byte[] cipherText = cipher.doFinal(plainText.getBytes(StandardCharsets.UTF_8));
 
 		ByteBuffer byteBuffer = ByteBuffer.allocate(iv.length + cipherText.length);
 		byteBuffer.put(iv);
 		byteBuffer.put(cipherText);
 
-		return Base64.getEncoder().encodeToString(byteBuffer.array());
+		return Base64.getUrlEncoder().withoutPadding().encodeToString(byteBuffer.array());
 	}
 
 	public String decrypt(String encryptedText) throws Exception {
 
-		byte[] decoded = Base64.getDecoder().decode(encryptedText);
-		byte[] decodedKey = base64SecretKey.getBytes();
+		byte[] decoded = Base64.getUrlDecoder().decode(encryptedText.trim());
+		byte[] decodedKey = base64SecretKey.getBytes(StandardCharsets.UTF_8);
 		SecretKey key = new SecretKeySpec(decodedKey, 0, decodedKey.length, "AES");
 
 		ByteBuffer byteBuffer = ByteBuffer.wrap(decoded);

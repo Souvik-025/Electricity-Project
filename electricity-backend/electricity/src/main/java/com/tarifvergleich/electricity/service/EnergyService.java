@@ -46,7 +46,7 @@ public class EnergyService {
 			Map<String, Object> body = objectMapper.readValue(response.getBody(),
 					new TypeReference<Map<String, Object>>() {
 					});
-
+//			System.err.println(body);
 			throw new EnergyApiUnavailableException("External Provider Error", body);
 		}).body(EnergyApiResponse.class);
 	}
@@ -68,7 +68,7 @@ public class EnergyService {
 			Map<String, Object> body = objectMapper.readValue(response.getBody(),
 					new TypeReference<Map<String, Object>>() {
 					});
-
+//			System.err.println(body);
 			throw new EnergyApiUnavailableException("External Provider Error", body);
 		}).body(BaseProviderResponse.class);
 	}

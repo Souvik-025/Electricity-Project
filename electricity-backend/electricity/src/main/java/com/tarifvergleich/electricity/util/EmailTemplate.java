@@ -277,7 +277,7 @@ public class EmailTemplate {
 	}
 	
 	public String createSignatureRequestEmailBody(String salutation, String lastName, String token) {
-	    String signatureUrl = "http://192.168.0.155:8080/public/customer/contract-signature?token=" + token;
+	    String signatureUrl = "http://192.168.0.131:4200/order-signature?token=" + token;
 
 	    return "<div style='font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; line-height: 1.6; color: #333; max-width: 600px; margin: auto; border: 1px solid #ddd; border-radius: 8px; padding: 25px;'>"
 	            + "<div style='text-align: center; border-bottom: 2px solid #2e7d32; padding-bottom: 10px; margin-bottom: 20px;'>"

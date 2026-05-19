@@ -1,14 +1,25 @@
 package com.tarifvergleich.electricity.model;
 
 import jakarta.persistence.*;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
 
 import java.math.BigDecimal;
 import java.math.BigInteger;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.tarifvergleich.electricity.util.Helper;
 
 @Entity
 @Table(name = "admin_tax_management")
+@Getter
+@Setter
+@NoArgsConstructor
+@AllArgsConstructor
+@Builder
 public class AdminTaxManagement {
 
     @Id
@@ -19,44 +30,14 @@ public class AdminTaxManagement {
     @Column(name = "value")
     private BigDecimal value;
 
-    @Column(name = "created_by")
-    private String createdBy;
-
     @Column(name = "created_date")
     private BigInteger createdDate;
-
-    public Long getTaxId() {
-        return taxId;
-    }
-
-    public void setTaxId(Long taxId) {
-        this.taxId = taxId;
-    }
-
-    public BigDecimal getValue() {
-        return value;
-    }
-
-    public void setTax(BigDecimal value) {
-        this.value = value;
-    }
-
-    public String getCreatedBy() {
-        return createdBy;
-    }
-
-    public void setCreatedBy(String createdBy) {
-        this.createdBy = createdBy;
-    }
-
-    public BigInteger getCreatedDate() {
-        return createdDate;
-    }
-
-    public void setCreatedDate(BigInteger createdDate) {
-        this.createdDate = createdDate;
-    }
     
+    @OneToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "admin_id")
+    @JsonIgnore
+    private AdminUser admin;
+
     @PrePersist
     protected void onCreate() {
     	createdDate = Helper.getCurrentTimeBerlin();    

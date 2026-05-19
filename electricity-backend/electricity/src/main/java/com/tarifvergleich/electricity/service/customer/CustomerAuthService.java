@@ -538,6 +538,24 @@ public class CustomerAuthService {
 		return Map.of("res", false, "newOtp", false, "message", "Invalid otp");
 	}
 
+	public Map<String, Object> changePasswordWithEmail(Integer adminId, Integer customerId) {
+
+		if (adminId == null || adminId <= 0)
+			throw new InternalServerException("Admin id missing", HttpStatus.OK);
+		if (customerId == null || customerId <= 0)
+			throw new InternalServerException("Customer id missing", HttpStatus.OK);
+
+		Customer customer = customerRepo.findByCustomerIdAndAdminAdminId(customerId, adminId).orElseThrow(
+				() -> new InternalServerException("Customer not found with this credential", HttpStatus.OK));
+
+		if (!customer.getIsAcknowledged())
+			throw new InternalServerException("Customer is not marked acknowledged", HttpStatus.OK);
+		
+		String tokenId = helper.generateUUId();
+
+		return Map.of();
+	}
+
 //	@Transactional
 //	public Map<String, Object> sendMail(Integer id) {
 //		Customer customer = customerRepo.findById(id).orElse(null);

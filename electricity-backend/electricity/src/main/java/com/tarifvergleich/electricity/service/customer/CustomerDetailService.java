@@ -611,8 +611,8 @@ public class CustomerDetailService {
 			if (validToken.getUsed())
 				throw new InternalServerException("Token already used", HttpStatus.OK);
 
-			if (validToken.getExpiryDate().compareTo(Helper.getCurrentTimeBerlin()) < 0)
-				throw new InternalServerException("Token expired", HttpStatus.OK);
+//			if (validToken.getExpiryDate().compareTo(Helper.getCurrentTimeBerlin()) < 0)
+//				throw new InternalServerException("Token expired", HttpStatus.OK);
 
 			customerOrderId = validToken.getOrderId();
 
@@ -665,6 +665,44 @@ public class CustomerDetailService {
 		CustomerInfoForProfile customerProfileInfo = CustomerDto.mapCustomerInfoForProfile(customer);
 
 		return Map.of("res", true, "data", customerProfileInfo);
+	}
+
+	public Map<String, Object> fetchCustomerContractPageDetails(String token) {
+
+		if (token == null || token.isEmpty())
+			throw new InternalServerException("Security token missing", HttpStatus.OK);
+
+		Integer customerOrderId = 0;
+		try {
+			String tokenId = aesEncryptionService.decrypt(token);
+
+			ContractToken validToken = contractTokenRespo.findByToken(tokenId)
+					.orElseThrow(() -> new InternalServerException("Invalid token", HttpStatus.OK));
+
+			if (validToken.getUsed())
+				return Map.of("res", true, "submitted", true);
+
+//			if (validToken.getExpiryDate().compareTo(Helper.getCurrentTimeBerlin()) < 0)
+//				throw new InternalServerException("Token expired", HttpStatus.OK);
+
+			customerOrderId = validToken.getOrderId();
+
+		} catch (Exception e) {
+			e.printStackTrace();
+			throw new InternalServerException("Invalid token", HttpStatus.OK);
+		}
+
+		if (customerOrderId == null || customerOrderId <= 0)
+			throw new InternalServerException("Invalid token, order details not found", HttpStatus.OK);
+
+		CustomerOrder order = customerOrderRepo.findById(customerOrderId).orElseThrow(
+				() -> new InternalServerException("Customer order not found with this credential", HttpStatus.OK));
+
+		CustomerDelivery delivery = order.getDelivery();
+
+		CustomerDeliveryResponseAll resp = CustomerDeliveryResponseDto.getDeliveryResponse(delivery);
+
+		return Map.of("res", true, "data", resp);
 	}
 
 }
