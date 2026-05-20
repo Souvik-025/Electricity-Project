@@ -50,8 +50,13 @@
           >
             {{ tab }}
           </button> -->
-          <button class="tab" *ngFor="let tab of tabs; let i = index" [class.active]="activeTab === i"
-            [class.disabled]="qrScanned && i !== 5" (click)="!qrScanned || i === 5 ? setActiveTab(i) : null">
+          <button
+            class="tab"
+            *ngFor="let tab of tabs; let i = index"
+            [class.active]="activeTab === i"
+            [class.disabled]="qrScanned && i !== 5"
+            (click)="!qrScanned || i === 5 ? setActiveTab(i) : null"
+          >
             {{ tab }}
           </button>
         </div>
@@ -60,88 +65,154 @@
 
     <!--══════════ Profile Section Start (Tab - 0) ══════════-->
     <div class="customer-profile-box" *ngIf="activeTab === 0 && currentStep === 1">
-
       <!-- Section header -->
       <div class="login-berich">Persönliche Daten - Übersicht</div>
 
       <div class="tab-row">
-
         <!-- ── Completion status cards ── -->
         <div>
           <div class="tab-header">Daten vervollständigen</div>
           <div class="tab-text">
-            Ein rotes Kreuz signalisiert noch fehlende Daten, bitte vervollständigen sie diese zeitnah.
+            Ein rotes Kreuz signalisiert noch fehlende Daten, bitte vervollständigen sie diese
+            zeitnah.
           </div>
         </div>
 
         <div class="profile-status-grid">
-
-          <div class="profile-status-card" [class.profile-status-ok]="customerData.phoneNumber"
-            [class.profile-status-err]="!customerData.phoneNumber">
-            <img [src]="customerData.phoneNumber ? 'assets/icons/Kreis_Haken_gruen.png' : 'assets/icons/cross.png'"
-              class="profile-status-icon" alt="status" />
+          <div
+            class="profile-status-card"
+            [class.profile-status-ok]="customerData.phoneNumber"
+            [class.profile-status-err]="!customerData.phoneNumber"
+          >
+            <img
+              [src]="
+                customerData.phoneNumber
+                  ? 'assets/icons/Kreis_Haken_gruen.png'
+                  : 'assets/icons/cross.png'
+              "
+              class="profile-status-icon"
+              alt="status"
+            />
             <span>Telefonnummer zugefügt</span>
           </div>
 
-          <div class="profile-status-card" [class.profile-status-ok]="customerData.emailVerified"
-            [class.profile-status-err]="!customerData.emailVerified">
-            <img [src]="customerData.emailVerified ? 'assets/icons/Kreis_Haken_gruen.png' : 'assets/icons/cross.png'"
-              class="profile-status-icon" alt="status" />
+          <div
+            class="profile-status-card"
+            [class.profile-status-ok]="customerData.emailVerified"
+            [class.profile-status-err]="!customerData.emailVerified"
+          >
+            <img
+              [src]="
+                customerData.emailVerified
+                  ? 'assets/icons/Kreis_Haken_gruen.png'
+                  : 'assets/icons/cross.png'
+              "
+              class="profile-status-icon"
+              alt="status"
+            />
             <span>E-Mail verifiziert</span>
           </div>
 
-          <div class="profile-status-card" [class.profile-status-ok]="customerData.address"
-            [class.profile-status-err]="!customerData.address">
-            <img [src]="customerData.address ? 'assets/icons/Kreis_Haken_gruen.png' : 'assets/icons/cross.png'"
-              class="profile-status-icon" alt="status" />
+          <div
+            class="profile-status-card"
+            [class.profile-status-ok]="customerData.address"
+            [class.profile-status-err]="!customerData.address"
+          >
+            <img
+              [src]="
+                customerData.address
+                  ? 'assets/icons/Kreis_Haken_gruen.png'
+                  : 'assets/icons/cross.png'
+              "
+              class="profile-status-icon"
+              alt="status"
+            />
             <span>Adresse eingegeben</span>
           </div>
 
-          <div class="profile-status-card profile-status-err profile-status-upload" (click)="setActiveTab(1)"
-            style="cursor:pointer">
+          <div
+            class="profile-status-card profile-status-err profile-status-upload"
+            (click)="setActiveTab(1)"
+            style="cursor: pointer"
+          >
             <img src="assets/icons/cross.png" class="profile-status-icon" alt="status" />
             <span>Zählerinfo fehlt - hier hochladen</span>
           </div>
-
         </div>
 
         <!-- ── Quick-access buttons ── -->
         <div>
           <div class="tab-header">Ihre persönlichen Daten / Verträge einsehen und änderm</div>
           <div class="tab-text">
-            Klicken sie den gewünschten Button an, um die hinterlegten Daten einzusehen und gegebenfalls zu ändern / neu
-            zu vergleichen.
+            Klicken sie den gewünschten Button an, um die hinterlegten Daten einzusehen und
+            gegebenfalls zu ändern / neu zu vergleichen.
           </div>
         </div>
 
         <div class="profile-action-grid">
-          <button class="profile-action-btn profile-action-btn--light"
-            (click)="setActiveTab(0); profileSubTab = 'contracts'">
-            Meine Verträge
-          </button>
-          <button class="profile-action-btn profile-action-btn--dark"
-            (click)="setActiveTab(0); profileSubTab = 'contact'">
-            Meine Kontaktdaten
-          </button>
-          <button class="profile-action-btn profile-action-btn--dark"
-            (click)="setActiveTab(0); profileSubTab = 'addresses'">
-            Meine Adressen
-          </button>
-          <button class="profile-action-btn profile-action-btn--dark" (click)="setActiveTab(1)">
+          <button
+            class="profile-action-btn"
+            [ngClass]="
+              profileSubTab === 'meters' ? 'profile-action-btn--light' : 'profile-action-btn--dark'
+            "
+            (click)="selectMyCounter(); profileSubTab = 'meters'"
+          >
             Meine Zähler
           </button>
-          <button class="profile-action-btn profile-action-btn--dark"
-            (click)="setActiveTab(0); profileSubTab = 'payment'">
+
+          <button
+            class="profile-action-btn"
+            [ngClass]="
+              profileSubTab === 'contracts'
+                ? 'profile-action-btn--light'
+                : 'profile-action-btn--dark'
+            "
+            (click)="selectMyContracts(); profileSubTab = 'contracts'"
+          >
+            Meine Verträge
+          </button>
+
+          <button
+            class="profile-action-btn"
+            [ngClass]="
+              profileSubTab === 'contact' ? 'profile-action-btn--light' : 'profile-action-btn--dark'
+            "
+            (click)="setActiveTab(0); profileSubTab = 'contact'"
+          >
+            Meine Kontakte, Adressen und Unterkonten
+          </button>
+
+          <!-- <button
+            class="profile-action-btn"
+            [ngClass]="
+              profileSubTab === 'addresses'
+                ? 'profile-action-btn--light'
+                : 'profile-action-btn--dark'
+            "
+            (click)="setActiveTab(0); profileSubTab = 'addresses'"
+          >
+            Meine Adressen
+          </button> -->
+
+          <button
+            class="profile-action-btn"
+            [ngClass]="
+              profileSubTab === 'payment' ? 'profile-action-btn--light' : 'profile-action-btn--dark'
+            "
+            (click)="setActiveTab(0); profileSubTab = 'payment'"
+          >
             Meine Zahlungsdaten
           </button>
         </div>
-
       </div>
     </div>
     <!--══════════ Profile Section End (Tab - 0) ══════════-->
 
-    <!--══════════ Profile – Kontaktdaten (Tab - 0, sub: contact) ══════════-->
-    <div class="customer-profile-box" *ngIf="activeTab === 0 && currentStep === 1 && profileSubTab === 'contact'">
+    <!--══════════ Profile – Kontaktdaten (Tab - 0, sub: My Contacts, Addresses & Sub-Accounts) ══════════-->
+    <div
+      class="customer-profile-box"
+      *ngIf="activeTab === 0 && currentStep === 1 && profileSubTab === 'contact'"
+    >
       <div class="profile-orange-header">Meine Kontakt- / Anmeldedaten</div>
 
       <div class="tab-row">
@@ -153,17 +224,66 @@
         </div>
 
         <div class="container-readonly">
-          <div class="form-row">
-            <div class="form-group">
-              <div class="field-wrap">
-                <span class="field-label">Anrede</span>
-                <input type="text" [(ngModel)]="customerData.salutation" placeholder="Frau" />
+          <!-- Company field (business only) -->
+          <div class="form-group" *ngIf="customerType === 'BUSINESS'">
+            <div class="field-wrap" [class.field-error]="contactFieldErrors['companyName']">
+              <div>
+                <span class="field-label">Firma</span>
+                <input
+                  type="text"
+                  [(ngModel)]="customerData.companyName"
+                  (input)="customerData.companyName = $any($event.target).value"
+                />
               </div>
             </div>
-            <div class="form-group">
-              <div class="field-wrap">
-                <span class="field-label">Titel</span>
-                <input type="text" [(ngModel)]="customerData.title" placeholder="" />
+            <div class="field-error-msg" *ngIf="contactFieldErrors['companyName']">
+              {{ contactFieldErrors['companyName'] }}
+            </div>
+          </div>
+
+          <div class="form-row">
+            <div class="form-group" style="flex: 1">
+              <div
+                class="input-field select-wrap"
+                [class.field-error]="contactFieldErrors['salutation']"
+                style="display: inline-block"
+              >
+                <div>
+                  <span
+                    class="field-label"
+                    style="margin-left: 10px; font-size: 12px; font-weight: 500; display: block"
+                    >Anrede</span
+                  >
+                  <select class="styled-select" [(ngModel)]="customerData.salutation">
+                    <option value="">Bitte wählen...</option>
+                    <option value="Herr">Herr</option>
+                    <option value="Frau">Frau</option>
+                    <option value="Divers">Divers</option>
+                    <option value="Divers">Keine Angabe</option>
+                  </select>
+                  <span class="material-symbols-outlined dropdown-arrow">expand_more</span>
+                </div>
+              </div>
+              <div class="field-error-msg" *ngIf="contactFieldErrors['salutation']">
+                {{ contactFieldErrors['salutation'] }}
+              </div>
+            </div>
+            <div class="form-group" style="flex: 1">
+              <div class="input-field select-wrap" style="display: inline-block">
+                <div>
+                  <span
+                    class="field-label"
+                    style="margin-left: 10px; font-size: 12px; font-weight: 500; display: block"
+                    >Titel</span
+                  >
+                  <select class="styled-select" [(ngModel)]="customerData.title">
+                    <option value="">Kein Titel</option>
+                    <option value="Dr.">Dr.</option>
+                    <option value="Prof.">Prof.</option>
+                    <option value="Prof. Dr.">Prof. Dr.</option>
+                  </select>
+                  <span class="material-symbols-outlined dropdown-arrow">expand_more</span>
+                </div>
               </div>
             </div>
           </div>
@@ -174,35 +294,59 @@
                 <span class="field-label">Vorname</span>
                 <input type="text" [(ngModel)]="customerData.firstName" placeholder="Marie" />
               </div>
+              <div class="field-error-msg" *ngIf="contactFieldErrors['firstName']">
+                {{ contactFieldErrors['firstName'] }}
+              </div>
             </div>
             <div class="form-group">
               <div class="field-wrap">
                 <span class="field-label">Nachname</span>
                 <input type="text" [(ngModel)]="customerData.lastName" placeholder="Mustermann" />
               </div>
+              <div class="field-error-msg" *ngIf="contactFieldErrors['lastName']">
+                {{ contactFieldErrors['lastName'] }}
+              </div>
             </div>
           </div>
 
           <div class="form-row">
             <div class="form-group">
-              <div class="field-wrap">
+              <div class="field-wrap readonly">
                 <span class="field-label">Ihre Mailadresse</span>
-                <input type="email" [(ngModel)]="customerData.email" placeholder="marie@mustermann.de" />
+                <input
+                  type="email"
+                  [(ngModel)]="customerData.email"
+                  placeholder="marie@mustermann.de"
+                  readonly
+                  style="background-color: #afadad"
+                />
+                <span class="field-icon">
+                  <img src="assets/icons/Schloss.png" class="icon-schloss" alt="locked" />
+                </span>
               </div>
             </div>
-            <div class="form-group">
+            <!-- <div class="form-group">
               <div class="field-wrap">
                 <span class="field-label">Geburtsdatum</span>
-                <input type="text" [(ngModel)]="customerData.dateOfBirth" placeholder="26.12.1970" />
+                <input
+                  type="text"
+                  [(ngModel)]="customerData.dateOfBirth"
+                  placeholder="26.12.1970"
+                />
               </div>
-            </div>
+            </div> -->
           </div>
 
           <div class="form-row">
             <div class="form-group">
-              <div class="field-wrap">
+              <div class="field-wrap readonly">
                 <span class="field-label">Ihr Passwort</span>
-                <input type="password" value="******************" readonly />
+                <input
+                  type="password"
+                  value="******************"
+                  readonly
+                  style="background-color: #afadad"
+                />
                 <span class="field-icon">
                   <img src="assets/icons/Schloss.png" class="icon-schloss" alt="locked" />
                 </span>
@@ -211,7 +355,11 @@
             <div class="form-group">
               <div class="field-wrap">
                 <span class="field-label">Mobiltelefonnummer (optional)</span>
-                <input type="tel" [(ngModel)]="customerData.phoneNumber" placeholder="+49 178 2568973" />
+                <input
+                  type="tel"
+                  [(ngModel)]="customerData.phoneNumber"
+                  placeholder="+49 178 2568973"
+                />
               </div>
             </div>
           </div>
@@ -223,34 +371,62 @@
           </button>
         </div>
       </div>
-    </div>
-    <!--══════════ Profile – Kontaktdaten End ══════════-->
 
-    <!--══════════ Profile – Adressen (Tab - 0, sub: addresses) ══════════-->
-    <div class="customer-profile-box" *ngIf="activeTab === 0 && currentStep === 1 && profileSubTab === 'addresses'">
       <div class="profile-orange-header">Meine Hauptadresse</div>
 
       <div class="tab-row">
         <div>
           <div class="tab-header">Standard-Adresse einsehen / ändern</div>
           <div class="tab-text">
-            Hat sich Ihre Adresse geändert? Bitte einfach die neuen Daten eingeben und mit einem klick auf den Button
-            „Ändern &amp; Speichern" klicken.
+            Hat sich Ihre Adresse geändert? Bitte einfach die neuen Daten eingeben und mit einem
+            klick auf den Button „Ändern &amp; Speichern" klicken.
           </div>
         </div>
 
         <div class="container-readonly">
           <div class="form-row">
-            <div class="form-group">
-              <div class="field-wrap">
-                <span class="field-label">Anrede</span>
-                <input type="text" [(ngModel)]="customerData.salutation" placeholder="Frau" />
+            <div class="form-group" style="flex: 1">
+              <div
+                class="input-field select-wrap"
+                [class.field-error]="addressFieldErrors['salutation']"
+                style="display: inline-block"
+              >
+                <div>
+                  <span
+                    class="field-label"
+                    style="margin-left: 10px; font-size: 12px; font-weight: 500; display: block"
+                    >Anrede</span
+                  >
+                  <select class="styled-select" [(ngModel)]="customerData.salutation">
+                    <option value="">Bitte wählen...</option>
+                    <option value="Herr">Herr</option>
+                    <option value="Frau">Frau</option>
+                    <option value="Divers">Divers</option>
+                    <option value="Divers">Keine Angabe</option>
+                  </select>
+                  <span class="material-symbols-outlined dropdown-arrow">expand_more</span>
+                </div>
+              </div>
+              <div class="field-error-msg" *ngIf="addressFieldErrors['salutation']">
+                {{ addressFieldErrors['salutation'] }}
               </div>
             </div>
-            <div class="form-group">
-              <div class="field-wrap">
-                <span class="field-label">Titel</span>
-                <input type="text" [(ngModel)]="customerData.title" placeholder="" />
+            <div class="form-group" style="flex: 1">
+              <div class="input-field select-wrap" style="display: inline-block">
+                <div>
+                  <span
+                    class="field-label"
+                    style="margin-left: 10px; font-size: 12px; font-weight: 500; display: block"
+                    >Titel</span
+                  >
+                  <select class="styled-select" [(ngModel)]="customerData.title">
+                    <option value="">Kein Titel</option>
+                    <option value="Dr.">Dr.</option>
+                    <option value="Prof.">Prof.</option>
+                    <option value="Prof. Dr.">Prof. Dr.</option>
+                  </select>
+                  <span class="material-symbols-outlined dropdown-arrow">expand_more</span>
+                </div>
               </div>
             </div>
           </div>
@@ -261,11 +437,17 @@
                 <span class="field-label">Vorname</span>
                 <input type="text" [(ngModel)]="customerData.firstName" placeholder="Marie" />
               </div>
+              <div class="field-error-msg" *ngIf="addressFieldErrors['firstName']">
+                {{ addressFieldErrors['firstName'] }}
+              </div>
             </div>
             <div class="form-group">
               <div class="field-wrap">
                 <span class="field-label">Nachname</span>
                 <input type="text" [(ngModel)]="customerData.lastName" placeholder="Mustermann" />
+              </div>
+              <div class="field-error-msg" *ngIf="addressFieldErrors['lastName']">
+                {{ addressFieldErrors['lastName'] }}
               </div>
             </div>
           </div>
@@ -276,11 +458,21 @@
                 <span class="field-label">Ihre PLZ</span>
                 <input type="text" [(ngModel)]="customerData.address.zip" placeholder="12345" />
               </div>
+              <div class="field-error-msg" *ngIf="addressFieldErrors['zip']">
+                {{ addressFieldErrors['zip'] }}
+              </div>
             </div>
             <div class="form-group">
               <div class="field-wrap">
                 <span class="field-label">Ort</span>
-                <input type="text" [(ngModel)]="customerData.address.city" placeholder="Musterhausen" />
+                <input
+                  type="text"
+                  [(ngModel)]="customerData.address.city"
+                  placeholder="Musterhausen"
+                />
+              </div>
+              <div class="field-error-msg" *ngIf="addressFieldErrors['city']">
+                {{ addressFieldErrors['city'] }}
               </div>
             </div>
           </div>
@@ -289,13 +481,27 @@
             <div class="form-group">
               <div class="field-wrap">
                 <span class="field-label">Ihre Straße</span>
-                <input type="text" [(ngModel)]="customerData.address.street" placeholder="Mustermannstraße" />
+                <input
+                  type="text"
+                  [(ngModel)]="customerData.address.street"
+                  placeholder="Mustermannstraße"
+                />
+              </div>
+              <div class="field-error-msg" *ngIf="addressFieldErrors['street']">
+                {{ addressFieldErrors['street'] }}
               </div>
             </div>
             <div class="form-group postcode">
               <div class="field-wrap">
                 <span class="field-label">Hausnummer</span>
-                <input type="text" [(ngModel)]="customerData.address.houseNumber" placeholder="456" />
+                <input
+                  type="text"
+                  [(ngModel)]="customerData.address.houseNumber"
+                  placeholder="456"
+                />
+              </div>
+              <div class="field-error-msg" *ngIf="addressFieldErrors['houseNumber']">
+                {{ addressFieldErrors['houseNumber'] }}
               </div>
             </div>
           </div>
@@ -342,18 +548,154 @@
         </div>
       </div>
     </div>
+    <!--══════════ Profile – Kontaktdaten End ══════════-->
+
+    <!--══════════ Profile – Adressen (Tab - 0, sub: addresses) ══════════-->
+    <!-- <div
+      class="customer-profile-box"
+      *ngIf="activeTab === 0 && currentStep === 1 && profileSubTab === 'addresses'"
+    >
+      <div class="profile-orange-header">Meine Hauptadresse</div>
+
+      <div class="tab-row">
+        <div>
+          <div class="tab-header">Standard-Adresse einsehen / ändern</div>
+          <div class="tab-text">
+            Hat sich Ihre Adresse geändert? Bitte einfach die neuen Daten eingeben und mit einem
+            klick auf den Button „Ändern &amp; Speichern" klicken.
+          </div>
+        </div>
+
+        <div class="container-readonly">
+          <div class="form-row">
+            <div class="form-group">
+              <div class="field-wrap">
+                <span class="field-label">Anrede</span>
+                <input type="text" [(ngModel)]="customerData.salutation" placeholder="Frau" />
+              </div>
+            </div>
+            <div class="form-group">
+              <div class="field-wrap">
+                <span class="field-label">Titel</span>
+                <input type="text" [(ngModel)]="customerData.title" placeholder="" />
+              </div>
+            </div>
+          </div>
+
+          <div class="form-row">
+            <div class="form-group">
+              <div class="field-wrap">
+                <span class="field-label">Vorname</span>
+                <input type="text" [(ngModel)]="customerData.firstName" placeholder="Marie" />
+              </div>
+            </div>
+            <div class="form-group">
+              <div class="field-wrap">
+                <span class="field-label">Nachname</span>
+                <input type="text" [(ngModel)]="customerData.lastName" placeholder="Mustermann" />
+              </div>
+            </div>
+          </div>
+
+          <div class="form-row">
+            <div class="form-group postcode">
+              <div class="field-wrap">
+                <span class="field-label">Ihre PLZ</span>
+                <input type="text" [(ngModel)]="customerData.address.zip" placeholder="12345" />
+              </div>
+            </div>
+            <div class="form-group">
+              <div class="field-wrap">
+                <span class="field-label">Ort</span>
+                <input
+                  type="text"
+                  [(ngModel)]="customerData.address.city"
+                  placeholder="Musterhausen"
+                />
+              </div>
+            </div>
+          </div>
+
+          <div class="form-row">
+            <div class="form-group">
+              <div class="field-wrap">
+                <span class="field-label">Ihre Straße</span>
+                <input
+                  type="text"
+                  [(ngModel)]="customerData.address.street"
+                  placeholder="Mustermannstraße"
+                />
+              </div>
+            </div>
+            <div class="form-group postcode">
+              <div class="field-wrap">
+                <span class="field-label">Hausnummer</span>
+                <input
+                  type="text"
+                  [(ngModel)]="customerData.address.houseNumber"
+                  placeholder="456"
+                />
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="form-actions">
+          <button type="button" class="btn-primary" (click)="saveAddressData()">
+            Ändern &amp; Speichern
+          </button>
+        </div>
+      </div>
+
+      
+      <div class="profile-orange-header">Weitere Adresse(n)</div>
+      <div class="tab-row">
+        <div class="table-scroll">
+          <div class="address-table">
+            <div class="address-table-header">
+              <div>Anrede</div>
+              <div>Titel</div>
+              <div>Vorname</div>
+              <div>Nachname</div>
+              <div>PLZ</div>
+              <div>Ort</div>
+              <div>Straße</div>
+              <div>Hausnummer</div>
+              <div>Editieren</div>
+            </div>
+            <div class="address-table-row" *ngFor="let addr of customerData.additionalAddresses">
+              <div>{{ addr.salutation }}</div>
+              <div>{{ addr.title }}</div>
+              <div>{{ addr.firstName }}</div>
+              <div>{{ addr.lastName }}</div>
+              <div>{{ addr.zip }}</div>
+              <div>{{ addr.city }}</div>
+              <div>{{ addr.street }}</div>
+              <div>{{ addr.houseNumber }}</div>
+              <div>
+                <span class="link">ändern</span>
+                <span class="material-symbols-outlined edit-icon">edit_square</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div> -->
     <!--══════════ Profile – Adressen End ══════════-->
 
     <!--══════════ Profile – Zähler (Tab - 0, sub: meters) ══════════-->
-    <div class="customer-profile-box" *ngIf="activeTab === 0 && currentStep === 1 && profileSubTab === 'meters'">
+    <div
+      class="customer-profile-box"
+      *ngIf="activeTab === 0 && currentStep === 1 && profileSubTab === 'meters'"
+    >
       <div class="profile-orange-header">Meine Standard-Zähler</div>
 
       <div class="tab-row">
         <div>
           <div class="tab-header">Zähler einsehen / ändern</div>
           <div class="tab-text">
-            Sie haben einen neuen Zähler? Bitte einfach die neuen Daten eingeben und mit einem klick auf den Button
-            „Ändern &amp; Speichern" klicken.
+            Sie haben einen neuen Zähler? Bitte einfach die neuen Daten eingeben und mit einem klick
+            auf den Button „Ändern &amp; Speichern" klicken.
           </div>
         </div>
 
@@ -419,12 +761,14 @@
     <!--══════════ Profile – Zähler End ══════════-->
 
     <!--══════════ Profile – Zahlungsdaten (Tab - 0, sub: payment) ══════════-->
-    <div class="customer-profile-box" *ngIf="activeTab === 0 && currentStep === 1 && profileSubTab === 'payment'">
+    <div
+      class="customer-profile-box"
+      *ngIf="activeTab === 0 && currentStep === 1 && profileSubTab === 'payment'"
+    >
       <div class="profile-orange-header">Meine Standard-Zahlungsarten</div>
 
       <div class="tab-row">
         <div class="payment-cards-grid">
-
           <!-- Primary private bank account -->
           <div class="payment-sepa-card" *ngFor="let account of customerData.standardBankAccounts">
             <div class="payment-sepa-card-header">
@@ -432,38 +776,72 @@
                 <span class="sepa-label">S€PA</span>
               </div>
               <div class="payment-sepa-badge">
-                {{ account.isPrimaryPrivate ? 'Standard Bankkonto privat' : 'Standard Bankkonto gewerblich' }}
-                <span class="material-symbols-outlined" style="font-size:14px; vertical-align:middle;">info</span>
+                {{
+                  account.isPrimaryPrivate
+                    ? 'Standard Bankkonto privat'
+                    : 'Standard Bankkonto gewerblich'
+                }}
+                <span
+                  class="material-symbols-outlined"
+                  style="font-size: 14px; vertical-align: middle"
+                  >info</span
+                >
               </div>
               <span class="link" (click)="editBankAccount(account)">ändern</span>
-              <span class="material-symbols-outlined edit-icon" (click)="editBankAccount(account)">edit_square</span>
+              <span class="material-symbols-outlined edit-icon" (click)="editBankAccount(account)"
+                >edit_square</span
+              >
             </div>
 
-            <div class="payment-sepa-name">Name der Bankverbindung: <strong>{{ account.bankName }}</strong></div>
+            <div class="payment-sepa-name">
+              Name der Bankverbindung: <strong>{{ account.bankName }}</strong>
+            </div>
 
             <div class="payment-sepa-details">
-              <div class="payment-detail-row"><span>Private Bankverbindung</span><strong>{{ account.isPrivate ? 'Ja' :
-                  'Nein' }}</strong></div>
-              <div class="payment-detail-row"><span>Geschäftliche Bankverbindung</span><strong>{{ account.isBusiness ?
-                  'Ja' : 'Nein' }}</strong></div>
-              <div class="payment-detail-row"><span>Sonstiges</span><strong>{{ account.isOther ? 'Ja' : 'Nein'
-                  }}</strong></div>
-              <div class="payment-detail-row"><span>IBAN</span><strong>{{ account.iban }}</strong></div>
-              <div class="payment-detail-row"><span>BIC</span><strong>{{ account.bic }}</strong></div>
-              <div class="payment-detail-row"><span>Kontonummer</span><strong>{{ account.accountNumber }}</strong></div>
-              <div class="payment-detail-row"><span>Bankleitzahl</span><strong>{{ account.bankCode }}</strong></div>
-              <div class="payment-detail-row"><span>Name der Bank</span><strong>{{ account.bankName }}</strong></div>
-              <div class="payment-detail-row"><span>Primäre Bankverbindung für gewerbliche Verträge</span><strong>{{
-                  account.isPrimaryBusiness ? 'Ja' : 'Nein' }}</strong></div>
-              <div class="payment-detail-row"><span>Primäre Bankverbindung für private Verträge</span><strong>{{
-                  account.isPrimaryPrivate ? 'Ja' : 'Nein' }}</strong></div>
+              <div class="payment-detail-row">
+                <span>Private Bankverbindung</span
+                ><strong>{{ account.isPrivate ? 'Ja' : 'Nein' }}</strong>
+              </div>
+              <div class="payment-detail-row">
+                <span>Geschäftliche Bankverbindung</span
+                ><strong>{{ account.isBusiness ? 'Ja' : 'Nein' }}</strong>
+              </div>
+              <div class="payment-detail-row">
+                <span>Sonstiges</span><strong>{{ account.isOther ? 'Ja' : 'Nein' }}</strong>
+              </div>
+              <div class="payment-detail-row">
+                <span>IBAN</span><strong>{{ account.iban }}</strong>
+              </div>
+              <div class="payment-detail-row">
+                <span>BIC</span><strong>{{ account.bic }}</strong>
+              </div>
+              <div class="payment-detail-row">
+                <span>Kontonummer</span><strong>{{ account.accountNumber }}</strong>
+              </div>
+              <div class="payment-detail-row">
+                <span>Bankleitzahl</span><strong>{{ account.bankCode }}</strong>
+              </div>
+              <div class="payment-detail-row">
+                <span>Name der Bank</span><strong>{{ account.bankName }}</strong>
+              </div>
+              <div class="payment-detail-row">
+                <span>Primäre Bankverbindung für gewerbliche Verträge</span
+                ><strong>{{ account.isPrimaryBusiness ? 'Ja' : 'Nein' }}</strong>
+              </div>
+              <div class="payment-detail-row">
+                <span>Primäre Bankverbindung für private Verträge</span
+                ><strong>{{ account.isPrimaryPrivate ? 'Ja' : 'Nein' }}</strong>
+              </div>
             </div>
 
-            <button type="button" class="btn-primary payment-change-btn" (click)="changeBankAccount(account)">
+            <button
+              type="button"
+              class="btn-primary payment-change-btn"
+              (click)="changeBankAccount(account)"
+            >
               Zahlungsart Ändern
             </button>
           </div>
-
         </div>
       </div>
 
@@ -502,10 +880,10 @@
     <!--══════════ Profile Section End (Tab - 0) ══════════-->
 
     <!--══════════ Meters Section Start (Tab - 1) ══════════-->
-    <div class="" *ngIf="activeTab === 1 && currentStep === 1">
+    <div *ngIf="activeTab === 1 && currentStep === 1">
       <div class="login-berich">Übersicht Zähler & Verträge</div>
       <br />
-      <div class="meter-section">
+      <div class="meter-section" *ngIf="viewSection != 2">
         <div class="meter-section-header">Meine Zähler</div>
 
         <div class="meter-wrapper">
@@ -534,7 +912,11 @@
                   <a class="anpassen">
                     anpassen
                     <span class="item-image">
-                      <img src="assets/icons/Bearbeiten_schwarz.png" class="icon-check" alt="check" />
+                      <img
+                        src="assets/icons/Bearbeiten_schwarz.png"
+                        class="icon-check"
+                        alt="check"
+                      />
                     </span>
                   </a>
                 </div>
@@ -545,16 +927,6 @@
                 <p>{{ item.address.name }}</p>
                 <p>{{ item.address.street }}</p>
                 <p>{{ item.address.city }}</p>
-
-                <button class="meter-blue-btn" (click)="nextStep(2)">Zählerstand melden</button>
-
-                <button class="meter-blue-btn">Zähleraustausch melden</button>
-
-                <button class="meter-blue-btn">Abschlag ändern</button>
-
-                <button class="meter-blue-btn">Rechnungen anfordern</button>
-
-                <button class="meter-blue-btn full">Nachricht an Energielieferanten senden</button>
               </div>
 
               <!-- RIGHT -->
@@ -613,14 +985,6 @@
                   <strong>Kundennummer:</strong>
                   {{ item.customerNumber }}
                 </p>
-
-                <button class="meter-orange-btn">Anfrage an Ihren Berater stellen</button>
-
-                <button class="meter-orange-btn">Rückruf von Berater anfordern</button>
-
-                <button class="meter-orange-btn">Umzug melden</button>
-
-                <button class="meter-orange-btn">Kündigungsservice</button>
               </div>
             </div>
           </div>
@@ -629,33 +993,36 @@
 
       <!-- INACTIVE / CANCELLED METERS -->
 
-      <div class="inactive-meter-section">
+      <!-- <div class="inactive-meter-section" *ngIf="viewSection != 2">
         <div class="inactive-meter-wrapper">
-          <div class="inactive-meter-card" *ngFor="let item of inactiveMeterList" (click)="nextStep(2)">
-            <!-- STATUS -->
+          <div
+            class="inactive-meter-card"
+            *ngFor="let item of inactiveMeterList"
+          >
+           
             <div class="inactive-status-row">
               <div class="inactive-meter-top-status">
                 {{ item.status }}
               </div>
             </div>
 
-            <!-- MAIN ROW -->
+            
             <div class="inactive-main-row">
-              <!-- LEFT SIDE -->
+           
               <div class="inactive-left">
-                <!-- IMAGE -->
+               
                 <div class="meter-top">
                   <div class="inactive-meter-icon-box">
                     <img [src]="item.meterIcon" alt="meter" />
                   </div>
                 </div>
 
-                <!-- TITLE -->
+               
                 <div class="meter-tariff">
                   {{ item.tariff }}
                 </div>
 
-                <!-- BADGE -->
+                
                 <div class="inactive-provider-badge">
                   <img [src]="item.providerIcon" alt="provider" class="inactive-provider-icon" />
 
@@ -663,15 +1030,15 @@
                 </div>
               </div>
 
-              <!-- RIGHT SIDE -->
+             
               <div class="inactive-right">
-                <!-- METER -->
+              
                 <div class="inactive-meter-number-row">
                   <strong>Zählernummer:</strong>
                   <span>{{ item.meterNumber }}</span>
                 </div>
 
-                <!-- ADDRESS -->
+               
                 <div class="inactive-address">
                   <p>
                     <strong>Adresse:</strong>
@@ -682,7 +1049,7 @@
                   <p>{{ item.address.city }}</p>
                 </div>
 
-                <!-- CONTRACT -->
+               
                 <div class="inactive-contract-details">
                   <p>
                     Vertragsnummer:
@@ -703,13 +1070,13 @@
             </div>
           </div>
         </div>
-      </div>
-      <br />
-      <div class="meter-section">
+      </div> -->
+      <br *ngIf="viewSection == 0" />
+      <div class="meter-section" *ngIf="viewSection != 1">
         <div class="meter-section-header">Meine Verträge</div>
 
         <div class="meter-wrapper">
-          <div class="meter-card" *ngFor="let item of electricityList" (click)="nextStep(2)">
+          <div class="meter-card" *ngFor="let item of electricityList">
             <!-- STATUS -->
             <div class="meter-card-top">
               <div class="meter-top-status">
@@ -723,7 +1090,7 @@
               <div class="meter-left">
                 <!-- PROVIDER LOGO -->
                 <div class="meter-logo">
-                  <img [src]="item.meterIcon" alt="provider" />
+                  <img [src]="item.meterIcon" style="width: 100%; height: 100%" alt="provider" />
                 </div>
 
                 <!-- TARIFF -->
@@ -759,6 +1126,19 @@
                   <p>{{ item.address.street }}</p>
                   <p>{{ item.address.city }}</p>
                 </div>
+                <button class="meter-blue-btn"   (click)="reportMeterReading(3, item)">
+                  Zählerstand melden
+                </button>
+
+                <button class="meter-blue-btn">Zähleraustausch melden</button>
+
+                <button class="meter-blue-btn">Vertragsdetails ändern</button>
+
+                <button class="meter-blue-btn">Abschlag ändern</button>
+
+                <button class="meter-blue-btn">Rechnungen anfordern</button>
+
+                <button class="meter-blue-btn full">Nachricht an Energielieferanten senden</button>
               </div>
 
               <!-- RIGHT -->
@@ -828,6 +1208,14 @@
                     <strong>{{ item.marketLocation }}</strong>
                   </p>
                 </div>
+
+                <button class="meter-orange-btn">Anfrage an Ihren Berater stellen</button>
+
+                <button class="meter-orange-btn">Rückruf von Berater anfordern</button>
+
+                <button class="meter-orange-btn">Umzug melden</button>
+
+                <button class="meter-orange-btn">Kündigungsservice</button>
               </div>
             </div>
             <!-- BUTTONS -->
@@ -843,43 +1231,46 @@
       </div>
       <!-- INACTIVE / CANCELLED METERS -->
 
-      <div class="inactive-meter-section">
+      <!-- <div class="inactive-meter-section" *ngIf="viewSection != 1">
         <div class="inactive-meter-wrapper">
-          <div class="inactive-meter-card" *ngFor="let item of inactiveMeterList2" (click)="nextStep(2)">
-            <!-- STATUS -->
+          <div
+            class="inactive-meter-card"
+            *ngFor="let item of inactiveMeterList2"
+          >
+           
             <div class="inactive-status-row">
               <div class="inactive-meter-top-status">
                 {{ item.status }}
               </div>
             </div>
 
-            <!-- MAIN ROW -->
+          
             <div class="inactive-main-row">
-              <!-- LEFT SIDE -->
+            
               <div class="inactive-left">
-                <!-- IMAGE -->
+               
                 <div class="inactive-meter-icon-box" style="width: auto">
                   <img [src]="item.brandImage" alt="meter" />
                 </div>
 
-                <!-- TITLE -->
+              
                 <div class="meter-tariff">
                   {{ item.tariff }}
                 </div>
 
-                <!-- BADGE -->
+              
                 <div class="inactive-provider-badge">
                   <img [src]="item.providerIcon" alt="provider" class="inactive-provider-icon" />
 
                   <span>{{ item.providerType }}</span>
                 </div>
-                <!-- METER -->
+               
                 <div class="inactive-meter-number-row">
                   <strong>Zählernummer:</strong>
                   <span>{{ item.meterNumber }}</span>
                 </div>
 
-                <!-- ADDRESS -->
+              
                 <div class="inactive-address">
                   <p>
                     <strong>Adresse:</strong>
@@ -891,10 +1282,9 @@
                 </div>
               </div>
 
-              <!-- RIGHT SIDE -->
-              <!-- RIGHT SIDE -->
+             
               <div class="inactive-right">
-                <!-- CONTRACT -->
+               
                 <div class="inactive-contract-details">
                   <p>
                     Vertragsnummer:
@@ -935,10 +1325,10 @@
             </div>
           </div>
         </div>
-      </div>
+      </div> -->
     </div>
 
-    <div class="" *ngIf="activeTab === 1 && currentStep === 2">
+    <div *ngIf="activeTab === 1 && currentStep === 2">
       <div class="login-berich">Zählerstand melden</div>
       <br />
       <div style="margin-left: 30px"><strong>Zählerstand melden per...</strong></div>
@@ -956,7 +1346,7 @@
         </div>
       </div>
       <br />
-      <div *ngIf="redirect === 1">
+      <!-- <div *ngIf="redirect === 1">
         <div style="margin-left: 30px">
           <strong>Einzeleingabe Zählerstand</strong>
           <p>Bitte wählen Sie den Zähler aus, für welchen Sie den Zählerstand melden möchten</p>
@@ -967,13 +1357,9 @@
 
           <div class="meter-wrapper">
             <div class="meter-card" *ngFor="let item of meterList">
-              <!-- TOP -->
-
-              <!-- PROVIDER BADGE -->
-
-              <!-- BODY -->
+            
               <div class="meter-body">
-                <!-- LEFT -->
+              
                 <div class="meter-left">
                   <div class="meter-top">
                     <div class="meter-icon-box">
@@ -991,7 +1377,11 @@
                     <a class="anpassen">
                       anpassen
                       <span class="item-image">
-                        <img src="assets/icons/Bearbeiten_schwarz.png" class="icon-check" alt="check" />
+                        <img
+                          src="assets/icons/Bearbeiten_schwarz.png"
+                          class="icon-check"
+                          alt="check"
+                        />
                       </span>
                     </a>
                   </div>
@@ -1004,7 +1394,7 @@
                   <p>{{ item.address.city }}</p>
                 </div>
 
-                <!-- RIGHT -->
+              
                 <div class="meter-right">
                   <div class="meter-top-content">
                     <p>
@@ -1029,7 +1419,7 @@
                   </p>
                 </div>
               </div>
-              <!-- OUTSIDE BUTTON -->
+           
               <div class="meter-bottom-btn-section">
                 <button class="meter-select-btn" (click)="nextRoute(2)">Zähler auswählen</button>
               </div>
@@ -1051,41 +1441,45 @@
           <div class="meter-wrapper">
             <div class="meter-card-wrapper" *ngFor="let item of electricity">
               <div class="meter-card">
-                <!-- BODY -->
+               
                 <div class="meter-body">
-                  <!-- LEFT -->
+                
                   <div class="meter-left">
-                    <!-- PROVIDER LOGO -->
+                    
                     <div class="meter-logo">
                       <img [src]="item.meterIcon" alt="provider" />
                     </div>
 
-                    <!-- TARIFF -->
+                   
                     <div class="meter-tariff">
                       {{ item.tariff }}
                     </div>
 
-                    <!-- BADGE -->
+                   
                     <div class="meter-provider-badge">
                       <img [src]="item.providerIcon" alt="provider" class="meter-provider-icon" />
 
                       <span>{{ item.providerType }}</span>
                     </div>
 
-                    <!-- METER LABEL -->
+                   
                     <div class="meter-info-row meter-label-row">
                       <p><strong>Zählerbezeichnung:</strong></p>
 
                       <a class="anpassen">
                         ändern
 
-                        <img src="assets/icons/Bearbeiten_schwarz.png" class="icon-check" alt="edit" />
+                        <img
+                          src="assets/icons/Bearbeiten_schwarz.png"
+                          class="icon-check"
+                          alt="edit"
+                        />
                       </a>
                     </div>
 
                     <p class="meter-small-text">{{ item.meterName }}</p>
 
-                    <!-- ADDRESS -->
+                   
                     <div class="meter-address">
                       <p><strong>Adresse:</strong></p>
 
@@ -1095,9 +1489,9 @@
                     </div>
                   </div>
 
-                  <!-- RIGHT -->
+                
                   <div class="meter-right">
-                    <!-- CONTRACT -->
+                  
                     <div class="inactive-contract-details">
                       <p>
                         Vertragsnummer:
@@ -1110,7 +1504,7 @@
                       </p>
                     </div>
 
-                    <!-- BOTTOM DETAILS -->
+                   
                     <div class="meter-bottom-details">
                       <p>
                         Zählernummer:
@@ -1132,7 +1526,7 @@
             </div>
           </div>
         </div>
-      </div>
+      </div> -->
 
       <div *ngIf="redirect === 3">
         <div class="selected-contract-wrapper">
@@ -1146,15 +1540,18 @@
               <div class="contract-top">
                 <!-- LEFT -->
                 <div class="contract-left">
-                  <img src="assets/icons/Icons_energyprovider/eon.png" alt="provider" class="provider-logo" />
+                  <img [src]="selectedMeter.meterIcon" alt="provider" class="provider-logo" />
 
-                  <div class="provider-name">E.ON ÖkoStrom Extra 12</div>
+                  <div class="provider-name">
+                    {{ selectedMeter.tariff }}
+                  </div>
 
                   <div class="meter-provider-badge">
-                    <img src="assets/icons/65bd2fa8-bd0e-497e-a781-a3c434fe6176_Stromvergleich.png" alt=""
-                      class="badge-icon" />
+                    <img [src]="selectedMeter.providerIcon" alt="" class="badge-icon" />
 
-                    <span>Strom | Hausstrom</span>
+                    <span>
+                      {{ selectedMeter.providerType }}
+                    </span>
                   </div>
                 </div>
 
@@ -1165,17 +1562,27 @@
 
                     <a class="change-link">
                       ändern
-
                       <img src="assets/icons/Bearbeiten_schwarz.png" alt="edit" />
                     </a>
                   </div>
 
-                  <div class="meter-id">MHD-OZR-1325-79-45943268</div>
+                  <div class="meter-id">
+                    {{ selectedMeter.meterName }}
+                  </div>
 
                   <div class="address-wrap">
-                    <p><strong>Adresse:</strong> Marie Mustermann</p>
-                    <p>Mustermannstraße 29</p>
-                    <p>12345 Musterhausen</p>
+                    <p>
+                      <strong>Adresse:</strong>
+                      {{ selectedMeter.address.name }}
+                    </p>
+
+                    <p>
+                      {{ selectedMeter.address.street }}
+                    </p>
+
+                    <p>
+                      {{ selectedMeter.address.city }}
+                    </p>
                   </div>
                 </div>
 
@@ -1183,24 +1590,32 @@
                 <div class="contract-right">
                   <p>
                     Vertragsnummer:
-                    <strong>0215/123456789</strong>
+                    <strong>
+                      {{ selectedMeter.contractNumber }}
+                    </strong>
                   </p>
 
                   <p>
                     Kundennummer:
-                    <strong>2026-1234567890</strong>
+                    <strong>
+                      {{ selectedMeter.customerNumber }}
+                    </strong>
                   </p>
 
                   <br />
 
                   <p>
                     Zählernummer:
-                    <strong>MHD-OZR-1325-79-45943268</strong>
+                    <strong>
+                      {{ selectedMeter.meterNumber }}
+                    </strong>
                   </p>
 
                   <p>
                     Marktlokation-ID:
-                    <strong>MLID-054321-98674</strong>
+                    <strong>
+                      {{ selectedMeter.marketLocation }}
+                    </strong>
                   </p>
                 </div>
               </div>
@@ -1300,7 +1715,9 @@
               dürfen.
             </span>
           </div>
-          <div style="display: flex; flex-direction: row; justify-content: flex-end; margin-top: 10px">
+          <div
+            style="display: flex; flex-direction: row; justify-content: flex-end; margin-top: 10px"
+          >
             <button class="btn-primary" (click)="nextStep(3)">
               <span class="spinner"></span>
               Bitte Zählerfotos mit Zählernummer und Zählerstand hochladen
@@ -1310,7 +1727,7 @@
       </div>
     </div>
 
-    <div class="" *ngIf="activeTab === 1 && currentStep === 3">
+    <div *ngIf="activeTab === 1 && currentStep === 3">
       <div class="login-berich">Zählerstand melden</div>
 
       <div class="customer-profile-box">
@@ -1378,7 +1795,9 @@
               </div>
             </div>
           </div>
-          <div style="display: flex; flex-direction: row; justify-content: flex-end; margin-top: 10px">
+          <div
+            style="display: flex; flex-direction: row; justify-content: flex-end; margin-top: 10px"
+          >
             <button class="btn-primary">
               <span class="spinner"></span>
               Zählerfotos übermitteln
@@ -1391,10 +1810,13 @@
 
     <!--══════════ Reminder Section Start (Tab - 2) ══════════-->
 
-    <div class="" *ngIf="activeTab === 2 && currentStep === 1">
+    <div *ngIf="activeTab === 2 && currentStep === 1">
       <div class="login-berich">Wechselerinnerung</div>
       <br />
-      <div class="attorney-berich-green" style="align-items: start; justify-content: start; padding-left: 20px">
+      <div
+        class="attorney-berich-green"
+        style="align-items: start; justify-content: start; padding-left: 20px"
+      >
         Wechselerinnerung
       </div>
 
@@ -1403,17 +1825,33 @@
         <div class="toggle-row header"></div>
         <div class="toggle-row">
           <div class="toggle-box">
-            <div class="toggle-opt" [class.selected]="selection === 'yes'" (click)="selectOption('yes')">
+            <div
+              class="toggle-opt"
+              [class.selected]="selection === 'yes'"
+              (click)="selectOption('yes')"
+            >
               <label class="cb-row">
-                <input type="checkbox" name="selectionYes" [checked]="selection === 'yes'"
-                  (click)="$event.stopPropagation()" />
+                <input
+                  type="checkbox"
+                  name="selectionYes"
+                  [checked]="selection === 'yes'"
+                  (click)="$event.stopPropagation()"
+                />
               </label>
               Ja
             </div>
-            <div class="toggle-opt" [class.selected]="selection === 'no'" (click)="selectOption('no')">
+            <div
+              class="toggle-opt"
+              [class.selected]="selection === 'no'"
+              (click)="selectOption('no')"
+            >
               <label class="cb-row">
-                <input type="checkbox" name="selectionNo" [checked]="selection === 'no'"
-                  (click)="$event.stopPropagation()" />
+                <input
+                  type="checkbox"
+                  name="selectionNo"
+                  [checked]="selection === 'no'"
+                  (click)="$event.stopPropagation()"
+                />
               </label>
               Nein
             </div>
@@ -1429,7 +1867,10 @@
       <div *ngFor="let group of groupedContracts">
         <!-- ADDRESS HEADER -->
         <div style="border-radius: 0 0 8px 8px; border: 1px solid #00a651; margin-bottom: 20px">
-          <div class="attorney-berich-green" style="align-items: start; justify-content: start; padding-left: 20px">
+          <div
+            class="attorney-berich-green"
+            style="align-items: start; justify-content: start; padding-left: 20px"
+          >
             Ihre Verträge und Kündigungsfristen - {{ group.addressLabel }}
           </div>
 
@@ -1493,8 +1934,11 @@
                 <div *ngIf="isNotificationEnabled">
                   <div class="toggle-wrap">
                     <label class="switch">
-                      <input type="checkbox" [(ngModel)]="contract.notificationEnabled"
-                        (change)="toggleDeliveryNotification(contract)" />
+                      <input
+                        type="checkbox"
+                        [(ngModel)]="contract.notificationEnabled"
+                        (change)="toggleDeliveryNotification(contract)"
+                      />
                       <span class="slider"></span>
                     </label>
                   </div>
@@ -1573,14 +2017,21 @@
 
             <div class="service-card-container" #scrollContainer>
               <!-- Orange Card -->
-              <div class="service-card add-service-card" [class.inactive]="selectedIndex !== -1"
-                (click)="selectOrangeCard()">
+              <div
+                class="service-card add-service-card"
+                [class.inactive]="selectedIndex !== -1"
+                (click)="selectOrangeCard()"
+              >
                 <div class="icon">
-                  <img [src]="
+                  <img
+                    [src]="
                       selectedIndex === -1
                         ? '/assets/icons/service_white.png'
                         : '/assets/icons/service_orange.png'
-                    " class="logo" alt="logo" />
+                    "
+                    class="logo"
+                    alt="logo"
+                  />
                 </div>
 
                 <div class="text">
@@ -1590,8 +2041,12 @@
               </div>
 
               <!-- Cards -->
-              <div class="service-card contract-service-card" *ngFor="let card of cards; let i = index"
-                (click)="selectCard(i, card.deliveryId)" [class.active]="selectedIndex === i">
+              <div
+                class="service-card contract-service-card"
+                *ngFor="let card of cards; let i = index"
+                (click)="selectCard(i, card.deliveryId)"
+                [class.active]="selectedIndex === i"
+              >
                 <!-- Logo -->
                 <div class="logo-row">
                   <img [src]="card.logo" class="logo" />
@@ -1664,15 +2119,23 @@
             <div #dropdownContainer class="form-group service-input">
               <div class="field-wrap dropdown-wrap" (click)="toggleDropdown($event)">
                 <!-- Selected value -->
-                <input type="text" [value]="selectedCategory?.serviceName || ''" placeholder="Bitte wählen..."
-                  readonly />
+                <input
+                  type="text"
+                  [value]="selectedCategory?.serviceName || ''"
+                  placeholder="Bitte wählen..."
+                  readonly
+                />
 
                 <!-- Custom Arrow -->
                 <span class="arrow"></span>
 
                 <!-- Dropdown -->
                 <div class="dropdown" *ngIf="showDropdown">
-                  <div class="dropdown-item" *ngFor="let item of categories" (click)="selectCategory(item, $event)">
+                  <div
+                    class="dropdown-item"
+                    *ngFor="let item of categories"
+                    (click)="selectCategory(item, $event)"
+                  >
                     {{ item.serviceName }}
                   </div>
                 </div>
@@ -1685,24 +2148,35 @@
             <div class="form-group label">
               <div class="tab-heading">Ihr Anfragetext</div>
             </div>
-            <textarea class="textarea" rows="5" [(ngModel)]="inquiryText"
-              placeholder="Wie können wir Ihnen weiterhelfen?"></textarea>
+            <textarea
+              class="textarea"
+              rows="5"
+              [(ngModel)]="inquiryText"
+              placeholder="Wie können wir Ihnen weiterhelfen?"
+            ></textarea>
             <div class="field-error-msg" *ngIf="fieldErrors['inquiryText']">
               {{ fieldErrors['inquiryText'] }}
             </div>
 
-            <div style="
+            <div
+              style="
                 display: flex;
                 flex-direction: row;
                 justify-content: flex-end;
                 margin-top: 10px;
-              ">
+              "
+            >
               <!-- <button class="btn-primary" (click)="submitRequest()">
                   <span class="spinner"></span>
                   Anfrage abschicken
                 </button> -->
 
-              <button type="button" class="btn-primary" [disabled]="isLoadingNewReq" (click)="submitRequest()">
+              <button
+                type="button"
+                class="btn-primary"
+                [disabled]="isLoadingNewReq"
+                (click)="submitRequest()"
+              >
                 <span *ngIf="isLoadingNewReq; else normal">
                   <span class="spinner"></span> Einreichen...
                 </span>
@@ -1752,7 +2226,10 @@
                         anzeigen
                       </span>
 
-                      <span class="material-symbols-outlined edit-icon" (click)="openDetails(req.serviceRequestId)">
+                      <span
+                        class="material-symbols-outlined edit-icon"
+                        (click)="openDetails(req.serviceRequestId)"
+                      >
                         edit_square
                       </span>
                     </div>
@@ -1802,9 +2279,14 @@
                     <div>{{ req.title }}</div>
 
                     <div class="details">
-                      <span class="link" (click)="openDetails(req.serviceRequestId)"> anzeigen </span>
+                      <span class="link" (click)="openDetails(req.serviceRequestId)">
+                        anzeigen
+                      </span>
 
-                      <span class="material-symbols-outlined edit-icon" (click)="openDetails(req.serviceRequestId)">
+                      <span
+                        class="material-symbols-outlined edit-icon"
+                        (click)="openDetails(req.serviceRequestId)"
+                      >
                         edit_square
                       </span>
                     </div>
@@ -1862,8 +2344,11 @@
 
             <!-- Messages (COMMON) -->
             <div class="message-container">
-              <div class="message-card" *ngFor="let msg of messages"
-                [ngClass]="msg.type === 'customer' ? 'right' : 'left'">
+              <div
+                class="message-card"
+                *ngFor="let msg of messages"
+                [ngClass]="msg.type === 'customer' ? 'right' : 'left'"
+              >
                 <div class="message-title">
                   {{ msg.title }}
                 </div>
@@ -1876,12 +2361,19 @@
               <div class="new-message-section">
                 <div class="new-message-title">Neue Nachricht hinzufügen</div>
 
-                <textarea class="new-message-input" [(ngModel)]="newMessage"
-                  placeholder="Ihre Nachricht eingeben..."></textarea>
+                <textarea
+                  class="new-message-input"
+                  [(ngModel)]="newMessage"
+                  placeholder="Ihre Nachricht eingeben..."
+                ></textarea>
               </div>
 
               <div class="action-row">
-                <button class="btn-primary" (click)="sendMessage(currentServiceRequestId)" [disabled]="isLoadingNewMsg">
+                <button
+                  class="btn-primary"
+                  (click)="sendMessage(currentServiceRequestId)"
+                  [disabled]="isLoadingNewMsg"
+                >
                   <span *ngIf="isLoadingNewMsg" class="spinner"></span>
                   Nachricht abschicken
                 </button>
@@ -1935,9 +2427,14 @@
                     <div>{{ req.title }}</div>
 
                     <div class="details">
-                      <span class="link" (click)="openDetails(req.serviceRequestId)"> anzeigen </span>
+                      <span class="link" (click)="openDetails(req.serviceRequestId)">
+                        anzeigen
+                      </span>
 
-                      <span class="material-symbols-outlined edit-icon" (click)="openDetails(req.serviceRequestId)">
+                      <span
+                        class="material-symbols-outlined edit-icon"
+                        (click)="openDetails(req.serviceRequestId)"
+                      >
                         edit_square
                       </span>
                     </div>
@@ -2011,15 +2508,21 @@
               </div>
             </div>
             <!-- Action Button -->
-            <div style="
+            <div
+              style="
                 display: flex;
                 flex-direction: row;
                 justify-content: flex-end;
                 margin-top: 10px;
                 gap: 20px;
-              ">
-              <button type="button" class="btn-primary" [disabled]="isLoadingReopen"
-                (click)="reOpenservice(currentServiceRequestId)">
+              "
+            >
+              <button
+                type="button"
+                class="btn-primary"
+                [disabled]="isLoadingReopen"
+                (click)="reOpenservice(currentServiceRequestId)"
+              >
                 <span *ngIf="isLoadingReopen; else normal">
                   <span class="spinner"></span> Einreichen...
                 </span>
@@ -2046,9 +2549,9 @@
     <div class="customer-profile-box" *ngIf="activeTab === 4 && currentStep === 1">
       <div class="attorney-berich">
         {{
-        customerType === 'BUSINESS'
-        ? 'Beratervollmacht für Geschäftskunden'
-        : 'Beratervollmacht für Privatkunden'
+          customerType === 'BUSINESS'
+            ? 'Beratervollmacht für Geschäftskunden'
+            : 'Beratervollmacht für Privatkunden'
         }}
       </div>
 
@@ -2085,13 +2588,15 @@
           </div>
         </div>
 
-        <div style="display: flex; flex-direction: row; justify-content: flex-end; margin-top: 10px">
+        <div
+          style="display: flex; flex-direction: row; justify-content: flex-end; margin-top: 10px"
+        >
           <button class="btn-primary" (click)="attorneyMailSend()">
             <span class="spinner"></span>
             {{
-            customerType === 'BUSINESS'
-            ? 'Erteilung einer Vollmacht für Geschäftskunden'
-            : 'Beratervollmacht für Privatkunden erteilen'
+              customerType === 'BUSINESS'
+                ? 'Erteilung einer Vollmacht für Geschäftskunden'
+                : 'Beratervollmacht für Privatkunden erteilen'
             }}
           </button>
         </div>
@@ -2101,9 +2606,9 @@
     <div class="customer-profile-box" *ngIf="activeTab === 4 && currentStep === 2">
       <div class="attorney-berich">
         {{
-        customerType === 'BUSINESS'
-        ? 'Beratervollmacht für Geschäftskunden'
-        : 'Beratervollmacht für Privatkunden'
+          customerType === 'BUSINESS'
+            ? 'Beratervollmacht für Geschäftskunden'
+            : 'Beratervollmacht für Privatkunden'
         }}
       </div>
 
@@ -2138,9 +2643,9 @@
         <div class="form-group">
           <div class="tab-header">
             {{
-            customerType === 'BUSINESS'
-            ? 'Vollmacht für Geschäftskunden'
-            : 'Vollmacht für Privatkunden'
+              customerType === 'BUSINESS'
+                ? 'Vollmacht für Geschäftskunden'
+                : 'Vollmacht für Privatkunden'
             }}
           </div>
           <div class="tab-text">Hiermit bevollmächtigt</div>
@@ -2150,8 +2655,13 @@
             <div class="form-group" *ngIf="customerType === 'BUSINESS'">
               <div class="field-wrap readonly">
                 <span class="field-label">Firma</span>
-                <input type="text" class="text-field" [(ngModel)]="customerData.companyName"
-                  placeholder="Muelli Industries" readonly />
+                <input
+                  type="text"
+                  class="text-field"
+                  [(ngModel)]="customerData.companyName"
+                  placeholder="Muelli Industries"
+                  readonly
+                />
                 <span class="field-icon">
                   <img src="assets/icons/Schloss.png" class="icon-schloss" alt="check" />
                 </span>
@@ -2160,7 +2670,12 @@
             <div class="form-group">
               <div class="field-wrap readonly">
                 <span class="field-label">Anrede</span>
-                <input type="text" class="text-field" [(ngModel)]="customerData.salutation" readonly />
+                <input
+                  type="text"
+                  class="text-field"
+                  [(ngModel)]="customerData.salutation"
+                  readonly
+                />
                 <span class="field-icon">
                   <img src="assets/icons/Schloss.png" class="icon-schloss" alt="check" />
                 </span>
@@ -2202,7 +2717,12 @@
             <div class="form-group">
               <div class="field-wrap readonly">
                 <span class="field-label">Vorname</span>
-                <input type="text" class="text-field" [(ngModel)]="customerData.firstName" readonly />
+                <input
+                  type="text"
+                  class="text-field"
+                  [(ngModel)]="customerData.firstName"
+                  readonly
+                />
                 <span class="field-icon">
                   <img src="assets/icons/Schloss.png" class="icon-schloss" alt="check" />
                 </span>
@@ -2211,7 +2731,12 @@
             <div class="form-group">
               <div class="field-wrap readonly">
                 <span class="field-label">Nachname</span>
-                <input type="text" class="text-field" [(ngModel)]="customerData.lastName" readonly />
+                <input
+                  type="text"
+                  class="text-field"
+                  [(ngModel)]="customerData.lastName"
+                  readonly
+                />
                 <span class="field-icon">
                   <img src="assets/icons/Schloss.png" class="icon-schloss" alt="check" />
                 </span>
@@ -2223,7 +2748,12 @@
             <div class="form-group postcode">
               <div class="field-wrap readonly">
                 <span class="field-label">Ihre PLZ</span>
-                <input type="text" class="text-field" [(ngModel)]="customerData.address.zip" readonly />
+                <input
+                  type="text"
+                  class="text-field"
+                  [(ngModel)]="customerData.address.zip"
+                  readonly
+                />
                 <span class="field-icon">
                   <img src="assets/icons/Schloss.png" class="icon-schloss" alt="check" />
                 </span>
@@ -2232,7 +2762,12 @@
             <div class="form-group">
               <div class="field-wrap readonly">
                 <span class="field-label">Ort</span>
-                <input type="text" class="text-field" [(ngModel)]="customerData.address.city" readonly />
+                <input
+                  type="text"
+                  class="text-field"
+                  [(ngModel)]="customerData.address.city"
+                  readonly
+                />
                 <span class="field-icon">
                   <img src="assets/icons/Schloss.png" class="icon-schloss" alt="check" />
                 </span>
@@ -2244,7 +2779,12 @@
             <div class="form-group">
               <div class="field-wrap readonly">
                 <span class="field-label">Ihre Straße</span>
-                <input type="text" class="text-field" [(ngModel)]="customerData.address.street" readonly />
+                <input
+                  type="text"
+                  class="text-field"
+                  [(ngModel)]="customerData.address.street"
+                  readonly
+                />
                 <span class="field-icon">
                   <img src="assets/icons/Schloss.png" class="icon-schloss" alt="check" />
                 </span>
@@ -2253,7 +2793,12 @@
             <div class="form-group postcode">
               <div class="field-wrap readonly">
                 <span class="field-label">Hausnummer</span>
-                <input type="text" class="text-field" [(ngModel)]="customerData.address.houseNumber" readonly />
+                <input
+                  type="text"
+                  class="text-field"
+                  [(ngModel)]="customerData.address.houseNumber"
+                  readonly
+                />
                 <span class="field-icon">
                   <img src="assets/icons/Schloss.png" class="icon-schloss" alt="check" />
                 </span>
@@ -2380,8 +2925,15 @@
           </div>
         </div>
         <div class="error-msg" *ngIf="apiError">{{ apiError }}</div>
-        <div style="display: flex; flex-direction: row; justify-content: flex-end; margin-top: 10px">
-          <button type="button" class="btn-primary" [disabled]="isLoading" (click)="submitAttorney()">
+        <div
+          style="display: flex; flex-direction: row; justify-content: flex-end; margin-top: 10px"
+        >
+          <button
+            type="button"
+            class="btn-primary"
+            [disabled]="isLoading"
+            (click)="submitAttorney()"
+          >
             <span *ngIf="isLoading; else normal">
               <span class="spinner"></span> Einreichen...
             </span>
@@ -2394,14 +2946,17 @@
       </div>
     </div>
 
-    <div class="customer-profile-box" *ngIf="
+    <div
+      class="customer-profile-box"
+      *ngIf="
         activeTab === 4 && currentStep === 3 && approvalStatus === 'PENDING' && recordIsPresent
-      ">
+      "
+    >
       <div class="attorney-berich-green">
         {{
-        customerType === 'BUSINESS'
-        ? 'Beratervollmacht für Geschäftskunden'
-        : 'Beratervollmacht für Privatkunden'
+          customerType === 'BUSINESS'
+            ? 'Beratervollmacht für Geschäftskunden'
+            : 'Beratervollmacht für Privatkunden'
         }}
       </div>
       <div class="tab-row">
@@ -2425,7 +2980,9 @@
             Funktionen im Kundenbereich nicht mehr nutzbar.
           </div>
         </div>
-        <div style="display: flex; flex-direction: row; justify-content: flex-end; margin-top: 10px">
+        <div
+          style="display: flex; flex-direction: row; justify-content: flex-end; margin-top: 10px"
+        >
           <button class="btn-primary" (click)="revoke()">
             <span class="spinner"></span>
             Beratervollmacht widerrufen
@@ -2434,12 +2991,15 @@
       </div>
     </div>
 
-    <div class="customer-profile-box" *ngIf="activeTab === 4 && currentStep === 4 && approvalStatus === 'APPROVED'">
+    <div
+      class="customer-profile-box"
+      *ngIf="activeTab === 4 && currentStep === 4 && approvalStatus === 'APPROVED'"
+    >
       <div class="attorney-berich">
         {{
-        customerType === 'BUSINESS'
-        ? 'Beratervollmacht für Geschäftskunden'
-        : 'Beratervollmacht für Privatkunden'
+          customerType === 'BUSINESS'
+            ? 'Beratervollmacht für Geschäftskunden'
+            : 'Beratervollmacht für Privatkunden'
         }}
       </div>
       <div class="tab-row">
@@ -2503,7 +3063,8 @@
                     <div class="document-details">
                       Arbeitspreis: <strong>{{ doc.workPrice }} Ct./kWh</strong><br />
                       Grundpreis: <strong>{{ doc.basePrice }} €/Monat</strong><br />
-                      Vertragsnummer: <strong>{{ doc.contractNumber }}</strong><br />
+                      Vertragsnummer: <strong>{{ doc.contractNumber }}</strong
+                      ><br />
                       Abschlag geschätzt pro Monat:
                       <strong>{{ doc.monthly }} €</strong>
                     </div>
@@ -2579,7 +3140,8 @@
                   <!-- RIGHT SIDE -->
                   <div class="document-right">
                     <div class="document-details">
-                      Vertragsnummer: <strong>{{ doc.contractNumber }}</strong><br />
+                      Vertragsnummer: <strong>{{ doc.contractNumber }}</strong
+                      ><br />
                       <strong>gekündigt am {{ doc.terminatedOn }}</strong>
                     </div>
                   </div>
@@ -2620,7 +3182,8 @@
                     <div class="document-details">
                       Arbeitspreis: <strong>{{ doc.workPrice }} Ct./kWh</strong><br />
                       Grundpreis: <strong>{{ doc.basePrice }} €/Monat</strong><br />
-                      Vertragsnummer: <strong>{{ doc.contractNumber }}</strong><br />
+                      Vertragsnummer: <strong>{{ doc.contractNumber }}</strong
+                      ><br />
                       Abschlag geschätzt pro Monat:
                       <strong>{{ doc.monthly }} €</strong>
                     </div>
@@ -2716,12 +3279,16 @@
           <div class="field-wrap">
             <div>
               <span class="field-label">Altes Passwort</span>
-              <input #oldPwField name="oldPassword" [(ngModel)]="oldPassword"
-                [type]="showOldPw ? 'text' : 'password'" />
+              <input
+                #oldPwField
+                name="oldPassword"
+                [(ngModel)]="oldPassword"
+                [type]="showOldPw ? 'text' : 'password'"
+              />
             </div>
             <span class="material-symbols-outlined pw-toggle" (click)="showOldPw = !showOldPw">{{
               showOldPw ? 'visibility' : 'visibility_off'
-              }}</span>
+            }}</span>
           </div>
           <div class="field-error-msg" *ngIf="fieldErrors['oldPassword']">
             {{ fieldErrors['oldPassword'] }}
@@ -2736,15 +3303,22 @@
           <div class="field-wrap">
             <div>
               <span class="field-label">Passwort</span>
-              <input #pwField name="newPassword" [type]="showPw ? 'text' : 'password'" [value]="newPassword"
-                [(ngModel)]="newPassword" [style.background-color]="passwordMismatch ? '#fff0f0' : 'white'" (input)="
+              <input
+                #pwField
+                name="newPassword"
+                [type]="showPw ? 'text' : 'password'"
+                [value]="newPassword"
+                [(ngModel)]="newPassword"
+                [style.background-color]="passwordMismatch ? '#fff0f0' : 'white'"
+                (input)="
                   newPassword = $any($event.target).value;
                   validatePassword($any($event.target).value, repField.value)
-                " />
+                "
+              />
             </div>
             <span class="material-symbols-outlined pw-toggle" (click)="showPw = !showPw">{{
               showPw ? 'visibility' : 'visibility_off'
-              }}</span>
+            }}</span>
           </div>
           <div class="field-error-msg" *ngIf="fieldErrors['newPassword']">
             {{ fieldErrors['newPassword'] }}
@@ -2759,13 +3333,18 @@
           <div class="field-wrap">
             <div>
               <span class="field-label">Passwort wiederholen</span>
-              <input #repField name="confirmPassword" [type]="showRepPw ? 'text' : 'password'"
-                [style.background-color]="passwordMismatch ? '#fff0f0' : 'white'" [(ngModel)]="confirmPassword"
-                (input)="validatePassword(pwField.value, $any($event.target).value)" />
+              <input
+                #repField
+                name="confirmPassword"
+                [type]="showRepPw ? 'text' : 'password'"
+                [style.background-color]="passwordMismatch ? '#fff0f0' : 'white'"
+                [(ngModel)]="confirmPassword"
+                (input)="validatePassword(pwField.value, $any($event.target).value)"
+              />
             </div>
             <span class="material-symbols-outlined pw-toggle" (click)="showRepPw = !showRepPw">{{
               showRepPw ? 'visibility' : 'visibility_off'
-              }}</span>
+            }}</span>
           </div>
           <div class="login-text" style="color: #cc0000" *ngIf="passwordMismatch">
             Die Passwörter stimmen nicht überein
@@ -2779,7 +3358,11 @@
           </div>
 
           <div class="guideline-row">
-            <span class="guideline-icon" [class.valid]="pw_length" [class.invalid]="!pw_length"></span>
+            <span
+              class="guideline-icon"
+              [class.valid]="pw_length"
+              [class.invalid]="!pw_length"
+            ></span>
             <span class="login-text" [style.color]="pw_length ? 'green' : '#666'">
               Mindestens 8 und maximal 50 Zeichen
             </span>
@@ -2793,21 +3376,33 @@
           </div>
 
           <div class="guideline-row">
-            <span class="guideline-icon" [class.valid]="pw_special" [class.invalid]="!pw_special"></span>
+            <span
+              class="guideline-icon"
+              [class.valid]="pw_special"
+              [class.invalid]="!pw_special"
+            ></span>
             <span class="login-text" [style.color]="pw_special ? 'green' : '#666'">
               Mindestens ein Sonderzeichen (!, @, $, %, ^, &, *, +, #)
             </span>
           </div>
 
           <div class="guideline-row">
-            <span class="guideline-icon" [class.valid]="pw_number" [class.invalid]="!pw_number"></span>
+            <span
+              class="guideline-icon"
+              [class.valid]="pw_number"
+              [class.invalid]="!pw_number"
+            ></span>
             <span class="login-text" [style.color]="pw_number ? 'green' : '#666'">
               Mindestens eine Zahl
             </span>
           </div>
 
           <div class="guideline-row">
-            <span class="guideline-icon" [class.valid]="pw_number" [class.invalid]="!pw_number"></span>
+            <span
+              class="guideline-icon"
+              [class.valid]="pw_number"
+              [class.invalid]="!pw_number"
+            ></span>
             <span class="login-text" [style.color]="pw_number ? 'green' : '#666'">
               Ihr Passwort darf keine Ähnlichkeit mit ihrer E-Mail-Adresse haben
             </span>
@@ -2816,11 +3411,16 @@
 
         <!-- Back / Next -->
         <div style="flex-direction: row; justify-content: space-between; margin-top: 10px">
-          <button class="btn-back">
-            &lt; Altes Passwort vergessen? Jetzt per E-Mail zurücksetzen!
+          <button class="btn-back" (click)="forgotOldPwd()">
+            {{ successMessage || 'Altes Passwort vergessen? Jetzt per E-Mail zurücksetzen!' }}
           </button>
           <div class="form-actions">
-            <button type="button" class="btn-primary" [disabled]="isLoadingReset" (click)="resetPassword()">
+            <button
+              type="button"
+              class="btn-primary"
+              [disabled]="isLoadingReset"
+              (click)="resetPassword()"
+            >
               <span *ngIf="isLoadingReset; else normal">
                 <span class="spinner"></span> Einreichen...
               </span>
@@ -2855,24 +3455,38 @@
         <div class="email-field">
           <div class="input-field" style="flex: 1; background-color: #afadad; border: none">
             <span class="material-symbols-outlined" style="color: black">account_circle</span>
-            <input name="email" type="email" [value]="customerData.email" style="background-color: #afadad" readonly />
+            <input
+              name="email"
+              type="email"
+              [value]="customerData.email"
+              style="background-color: #afadad"
+              readonly
+            />
           </div>
-          <span style="display: flex; align-items: center; padding-left: 20px"><img src="assets/icons/Schloss.png"
-              class="icon-schloss" alt="check" /></span>
+          <span style="display: flex; align-items: center; padding-left: 20px"
+            ><img src="assets/icons/Schloss.png" class="icon-schloss" alt="check"
+          /></span>
         </div>
         <div class="login-text">
           {{
-          otpInvalid || newOtp
-          ? 'Bitte geben Sie den Code erneut ein, den wir an '
-          : 'Bitte geben Sie den Code ein, den wir an '
+            otpInvalid || newOtp
+              ? 'Bitte geben Sie den Code erneut ein, den wir an '
+              : 'Bitte geben Sie den Code ein, den wir an '
           }}
 
           <strong>{{ customerData.email }}</strong> gesendet haben.
         </div>
         <div class="login-text">Code aus E-Mail eingeben</div>
         <div class="code-inputs" [class.code-error]="otpError">
-          <input *ngFor="let i of [0, 1, 2, 3, 4, 5]" type="text" maxlength="1" [id]="'otp-' + i"
-            (input)="onOtpInput($event, i)" (keydown)="onOtpKeydown($event, i)" (paste)="onOtpPaste($event)" />
+          <input
+            *ngFor="let i of [0, 1, 2, 3, 4, 5]"
+            type="text"
+            maxlength="1"
+            [id]="'otp-' + i"
+            (input)="onOtpInput($event, i)"
+            (keydown)="onOtpKeydown($event, i)"
+            (paste)="onOtpPaste($event)"
+          />
         </div>
 
         <div class="error-msg" *ngIf="otpError">{{ otpError }}</div>
@@ -2880,8 +3494,11 @@
         <div class="login-text">
           Keinen Code erhalten? Bitte prüfen Sie auch Ihren Spam-Ordner.
 
-          <span [style.color]="isResendDisabled ? '#999' : '#0085e0'"
-            [style.pointerEvents]="isResendDisabled ? 'none' : 'auto'" (click)="resendOtp()">
+          <span
+            [style.color]="isResendDisabled ? '#999' : '#0085e0'"
+            [style.pointerEvents]="isResendDisabled ? 'none' : 'auto'"
+            (click)="resendOtp()"
+          >
             <span *ngIf="isResendDisabled">
               Code erneut senden&nbsp;
               <countdown #countdown [config]="config" (event)="handleEvent($event)"></countdown>
@@ -2899,8 +3516,12 @@
             &lt; Zurück
           </button>
           <div class="form-actions">
-            <button type="button" class="btn-primary" [disabled]="isLoading || otpValue.length < 6"
-              (click)="verifyOtp()">
+            <button
+              type="button"
+              class="btn-primary"
+              [disabled]="isLoading || otpValue.length < 6"
+              (click)="verifyOtp()"
+            >
               <span *ngIf="isLoading; else normal"> <span class="spinner"></span> Senden... </span>
 
               <ng-template #normal>

@@ -25,6 +25,7 @@ import { TermsConditions } from './navigation-pages/terms-conditions/terms-condi
 import { Contact } from './navigation-pages/contact/contact';
 import { CreateBusinessAccount } from './navigation-pages/create-account-business/create-account-business';
 import { OrderSignature } from './navigation-pages/order-signature/order-signature';
+import { ForgotOldPassword } from './navigation-pages/forgot-old-password/forgot-old-password';
 
 export const routes: Routes = [
   { path: '', redirectTo: 'home', pathMatch: 'full' },
@@ -60,6 +61,7 @@ export const routes: Routes = [
   { path: 'imprint', component: Imprint },
   { path: 'contact', component: Contact },
   { path: 'order-signature', component: OrderSignature },
+  { path: 'forgot-old-password', component: ForgotOldPassword },
   { path: 'data-protection', component: DataProtection },
   { path: 'terms-conditions', component: TermsConditions },
   { path: 'gas-comparision', component: GasComparision },
