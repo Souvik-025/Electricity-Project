@@ -139,6 +139,32 @@ public class CustomerDto {
 	@Builder
 	@NoArgsConstructor
 	@AllArgsConstructor
+	public static class SingleCustomerResponseDeliveryForAdmin {
+		private Integer id;
+		private String email;
+		private String firstName;
+		private String lastName;
+		private String userType;
+		private String title;
+		private String salutation;
+		private String companyName;
+		private String mobileNumber;
+		private Boolean isVerified;
+		private BigInteger verifiedOn;
+		private BigInteger joinedOn;
+		private Boolean isAcknowledged;
+		private CustomerAddressRes address;
+		private Boolean status;
+		private Boolean isNotificationEnabled;
+		private List<CustomerDeliveryResponseDto> deliveryDetails;
+		private List<CustomerNoteResponseDto> notes;
+		private String lexofficeNumber;
+	}
+
+	@Data
+	@Builder
+	@NoArgsConstructor
+	@AllArgsConstructor
 	public static class SingleCustomerAdminResponseDelivery {
 		private Integer id;
 		private String email;
@@ -240,6 +266,21 @@ public class CustomerDto {
 				.isAcknowledged(customer.getIsAcknowledged())
 				.address(CustomerAddressRes.builder().zip(customer.getZip()).city(customer.getCity())
 						.street(customer.getStreet()).houseNumber(customer.getHouseNumber()).build())
+				.lexofficeNumber(customer.getLexofficeNumber()).build();
+	}
+	
+	public static SingleCustomerResponseDeliveryForAdmin getAdminSingleCustomerResponseDto(Customer customer) {
+		return SingleCustomerResponseDeliveryForAdmin.builder().id(customer.getCustomerId()).email(customer.getEmail())
+				.firstName(customer.getFirstName()).lastName(customer.getLastName())
+				.salutation(customer.getSalutation()).title(customer.getTitle()).userType(customer.getUserType())
+				.isNotificationEnabled(customer.getIsNotificationEnabled()).companyName(customer.getCompanyName())
+				.mobileNumber(customer.getMobileNumber()).status(customer.getStatus())
+				.isVerified(customer.getIsVerified()).joinedOn(customer.getJoinedOn())
+				.isAcknowledged(customer.getIsAcknowledged())
+				.address(CustomerAddressRes.builder().zip(customer.getZip()).city(customer.getCity())
+						.street(customer.getStreet()).houseNumber(customer.getHouseNumber()).build())
+				.notes(Optional.ofNullable(customer.getCustomerNotes()).orElse(Collections.emptyList()).stream()
+						.map(CustomerNoteDto::mapNoteResponse).toList())
 				.lexofficeNumber(customer.getLexofficeNumber()).build();
 	}
 

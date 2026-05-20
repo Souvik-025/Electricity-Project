@@ -154,6 +154,16 @@ public class AdminUser {
 	@JsonIgnoreProperties("admin")
 	private List<CustomerQueryContact> customerQueryContact;
 
+	@OneToMany(mappedBy = "admin", cascade = { CascadeType.PERSIST, CascadeType.REMOVE,
+			CascadeType.MERGE }, orphanRemoval = true)
+	@JsonIgnoreProperties("admin")
+	private List<AdminEmailRequestCategory> emailRequestcategory;
+
+	@OneToMany(mappedBy = "admin", cascade = { CascadeType.PERSIST, CascadeType.REMOVE,
+			CascadeType.MERGE }, orphanRemoval = true)
+	@JsonIgnoreProperties("admin")
+	private List<AdminEmailManagement> emailManagement;
+
 	@OneToOne(mappedBy = "admin", cascade = { CascadeType.PERSIST, CascadeType.MERGE })
 	@JsonIgnore
 	private AdminTaxManagement adminTax;

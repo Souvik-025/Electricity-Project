@@ -13,15 +13,21 @@ import org.springframework.stereotype.Service;
 
 import com.tarifvergleich.electricity.dto.CustomerDto;
 import com.tarifvergleich.electricity.dto.ServiceRequestEmailEvent.ServiceAttachmentMailOfAcknowledgement;
+import com.tarifvergleich.electricity.dto.ServiceRequestEmailEvent.ServiceResponseEmailEvent;
 import com.tarifvergleich.electricity.exception.InternalServerException;
+import com.tarifvergleich.electricity.model.AdminEmailManagement;
 import com.tarifvergleich.electricity.model.AdminUser;
 import com.tarifvergleich.electricity.model.Customer;
 import com.tarifvergleich.electricity.model.CustomerAddress;
 import com.tarifvergleich.electricity.model.CustomerChangePasswordHistory;
 import com.tarifvergleich.electricity.model.CustomerLoginHistory;
+import com.tarifvergleich.electricity.model.TokenManagement;
+import com.tarifvergleich.electricity.repository.AdminEmailManagementRepository;
 import com.tarifvergleich.electricity.repository.AdminUserRepository;
 import com.tarifvergleich.electricity.repository.CustomerAddressRepository;
 import com.tarifvergleich.electricity.repository.CustomerRepository;
+import com.tarifvergleich.electricity.repository.TokenManagementRespository;
+import com.tarifvergleich.electricity.service.AesEncryptionService;
 import com.tarifvergleich.electricity.service.MailService;
 import com.tarifvergleich.electricity.util.EmailTemplate;
 import com.tarifvergleich.electricity.util.Helper;
@@ -40,9 +46,13 @@ public class CustomerAuthService {
 	private final MailService mailService;
 	private final EmailTemplate emailTemplate;
 	private final AdminUserRepository adminUserRepo;
+	private final ApplicationEventPublisher eventPublisher;
+	private final TokenManagementRespository tokenManagementRespo;
+	private final AesEncryptionService aesEncryptionService;
+	private final AdminEmailManagementRepository adminEmailManagementRepo;
+
 	@Value("${otp.verification-timer}")
 	private int expiryMinutes;
-	private final ApplicationEventPublisher eventPublisher;
 
 	@Transactional
 	public Map<String, Object> customerSignUp(CustomerDto customerDto) {
@@ -188,11 +198,20 @@ public class CustomerAuthService {
 
 		Customer savedCustomer = customerRepo.save(newCustomer);
 
-		String subject = "Verify Your Account - Tarifvergleich Electricity";
-		String body = emailTemplate.createOtpEmailBody(savedCustomer.getFirstName(), otp);
+		AdminEmailManagement emailManagement = adminEmailManagementRepo.findByCategoryCateId(1l).orElse(null);
 
-		if (customerDto.getIsVerified() == null || !customerDto.getIsVerified())
-			mailService.sendMail(savedCustomer.getEmail(), subject, body);
+		if (emailManagement == null) {
+			String subject = "Verify Your Account - Tarifvergleich Electricity";
+			String body = emailTemplate.createOtpEmailBody(savedCustomer.getFirstName(), otp);
+
+			if (customerDto.getIsVerified() == null || !customerDto.getIsVerified())
+				mailService.sendMail(savedCustomer.getEmail(), subject, body);
+		} else {
+			String emailBody = emailManagement.getEmailContent().replace("{OTP}", otp);
+			ServiceResponseEmailEvent emailContent = new ServiceResponseEmailEvent(savedCustomer.getEmail(),
+					emailManagement.getTitle(), emailBody);
+			eventPublisher.publishEvent(emailContent);
+		}
 
 		return Map
 				.of("res", true, "data",
@@ -538,7 +557,8 @@ public class CustomerAuthService {
 		return Map.of("res", false, "newOtp", false, "message", "Invalid otp");
 	}
 
-	public Map<String, Object> changePasswordWithEmail(Integer adminId, Integer customerId) {
+	@Transactional
+	public Map<String, Object> changePasswordWithEmailSender(Integer adminId, Integer customerId) {
 
 		if (adminId == null || adminId <= 0)
 			throw new InternalServerException("Admin id missing", HttpStatus.OK);
@@ -550,10 +570,73 @@ public class CustomerAuthService {
 
 		if (!customer.getIsAcknowledged())
 			throw new InternalServerException("Customer is not marked acknowledged", HttpStatus.OK);
-		
-		String tokenId = helper.generateUUId();
 
-		return Map.of();
+		String tokenId = helper.generateUUId();
+		String encryptedToken = "";
+		try {
+			encryptedToken = aesEncryptionService.encrypt(tokenId);
+		} catch (Exception e) {
+			e.printStackTrace();
+			throw new InternalServerException("Error creating token", HttpStatus.OK);
+		}
+
+		if (encryptedToken.isEmpty())
+			throw new InternalServerException("Cannot build token", HttpStatus.OK);
+
+		TokenManagement manageToken = TokenManagement.builder().token(tokenId).customerId(customerId).build();
+
+		tokenManagementRespo.save(manageToken);
+
+		String mailBody = emailTemplate.createPasswordResetEmailBody(customer.getSalutation(), customer.getLastName(),
+				encryptedToken);
+
+		ServiceResponseEmailEvent mailEvent = new ServiceResponseEmailEvent(customer.getEmail(), "Reset Password",
+				mailBody);
+
+		eventPublisher.publishEvent(mailEvent);
+
+		return Map.of("res", true, "message", "Email send successfully");
+	}
+
+	@Transactional
+	public Map<String, Object> changePasswordWithEmail(String token, String password, String confirmPassword) {
+		if (token == null || token.isEmpty())
+			throw new InternalServerException("Token missing", HttpStatus.OK);
+
+		if (!password.equals(confirmPassword))
+			throw new InternalServerException("Password mismatch", HttpStatus.OK);
+
+		Customer customer = null;
+		try {
+			String decryptedToken = aesEncryptionService.decrypt(token);
+			TokenManagement manageToken = tokenManagementRespo.findByToken(decryptedToken)
+					.orElseThrow(() -> new InternalServerException("No such token found", HttpStatus.OK));
+
+			if (manageToken.getCustomerId() == null)
+				throw new InternalServerException("Invalid token for this operation", HttpStatus.OK);
+
+			if (manageToken.getUsed())
+				throw new InternalServerException("Invalid or expired token", HttpStatus.OK);
+
+			customer = customerRepo.findById(manageToken.getCustomerId()).orElseThrow(
+					() -> new InternalServerException("Customer not found with this credential", HttpStatus.OK));
+
+			manageToken.setUsed(true);
+			tokenManagementRespo.save(manageToken);
+
+		} catch (Exception e) {
+			e.printStackTrace();
+			throw new InternalServerException("Invalid token", HttpStatus.OK);
+		}
+
+		if (!helper.isPasswordSecure(password, customer.getEmail()))
+			throw new InternalServerException("Provide secure password", HttpStatus.OK);
+
+		customer.setPassword(password);
+
+		customerRepo.save(customer);
+
+		return Map.of("res", true, "message", "Password reset successfully");
 	}
 
 //	@Transactional

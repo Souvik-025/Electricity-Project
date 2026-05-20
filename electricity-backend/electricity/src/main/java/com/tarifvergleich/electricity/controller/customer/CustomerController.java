@@ -26,6 +26,7 @@ import com.tarifvergleich.electricity.dto.CustomerServiceRequestDto;
 import com.tarifvergleich.electricity.dto.CustomerServicesDto;
 import com.tarifvergleich.electricity.service.customer.CustomerBookingService;
 import com.tarifvergleich.electricity.service.customer.CustomerDetailService;
+import com.tarifvergleich.electricity.service.customer.CustomerUpdateService;
 
 import lombok.RequiredArgsConstructor;
 
@@ -37,6 +38,7 @@ public class CustomerController {
 
 	private final CustomerBookingService customerBookingService;
 	private final CustomerDetailService customerDetailService;
+	private final CustomerUpdateService customerUpdateService;
 	private final ObjectMapper objectMapper;
 
 	@PostMapping("/fetch-customer-detail")
@@ -180,6 +182,11 @@ public class CustomerController {
 	@PostMapping("/fetch-profile-info")
 	public ResponseEntity<?> fetchCustomerProfileInfo(@RequestBody CustomerDto customerDto) {
 		return ResponseEntity.ok(customerDetailService.fetchCustomerProfile(customerDto));
+	}
+	
+	@PostMapping("/update-customer-detail")
+	public ResponseEntity<?> updateCustomerDetail(@RequestBody CustomerDto customerDto) {
+		return ResponseEntity.ok(customerUpdateService.updateCustomerDetail(customerDto));
 	}
 
 }

@@ -12,10 +12,10 @@ import org.springframework.stereotype.Service;
 
 import com.tarifvergleich.electricity.dto.ServiceRequestEmailEvent.ServiceResponseEmailEvent;
 import com.tarifvergleich.electricity.exception.InternalServerException;
-import com.tarifvergleich.electricity.model.ContractToken;
+import com.tarifvergleich.electricity.model.TokenManagement;
 import com.tarifvergleich.electricity.model.Customer;
 import com.tarifvergleich.electricity.model.CustomerOrder;
-import com.tarifvergleich.electricity.repository.ContractTokenRespository;
+import com.tarifvergleich.electricity.repository.TokenManagementRespository;
 import com.tarifvergleich.electricity.repository.CustomerOrderRepository;
 import com.tarifvergleich.electricity.service.AesEncryptionService;
 import com.tarifvergleich.electricity.util.EmailTemplate;
@@ -30,7 +30,7 @@ public class AsyncServiceAdmin {
 
 	private final CustomerOrderRepository customerOrderRepo;
 	private final AesEncryptionService aesEncryptionService;
-	private final ContractTokenRespository contractTokenRespo;
+	private final TokenManagementRespository contractTokenRespo;
 	private final Helper helper;
 	private final ApplicationEventPublisher eventPublisher;
 	private final EmailTemplate emailTemplate;
@@ -55,7 +55,7 @@ public class AsyncServiceAdmin {
 
 		String token = helper.generateUUId();
 
-		ContractToken newContractToken = ContractToken.builder().orderId(customerOrderId).token(token)
+		TokenManagement newContractToken = TokenManagement.builder().orderId(customerOrderId).token(token)
 				.expiryDate(getExpiry).build();
 
 		newContractToken = contractTokenRespo.save(newContractToken);

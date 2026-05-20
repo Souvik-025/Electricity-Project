@@ -13,6 +13,7 @@ import com.tarifvergleich.electricity.dto.ServiceRequestEmailEvent.ServiceAttach
 import com.tarifvergleich.electricity.dto.ServiceRequestEmailEvent.ServiceResponseEmailEvent;
 import com.tarifvergleich.electricity.model.ManageAdminDocument;
 import com.tarifvergleich.electricity.repository.ManageAdminDocumentRepository;
+import com.tarifvergleich.electricity.util.CustomEmailTemplate;
 import com.tarifvergleich.electricity.util.FileServiceSuperAdmin;
 
 import lombok.RequiredArgsConstructor;
@@ -24,6 +25,7 @@ public class ServiceRequestEmailListener {
 	private final MailService mailService;
 	private final ManageAdminDocumentRepository adminDocumentRepo;
 	private final FileServiceSuperAdmin fileServiceSuperAdmin;
+	private final CustomEmailTemplate customEmailTemplate;
 
 	@Async
 	@TransactionalEventListener(phase = TransactionPhase.AFTER_COMMIT)
@@ -35,7 +37,8 @@ public class ServiceRequestEmailListener {
 	@Async
 	@TransactionalEventListener(phase = TransactionPhase.AFTER_COMMIT)
 	public void handleServiceResponseEmail(ServiceResponseEmailEvent event) {
-		mailService.sendMail(event.customerMail(), event.customerSub(), event.customerBody());
+		String emailContent = customEmailTemplate.generateEmailHtml(event.customerSub(),"", event.customerBody());
+		mailService.sendMail(event.customerMail(), event.customerSub(), emailContent);
 	}
 
 	@Async

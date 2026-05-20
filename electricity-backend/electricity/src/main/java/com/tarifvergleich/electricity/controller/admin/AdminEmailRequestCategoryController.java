@@ -1,27 +1,36 @@
 package com.tarifvergleich.electricity.controller.admin;
 
+import java.util.List;
+
+import org.springframework.web.bind.annotation.CrossOrigin;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
+
+import com.tarifvergleich.electricity.dto.AdminEmailRequestCategoryDto;
+import com.tarifvergleich.electricity.dto.AdminEmailRequestCategoryDto.AdminEmailRequestCategoryAdminResponseDto;
 import com.tarifvergleich.electricity.model.AdminEmailRequestCategory;
 import com.tarifvergleich.electricity.service.admin.AdminEmailRequestCategoryService;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.*;
 
-import java.util.List;
+import lombok.RequiredArgsConstructor;
 
 @RestController
 @RequestMapping("/email-category")
-@CrossOrigin("*")
+@CrossOrigin(origins = "*")
+@RequiredArgsConstructor
 public class AdminEmailRequestCategoryController {
 
-    @Autowired
-    private AdminEmailRequestCategoryService service;
+	private final AdminEmailRequestCategoryService service;
 
-    @PostMapping("/save")
-    public AdminEmailRequestCategory saveCategory(@RequestBody AdminEmailRequestCategory category) {
-        return service.saveCategory(category);
-    }
+	@PostMapping("/save")
+	public AdminEmailRequestCategory saveCategory(@RequestBody AdminEmailRequestCategoryDto categoryDto) {
+		return service.saveCategory(categoryDto);
+	}
 
-    @GetMapping("/all")
-    public List<AdminEmailRequestCategory> getAllCategories() {
-        return service.getAllCategories();
-    }
+	@PostMapping("/all")
+	public List<AdminEmailRequestCategoryAdminResponseDto> getAllCategories(
+			@RequestBody AdminEmailRequestCategoryDto categoryDto) {
+		return service.getAllCategories(categoryDto.getAdminId());
+	}
 }

@@ -29,7 +29,7 @@ import com.tarifvergleich.electricity.dto.ServiceRequestEmailEvent;
 import com.tarifvergleich.electricity.dto.ServiceRequestEmailEvent.ServiceResponseEmailEvent;
 import com.tarifvergleich.electricity.exception.InternalServerException;
 import com.tarifvergleich.electricity.model.AdminUser;
-import com.tarifvergleich.electricity.model.ContractToken;
+import com.tarifvergleich.electricity.model.TokenManagement;
 import com.tarifvergleich.electricity.model.Customer;
 import com.tarifvergleich.electricity.model.CustomerAddress;
 import com.tarifvergleich.electricity.model.CustomerAttorny;
@@ -40,7 +40,7 @@ import com.tarifvergleich.electricity.model.CustomerServiceRequest;
 import com.tarifvergleich.electricity.model.CustomerServiceRequestMessages;
 import com.tarifvergleich.electricity.model.CustomerServices;
 import com.tarifvergleich.electricity.repository.AdminUserRepository;
-import com.tarifvergleich.electricity.repository.ContractTokenRespository;
+import com.tarifvergleich.electricity.repository.TokenManagementRespository;
 import com.tarifvergleich.electricity.repository.CustomerAddressRepository;
 import com.tarifvergleich.electricity.repository.CustomerAttornyRepository;
 import com.tarifvergleich.electricity.repository.CustomerDeliveryRepository;
@@ -72,7 +72,7 @@ public class CustomerDetailService {
 	private final ApplicationEventPublisher eventPublisher;
 	private final CustomerOrderRepository customerOrderRepo;
 	private final AesEncryptionService aesEncryptionService;
-	private final ContractTokenRespository contractTokenRespo;
+	private final TokenManagementRespository contractTokenRespo;
 
 	public Map<String, Object> getCustomerDetails(Integer customerId) {
 
@@ -605,7 +605,7 @@ public class CustomerDetailService {
 		try {
 			String tokenId = aesEncryptionService.decrypt(token);
 
-			ContractToken validToken = contractTokenRespo.findByToken(tokenId)
+			TokenManagement validToken = contractTokenRespo.findByToken(tokenId)
 					.orElseThrow(() -> new InternalServerException("Invalid token", HttpStatus.OK));
 
 			if (validToken.getUsed())
@@ -676,7 +676,7 @@ public class CustomerDetailService {
 		try {
 			String tokenId = aesEncryptionService.decrypt(token);
 
-			ContractToken validToken = contractTokenRespo.findByToken(tokenId)
+			TokenManagement validToken = contractTokenRespo.findByToken(tokenId)
 					.orElseThrow(() -> new InternalServerException("Invalid token", HttpStatus.OK));
 
 			if (validToken.getUsed())

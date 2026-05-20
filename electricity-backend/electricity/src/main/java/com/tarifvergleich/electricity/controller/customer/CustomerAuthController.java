@@ -1,6 +1,7 @@
 package com.tarifvergleich.electricity.controller.customer;
 
 import java.util.Base64;
+import java.util.Map;
 
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.CrossOrigin;
@@ -94,7 +95,23 @@ public class CustomerAuthController {
 	public ResponseEntity<?> resendChangePasswordOtp(@RequestBody CustomerDto customerDto) {
 		return ResponseEntity.ok(customerAuthService.resendOtp(customerDto.getId(), false, true));
 	}
-	
+
+	@PostMapping("/forgot-old-password")
+	public ResponseEntity<?> changePasswordSendEmail(@RequestBody CustomerDto customerDto) {
+		return ResponseEntity
+				.ok(customerAuthService.changePasswordWithEmailSender(customerDto.getAdminId(), customerDto.getId()));
+	}
+
+	@PostMapping("/change-password-mail")
+	public ResponseEntity<?> changePasswordEmail(@RequestBody Map<String, Object> payload) {
+
+		String token = payload.get("token").toString();
+		String newPassword = payload.get("password").toString();
+		String confirmPassword = payload.get("confirmPassword").toString();
+
+		return ResponseEntity.ok(customerAuthService.changePasswordWithEmail(token, newPassword, confirmPassword));
+	}
+
 //	@PostMapping("/try-mail")
 //	public ResponseEntity<?> sendTryMail(@RequestBody CustomerDto dto){
 //		return ResponseEntity.ok(customerAuthService.sendMail(dto.getId()));

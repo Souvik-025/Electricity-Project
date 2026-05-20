@@ -35,7 +35,7 @@ public class ElectricityComparisonService {
 	private final Helper helper;
 	private final ObjectMapper objectMapper;
 	private final AdminUserRepository adminUserRepo;
-//	private final AdminTaxManagementRepository taxRepo;
+	private final AdminTaxManagementRepository taxRepo;
 
 	@Transactional
 	public Map<String, Object> getElectricityComparison(Map<String, Object> filters, String userAgentString,
@@ -120,9 +120,9 @@ public class ElectricityComparisonService {
 
 			}
 
-//			AdminTaxManagement fetchedTax = taxRepo.findByAdminAdminId(adminId).orElse(null);
+			AdminTaxManagement fetchedTax = taxRepo.findByAdminAdminId(adminId).orElse(null);
 
-			return Map.of("res", true, "rates", ratesFuture.get(), "baseProvider", providersFuture.get());
+			return Map.of("res", true, "rates", ratesFuture.get(), "baseProvider", providersFuture.get(), "tax", fetchedTax.getValue());
 		} catch (InterruptedException e) {
 			e.printStackTrace();
 			throw new InternalServerException("Internal Server Error", HttpStatus.INTERNAL_SERVER_ERROR);

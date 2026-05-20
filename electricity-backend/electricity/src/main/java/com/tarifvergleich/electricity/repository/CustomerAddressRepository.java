@@ -4,11 +4,14 @@ import java.util.List;
 import java.util.Optional;
 
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
 import com.tarifvergleich.electricity.model.CustomerAddress;
+
+import jakarta.transaction.Transactional;
 
 @Repository
 public interface CustomerAddressRepository extends JpaRepository<CustomerAddress, Integer> {
@@ -21,5 +24,13 @@ public interface CustomerAddressRepository extends JpaRepository<CustomerAddress
 
 	List<CustomerAddress> findAllByCustomerIdCustomerIdAndZipAndCityAndStreetAndHouseNumber(Integer customerId,
 			String zip, String city, String street, String houseNumber);
+
+	@Modifying
+	@Transactional
+	@Query("UPDATE CustomerAddress ca SET ca.isRegisterAddress = :isRegistration WHERE ca.customerId.customerId = :customerId")
+	void updateRegistrationStatus(
+	    @Param("isRegistration") Boolean isRegistration,
+	    @Param("customerId") Integer customerId
+	);
 
 }

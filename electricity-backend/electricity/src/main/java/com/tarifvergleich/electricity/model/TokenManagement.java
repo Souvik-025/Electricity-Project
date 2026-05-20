@@ -18,13 +18,13 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 @Entity
-@Table(name = "contract_tokens")
+@Table(name = "token_management")
 @AllArgsConstructor
 @NoArgsConstructor
 @Getter
 @Setter
 @Builder
-public class ContractToken {
+public class TokenManagement {
 
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -33,7 +33,10 @@ public class ContractToken {
 	@Column(unique = true, nullable = false)
 	private String token;
 
-	private Integer orderId;
+	private Integer orderId; 			// Use it when customer sign contract
+	
+	@Column(name = "customer_id") 		// Use it when customer forget old password
+	private Integer customerId;
 
 	@Column(name = "created_on")
 	private BigInteger createdOn;

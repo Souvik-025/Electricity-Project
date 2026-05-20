@@ -23,7 +23,7 @@ import com.tarifvergleich.electricity.dto.CustomerDeliveryResponseDto;
 import com.tarifvergleich.electricity.dto.CustomerDeliveryResponseDto.CustomerDeliveryResponseAll;
 import com.tarifvergleich.electricity.dto.CustomerDto;
 import com.tarifvergleich.electricity.dto.CustomerDto.AdminCustomerResponse;
-import com.tarifvergleich.electricity.dto.CustomerDto.SingleCustomerResponseDelivery;
+import com.tarifvergleich.electricity.dto.CustomerDto.SingleCustomerResponseDeliveryForAdmin;
 import com.tarifvergleich.electricity.dto.CustomerNoteDto;
 import com.tarifvergleich.electricity.dto.CustomerServiceRequestDto;
 import com.tarifvergleich.electricity.dto.CustomerServiceRequestDto.CustomerServiceRequestResDtoForAdmin;
@@ -76,7 +76,7 @@ public class AdminCustomerManagementService {
 			if (customer.getAdmin().getAdminId() != customerReq.getAdminId())
 				throw new InternalServerException("Not authorised to access customer details", HttpStatus.OK);
 
-			SingleCustomerResponseDelivery customerRes = CustomerDto.getCustomerResponseDto(customer);
+			SingleCustomerResponseDeliveryForAdmin customerRes = CustomerDto.getAdminSingleCustomerResponseDto(customer);
 
 			return Map.of("res", true, "data", customerRes);
 
@@ -133,16 +133,17 @@ public class AdminCustomerManagementService {
 
 			CustomerDelivery delivery = customerDeliveryRepo.findById(deliveryReq.getDeliveryId()).orElseThrow(
 					() -> new InternalServerException("Resource not found with this credential", HttpStatus.OK));
-			
+
 			Boolean isCustomerSignedContract = false;
-			
-			if(delivery.getCustomerOrder() != null && delivery.getCustomerOrder().getCustomerBookingDocument() != null)
+
+			if (delivery.getCustomerOrder() != null && delivery.getCustomerOrder().getCustomerBookingDocument() != null)
 				isCustomerSignedContract = true;
 
 			CustomerDeliveryResponseAll customerDeliveryResponse = CustomerDeliveryResponseDto
 					.getDeliveryResponse(delivery);
 
-			return Map.of("res", true, "data", customerDeliveryResponse, "customerSignedContract", isCustomerSignedContract);
+			return Map.of("res", true, "data", customerDeliveryResponse, "customerSignedContract",
+					isCustomerSignedContract);
 
 		}
 
@@ -156,10 +157,10 @@ public class AdminCustomerManagementService {
 
 			Page<CustomerDelivery> customerDeliveries;
 			Integer filter = deliveryReq.getFilter();
-			
-			if(deliveryReq.getSearch() == null)
+
+			if (deliveryReq.getSearch() == null)
 				deliveryReq.setSearch("");
-			if(filter == null)
+			if (filter == null)
 				filter = 0;
 
 			if (filter.equals(0))
@@ -191,7 +192,8 @@ public class AdminCustomerManagementService {
 
 			return Map.of("res", true, "data", customerDeliveryResponse.getContent(), "page",
 					customerDeliveryResponse.getPageable().getPageNumber() + 1, "totalPage",
-					customerDeliveryResponse.getTotalPages(), "totalRecord", customerDeliveryResponse.getTotalElements());
+					customerDeliveryResponse.getTotalPages(), "totalRecord",
+					customerDeliveryResponse.getTotalElements());
 
 		}
 

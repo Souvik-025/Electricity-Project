@@ -19,7 +19,6 @@ import java.util.Map;
 @RestController
 @RequiredArgsConstructor
 @RequestMapping
-@CrossOrigin(origins = "*")
 public class commonController {
 
     private final CommonService commonService;

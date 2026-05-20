@@ -306,4 +306,36 @@ public class EmailTemplate {
 	            + "<p style='margin-top: 5px;'><strong>The Tarifvergleich Support Team</strong></p>"
 	            + "</div>";
 	}
+	
+	public String createPasswordResetEmailBody(String salutation, String lastName, String token) {
+
+		String resetUrl = "http://192.168.0.131:4200/forgot-old-password?token=" + token;
+
+	    return "<div style='font-family: \"Segoe UI\", Tahoma, Geneva, Verdana, sans-serif; line-height: 1.6; color: #333; max-width: 600px; margin: auto; border: 1px solid #ddd; border-radius: 8px; padding: 25px;'>"
+	            + "<div style='text-align: center; border-bottom: 2px solid #2e7d32; padding-bottom: 10px; margin-bottom: 20px;'>"
+	            + "<h2 style='color: #2e7d32; margin: 0;'>Reset Your Password</h2>"
+	            + "</div>"
+	            + "<p>Dear " + salutation + " " + lastName + ",</p>"
+	            + "<p>We received a request to reset the password associated with your account at <strong>Tarifvergleich Electricity</strong>.</p>"
+	            + "<p style='background-color: #f9f9f9; padding: 15px; border-left: 4px solid #2e7d32;'>"
+	            + "Click the button below to choose a secure new password. This recovery token link is time-sensitive and will securely expire soon."
+	            + "</p>"
+	            + "<div style='text-align: center; margin: 35px 0;'>"
+	            + "<!--[if mso]>"
+	            + "<v:roundrect xmlns:v=\"urn:schemas-microsoft-com:vml\" xmlns:w=\"urn:schemas-microsoft-com:office:word\" href=\"" + resetUrl + "\" style=\"height:55px;v-text-anchor:middle;width:240px;\" arcsize=\"10%\" strokecolor=\"#1b5e20\" fillcolor=\"#2e7d32\">"
+	            + "<w:anchorlock/>"
+	            + "<center style=\"color:#ffffff;font-family:sans-serif;font-size:16px;font-weight:bold;\">Choose New Password</center>"
+	            + "</v:roundrect>"
+	            + "<![endif]-->"
+	            + "<a href=\"" + resetUrl + "\" style=\"background-color:#2e7d32; border-radius:5px; color:#ffffff; display:inline-block; font-family:sans-serif; font-size:16px; font-weight:bold; line-height:55px; text-align:center; text-decoration:none; width:240px; -webkit-text-size-adjust:none; mso-hide:all; box-shadow: 0 4px 6px rgba(0,0,0,0.1);\">Choose New Password</a>"
+	            + "</div>"
+	            + "<p style='font-size: 0.9em; color: #666;'><strong>Didn't make this request?</strong> If you did not request a password change, you can safely ignore this automated message. Your current access security will remain active.</p>"
+	            + "<hr style='border: 0; border-top: 1px solid #eee; margin: 20px 0;'>"
+	            + "<p style='font-size: 0.85em; color: #888;'>If you cannot click the button, please copy this link into your address bar: <br>"
+	            + "<a href=\"" + resetUrl + "\" style='color: #2e7d32; word-break: break-all;'>" + resetUrl + "</a></p>"
+	            + "<br>"
+	            + "<p style='margin-bottom: 0;'>Best Regards,</p>"
+	            + "<p style='margin-top: 5px;'><strong>The Tarifvergleich Support Team</strong></p>"
+	            + "</div>";
+	}
 }
