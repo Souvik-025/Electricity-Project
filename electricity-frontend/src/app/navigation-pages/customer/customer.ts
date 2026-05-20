@@ -85,7 +85,7 @@ export class Customer {
 
   /* ── Step control ──────────────────────────────────────────────── */
   currentStep: number = 1;
-  redirect: number = 1;
+  redirect: number = 3;
   /* ── Customer Type (PRIVATE/Business) ──────────────────────────────────────────────── */
   customerType: string = 'PRIVATE';
   isNotificationEnabled: boolean = true;
@@ -133,6 +133,7 @@ export class Customer {
       return;
     }
 
+    this.viewSection = 0;
     this.activeTab = index;
     this.currentStep = 1;
     this.serviceTab = 1;
@@ -173,6 +174,16 @@ export class Customer {
   }
   nextRoute(step: number) {
     this.redirect = step;
+    this.cdr.detectChanges();
+  }
+  selectedMeter: any = null;
+
+  reportMeterReading(step: number, item?: any) {
+    this.redirect = step;
+    this.nextStep(2);
+    if (item) {
+      this.selectedMeter = item;
+    }
     this.cdr.detectChanges();
   }
   showLogoutModal: boolean = false;
@@ -1493,6 +1504,74 @@ export class Customer {
 
         console.log('cards:', this.cards);
 
+        // dynamic electricity list
+        this.electricityList = res.delivery
+          .filter((item: any) => item?.order?.orderId)
+          .map((item: any) => {
+            const address = item?.customerAddress;
+            const provider = item?.provider;
+            const connection = item?.connection;
+            const customer = item?.customer;
+            const order = item?.order;
+
+            return {
+              type: provider?.branch === 'gas' ? 'gas' : 'electricity',
+
+              status: order?.orderId ? 'Vertrag aktiv' : 'In Bearbeitung',
+
+              meterIcon: provider?.providerSVG || 'assets/default.png',
+
+              providerIcon:
+                provider?.branch === 'gas'
+                  ? 'assets/icons/1a9ebeaf-78b8-48a3-9514-94f57aa1de2c_Gasvergleich.png'
+                  : 'assets/icons/65bd2fa8-bd0e-497e-a781-a3c434fe6176_Stromvergleich.png',
+
+              providerType: provider?.branch === 'gas' ? 'Gas' : 'Strom | Hausstrom',
+
+              tariff: provider?.rateName || '',
+
+              contractNumber: item?.uniqueDeliveryId || '',
+
+              customerNumber: connection?.customerNumber || '-',
+
+              minimumTerm: provider?.optTerm ? `${provider.optTerm} Monate` : '-',
+
+              orderDate: item?.orderPlacedOn
+                ? new Date(item.orderPlacedOn * 1000).toLocaleDateString('de-DE')
+                : '-',
+
+              contractStart: connection?.desiredDelivery
+                ? new Date(connection.desiredDelivery * 1000).toLocaleDateString('de-DE')
+                : '-',
+
+              noticePeriod: '-',
+              contractEnd: '-',
+
+              workPrice: provider?.workPrice ? `${provider.workPrice} Ct./kWh` : '-',
+
+              basePrice: provider?.basePriceMonth ? `${provider.basePriceMonth} €/Monat` : '-',
+
+              monthlyPrice: provider?.totalPriceMonth ? `${provider.totalPriceMonth} €` : '-',
+
+              meterNumber: connection?.meterNumber || '-',
+
+              marketLocation: connection?.marketLocationId || '-',
+
+              // Meter designation same as meter number
+              meterName: connection?.meterNumber || '-',
+
+              address: {
+                name: `${customer?.firstName || ''} ${customer?.lastName || ''}`.trim(),
+
+                street: `${address?.street || ''} ${address?.houseNumber || ''}`,
+
+                city: `${address?.zip || ''} ${address?.city || ''}`,
+              },
+            };
+          });
+
+        console.log('electricityList', this.electricityList);
+
         this.cdr.detectChanges();
         this.isLoading = false;
       },
@@ -1996,7 +2075,31 @@ export class Customer {
     }
     return valid;
   }
+  successMessage: string = '';
 
+  forgotOldPwd() {
+    this.http
+      .post<any>(`${API_BASE}/auth/forgot-old-password`, {
+        id: Number(this.authService.getUserId()),
+        adminId: 1,
+      })
+      .subscribe({
+        next: (res) => {
+          console.log(res);
+
+          if (res) {
+            this.successMessage =
+              'Eine E-Mail wurde an Ihre E-Mail-Adresse gesendet. Bitte prüfen Sie Ihr Postfach.';
+
+            this.cdr.detectChanges();
+          }
+        },
+        error: (err) => {
+          this.apiError =
+            err?.error?.message || 'Fehler beim Zurücksetzen. Bitte erneut versuchen.';
+        },
+      });
+  }
   resetPassword() {
     console.log('resetPassword called');
     this.apiError = '';
@@ -2208,8 +2311,43 @@ export class Customer {
   /* ──  Profile Information Section Start ──*/
 
   /* ──  Profile Information Section Start ──*/
+  viewSection: number = 0;
+  selectMyCounter() {
+    this.setActiveTab(1);
+    this.viewSection = 1;
+    this.cdr.detectChanges();
+  }
+  selectMyContracts() {
+    this.setActiveTab(1);
+    this.viewSection = 2;
+    this.cdr.detectChanges();
+  }
+  contactFieldErrors: Record<string, string> = {};
+  addressFieldErrors: Record<string, string> = {};
+  validateContactForm(): boolean {
+    this.contactFieldErrors = {};
+
+    if (!this.customerData.salutation?.trim()) {
+      this.contactFieldErrors['salutation'] = 'Bitte Anrede auswählen';
+    }
+
+    if (!this.customerData.firstName?.trim()) {
+      this.contactFieldErrors['firstName'] = 'Vorname ist erforderlich';
+    }
+
+    if (!this.customerData.lastName?.trim()) {
+      this.contactFieldErrors['lastName'] = 'Nachname ist erforderlich';
+    }
+
+    if (this.customerType === 'BUSINESS' && !this.customerData.companyName?.trim()) {
+      this.contactFieldErrors['companyName'] = 'Firmenname ist erforderlich';
+    }
+
+    return Object.keys(this.contactFieldErrors).length === 0;
+  }
 
   saveContactData(): void {
+    if (!this.validateContactForm()) return;
     const customerId = this.authService.getUserId() || 0;
     const body = {
       id: Number(customerId),
@@ -2217,12 +2355,12 @@ export class Customer {
       title: this.customerData.title,
       firstName: this.customerData.firstName,
       lastName: this.customerData.lastName,
-      email: this.customerData.email,
+      companyName: this.customerData.companyName,
       mobileNumber: this.customerData.phoneNumber,
-      dateOfBirth: this.customerData.dateOfBirth,
+      adminId: 1,
     };
 
-    this.http.post<any>(`${API_BASE}/customer/update-contact`, body).subscribe({
+    this.http.post<any>(`${API_BASE}/customer/update-customer-detail`, body).subscribe({
       next: (res) => {
         if (res?.res) {
           this.customerData.name =
@@ -2234,19 +2372,56 @@ export class Customer {
     });
   }
 
+  validateAddressForm(): boolean {
+    this.addressFieldErrors = {};
+
+    if (!this.customerData.salutation?.trim()) {
+      this.addressFieldErrors['salutation'] = 'Bitte Anrede auswählen';
+    }
+
+    if (!this.customerData.firstName?.trim()) {
+      this.addressFieldErrors['firstName'] = 'Vorname ist erforderlich';
+    }
+
+    if (!this.customerData.lastName?.trim()) {
+      this.addressFieldErrors['lastName'] = 'Nachname ist erforderlich';
+    }
+
+    if (!this.customerData.address?.zip?.trim()) {
+      this.addressFieldErrors['zip'] = 'PLZ ist erforderlich';
+    }
+
+    if (!this.customerData.address?.city?.trim()) {
+      this.addressFieldErrors['city'] = 'Ort ist erforderlich';
+    }
+
+    if (!this.customerData.address?.street?.trim()) {
+      this.addressFieldErrors['street'] = 'Straße ist erforderlich';
+    }
+
+    if (!this.customerData.address?.houseNumber?.trim()) {
+      this.addressFieldErrors['houseNumber'] = 'Hausnummer ist erforderlich';
+    }
+
+    return Object.keys(this.addressFieldErrors).length === 0;
+  }
   saveAddressData(): void {
+    if (!this.validateAddressForm()) return;
     const customerId = this.authService.getUserId() || 0;
     const body = {
       id: Number(customerId),
-      address: {
-        zip: this.customerData.address.zip,
-        city: this.customerData.address.city,
-        street: this.customerData.address.street,
-        houseNumber: this.customerData.address.houseNumber,
-      },
+      salutation: this.customerData.salutation,
+      title: this.customerData.title,
+      firstName: this.customerData.firstName,
+      lastName: this.customerData.lastName,
+      zip: this.customerData.address.zip,
+      city: this.customerData.address.city,
+      street: this.customerData.address.street,
+      houseNumber: this.customerData.address.houseNumber,
+      adminId: 1,
     };
 
-    this.http.post<any>(`${API_BASE}/customer/update-address`, body).subscribe({
+    this.http.post<any>(`${API_BASE}/customer/update-customer-detail`, body).subscribe({
       next: (res) => {
         this.cdr.detectChanges();
       },

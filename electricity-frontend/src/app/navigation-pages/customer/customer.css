@@ -243,7 +243,7 @@
   border-top: none;
 }
 .customer-profile-box::before {
-  content: "";
+  content: '';
   position: absolute;
   top: 0;
   left: 20px; /* gap start */
@@ -387,7 +387,7 @@
 }
 
 .slider:before {
-  content: "";
+  content: '';
   position: absolute;
   height: 18px;
   width: 18px;
@@ -556,13 +556,13 @@
 
 /* Green check icon from assets */
 .check-list li::before {
-  content: "";
+  content: '';
   position: absolute;
   left: 0;
   top: 4px;
   width: 16px;
   height: 16px;
-  background: url("/assets/icons/Kreis_Haken_gruen.png") no-repeat center;
+  background: url('/assets/icons/Kreis_Haken_gruen.png') no-repeat center;
   background-size: contain;
 }
 
@@ -677,12 +677,12 @@
 
 /* Green tick */
 .guideline-icon.valid {
-  background-image: url("/assets/icons/Kreis_Haken_gruen.png");
+  background-image: url('/assets/icons/Kreis_Haken_gruen.png');
 }
 
 /* Red cross */
 .guideline-icon.invalid {
-  background-image: url("/assets/icons/cross.png");
+  background-image: url('/assets/icons/cross.png');
 }
 
 .btn-back,
@@ -744,7 +744,11 @@
 .input-field.field-error {
   border-color: #cc0000;
 }
-
+.input-field.select-wrap {
+  position: relative;
+  padding: 0;
+  overflow: hidden;
+}
 .input-field input {
   background: transparent;
   /* box-sizing: border-box; */
@@ -1659,10 +1663,11 @@
   background: #003b7a;
   color: #fff;
   display: inline-block;
-  padding: 5px 12px;
+  padding: 4px 4px;
   border-radius: 4px;
   margin-bottom: 10px;
-  font-weight: 600;
+  font-weight: 400;
+  font-size: 12px;
 }
 
 /* =========================
@@ -2031,7 +2036,7 @@
   background: #0085e0;
 }
 
-.upload-option input[type="radio"] {
+.upload-option input[type='radio'] {
   width: 12px;
   height: 12px;
   accent-color: #ffffff;
@@ -2044,7 +2049,7 @@
   }
 }
 
-.upload-option input[type="checkbox"] {
+.upload-option input[type='checkbox'] {
   appearance: none;
   -webkit-appearance: none;
 
@@ -2060,8 +2065,8 @@
 }
 
 /* checked tick */
-.upload-option input[type="checkbox"]:checked::after {
-  content: "✓";
+.upload-option input[type='checkbox']:checked::after {
+  content: '✓';
 
   position: absolute;
   top: 50%;
@@ -2813,8 +2818,60 @@
   .service-input {
     width: auto;
   }
+  .input-field.select-wrap {
+    width: 100% !important;
+    display: block !important;
+    box-sizing: border-box;
+  }
 }
 
+/* ══════════════════════════════════════════════
+   SELECT / DROPDOWN (fixed overlap issue)
+══════════════════════════════════════════════ */
+.input-field.select-wrap {
+  position: relative;
+  padding: 0;
+  overflow: hidden;
+}
+
+.select-icon {
+  position: absolute;
+  left: 12px;
+  font-size: 18px !important;
+  color: #888;
+  pointer-events: none;
+  z-index: 1;
+}
+
+.styled-select {
+  width: 100%;
+  border: none;
+  outline: none;
+  background: transparent;
+  font-size: 13px;
+  color: #333;
+  padding: 0 12px 10px 12px;
+  appearance: none;
+  -webkit-appearance: none;
+  cursor: pointer;
+}
+
+.dropdown-arrow {
+  position: absolute;
+  right: 10px;
+  font-size: 18px !important;
+  color: #888;
+  pointer-events: none;
+}
+
+.field-error-msg {
+  color: #d32f2f;
+  font-size: 14px;
+}
+/* Optional: Smooth transition for input background */
+input {
+  transition: background-color 0.3s ease;
+}
 /* TABLE SCROLL */
 .table-scroll {
   width: 100%;
@@ -2940,7 +2997,7 @@
 
 .profile-action-btn {
   padding: 10px 20px;
-  border-radius: 4px;
+  border-radius: 8px;
   font-size: 14px;
   font-weight: 500;
   cursor: pointer;
@@ -2953,8 +3010,8 @@
 }
 
 .profile-action-btn--light {
-  background-color: #e8f4fd;
-  color: #0085e0;
+  background-color: #0085e0;
+  color: white;
   border: 1px solid #0085e0;
 }
 
